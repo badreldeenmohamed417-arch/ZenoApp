@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.example.zeno.BuildConfig
+import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.repository.AuthRepository
+import com.example.zeno.data.repository.UserRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.CoroutineScope
@@ -155,6 +157,34 @@ fun completeUserData(
 // ==========================================
 // Email Verification Flow
 // ==========================================
+
+fun checkVerificationStatus(
+    userRepository: UserRepository,
+    userManager: UserManager,
+    onVerified: () -> Unit,
+    onNotVerified: () -> Unit,
+    errorFun: (String) -> Unit
+) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val user = userRepository.getMe()
+            userManager.saveVerificationStatus(user.is_verified)
+            user.subjects?.let { userManager.saveSubjects(it) }
+            
+            withContext(Dispatchers.Main) {
+                if (user.is_verified) {
+                    onVerified()
+                } else {
+                    onNotVerified()
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                errorFun("فشل التحقق من حالة الحساب. تأكد من اتصالك بالإنترنت.")
+            }
+        }
+    }
+}
 
 fun verifyEmail(
     authRepository: AuthRepository,

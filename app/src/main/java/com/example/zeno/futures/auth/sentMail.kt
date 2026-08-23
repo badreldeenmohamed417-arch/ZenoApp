@@ -1,6 +1,7 @@
 package com.example.zeno.futures.auth
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,13 +13,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.zeno.core.sections.auth.mailSent.MailSentBottomSection
 import com.example.zeno.core.sections.auth.mailSent.MailSentTopSection
+import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.objects.email
 import com.example.zeno.data.repository.AuthRepository
+import com.example.zeno.data.repository.UserRepository
 import com.example.zeno.futures.MessageType
 import com.example.zeno.futures.TopMessage
+import com.example.zeno.futures.checkVerificationStatus
 import com.example.zeno.futures.forgotPassword
 import com.example.zeno.futures.resendVerification
 import kotlinx.coroutines.CoroutineScope
@@ -43,22 +48,51 @@ fun MailSentVerifyScreen(
     onContinue: () -> Unit
 ) {
     val authRepository = remember { AuthRepository() }
+    val userRepository = remember { UserRepository() }
+    val context = LocalContext.current
+    val userManager = remember { UserManager(context) }
 
-    MailSentContent(
-        type = MailSentType.Verification,
-        onPrimaryClick = onContinue,
-        onSecondaryClick = { onSuccess, onError, onDisableError ->
-            resendVerification(
-                authRepository = authRepository,
-                email = email.email,
-                onSuccess = { msg ->
-                    onSuccess(msg.ifBlank { "تم إعادة إرسال رابط التحقق بنجاح" })
-                },
-                errorFun = onError,
-                disableError = onDisableError
-            )
-        }
-    )
+    var error by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    Box {
+        MailSentContent(
+            type = MailSentType.Verification,
+            onPrimaryClick = {
+                checkVerificationStatus(
+                    userRepository = userRepository,
+                    userManager = userManager,
+                    onVerified = onContinue,
+                    onNotVerified = {
+                        error = true
+                        errorMessage = "لم يتم تفعيل الحساب بعد. يرجى مراجعة بريدك الإلكتروني."
+                    },
+                    errorFun = { msg ->
+                        error = true
+                        errorMessage = msg
+                    }
+                )
+            },
+            onSecondaryClick = { onSuccess, onError, onDisableError ->
+                resendVerification(
+                    authRepository = authRepository,
+                    email = email.email,
+                    onSuccess = { msg ->
+                        onSuccess(msg.ifBlank { "تم إعادة إرسال رابط التحقق بنجاح" })
+                    },
+                    errorFun = onError,
+                    disableError = onDisableError
+                )
+            }
+        )
+
+        TopMessage(
+            visible = error,
+            message = errorMessage,
+            type = MessageType.ERROR,
+            onDismiss = { error = false }
+        )
+    }
 }
 
 @Composable

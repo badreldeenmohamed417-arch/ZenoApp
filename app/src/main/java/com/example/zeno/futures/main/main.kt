@@ -15,7 +15,9 @@ import com.example.zeno.core.widgets.ZenoBottomNavigationBar
 @Composable
 fun MainScreen(
     onNavigationToChats: () -> Unit,
-    onNavigationToSettings: () -> Unit
+    onNavigationToSettings: () -> Unit,
+    onStartSession: () -> Unit,
+    onAskZeno: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -26,7 +28,10 @@ fun MainScreen(
             TopSectionMainScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            HomeScreenContent()
+            HomeScreenContent(
+                onStartSessionClick = onStartSession,
+                onAskZenoClick = onAskZeno
+            )
         }
         Column(
            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter)

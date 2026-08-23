@@ -154,6 +154,35 @@
     <string name="navConversations">المحادثات</string>
     <string name="navSettings">الإعدادات</string>
 
+    <!-- Study Session -->
+    <string name="newStudySession">جلسة مذاكرة جديدة</string>
+    <string name="whatToStudyToday">هتذاكر إيه النهاردة؟</string>
+    <string name="unspecified">بدون تحديد</string>
+    <string name="sessionDuration">مدة الجلسة</string>
+    <string name="minutes">دقيقة</string>
+    <string name="focusSound">صوت التركيز</string>
+    <string name="noSound">بدون صوت</string>
+    <string name="soundRain">مطر</string>
+    <string name="soundCafe">مقهى</string>
+    <string name="soundWhiteNoise">ضوضاء بيضاء</string>
+    <string name="startSession">ابدأ الجلسة</string>
+    <string name="sessionHint">Zeno هيكون معاك طول الجلسة، اسأله في أي وقت من غير ما توقف التايمر</string>
+    <string name="focusTime">وقت التركيز</string>
+    <string name="soundPlaying">%1$s شغال</string>
+    <string name="askZeno">اسأل Zeno</string>
+    <string name="breakTime">وقت الراحة 🌿</string>
+    <string name="breakDescription">قوم اتمشى شوية وارتاح، وهرجعلك تاني</string>
+    <string name="skipBreak">تخطي الراحة</string>
+    <string name="greatSession">جلسة رائعة! 🎉</string>
+    <string name="finishedSessionIn">خلصت جلسة مذاكرة في %1$s</string>
+    <string name="focusMinutes">دقيقة تركيز</string>
+    <string name="questionsToZeno">أسئلة لـ Zeno</string>
+    <string name="consecutiveDays">أيام متتالية</string>
+    <string name="startAnotherSession">ابدأ جلسة تانية</string>
+    <string name="backToHome">الرجوع للرئيسية</string>
+    <string name="exitSessionTitle">هل تريد الخروج من جلسة المذاكرة؟</string>
+    <string name="exitSessionMessage">قد تفقد تقدم الجلسة الحالية.</string>
+
     <!-- Error states -->
     <string name="noInternetTitle">يبدو إن الإنترنت مش متاح</string>
     <string name="noInternetSubtitle">تأكد من اتصالك وحاول تاني</string>

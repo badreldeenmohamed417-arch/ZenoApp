@@ -10,7 +10,8 @@ data class UserResponse(
     val language: String,
     val is_verified: Boolean,
     val created_at: String,
-    val updated_at: String
+    val updated_at: String,
+    val subjects: List<Subject>? = null
 )
 
 data class UpdateUserRequest(
