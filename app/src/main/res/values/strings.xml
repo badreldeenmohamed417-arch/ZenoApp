@@ -1,0 +1,159 @@
+<resources>
+    <string name="app_name" translatable="false">Zeno</string>
+    <string name="error_unexpected">حدث خطأ غير متوقع</string>
+
+    <!-- Splash -->
+    <string name="splashTagline">مدرسك الذكي</string>
+    <string name="splashBy">by NexorAI</string>
+
+    <!-- Auth -->
+    <string name="startExcellenceJourney">ابدأ رحلتك في التفوق</string>
+    <string name="emailLabel">البريد الإلكتروني</string>
+    <string name="emailPlaceholder">you@example.com</string>
+    <string name="passwordLabel">كلمة المرور</string>
+    <string name="passwordPlaceholder">••••••••</string>
+    <string name="loginButton">تسجيل الدخول</string>
+    <string name="createAccountButton">إنشاء حساب</string>
+    <string name="orDivider">أو</string>
+    <string name="ConfirmPasswordLabel">تأكيد كلمة المرور</string>
+    <string name="doNotHaveAccount">ليس لديك حساب؟</string>
+    <string name="alreadyHaveAccount">لديك حساب بالفعل</string>
+    <string name="googleLoginButton">تسجيل الدخول بواسطة جوجل</string>
+
+    <string name="fill_all_fields">من فضلك املأ جميع الحقول</string>
+    <string name="passwords_do_not_match">كلمتا المرور غير متطابقتين</string>
+    <string name="invalid_email">من فضلك أدخل بريدًا إلكترونيًا صالحًا</string>
+    <string name="invalid_email_or_password">البريد الإلكتروني أو كلمة المرور غير صحيحة</string>
+    <string name="password_too_short">كلمة المرور يجب أن تكون 8 أحرف على الأقل</string>
+    <string name="password_missing_uppercase">كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل</string>
+    <string name="password_missing_lowercase">كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل</string>
+    <string name="password_missing_number">كلمة المرور يجب أن تحتوي على رقم واحد على الأقل</string>
+    <string name="password_missing_special_character">كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل</string>
+    <string name="error_user_data_null">بيانات المستخدم غير متوفرة</string>
+    <string name="error_invalid_credentials">كلمة المرور أو البريد غير صحيح</string>
+    <string name="error_user_not_found">لا يوجد حساب مرتبط بهذا البريد</string>
+    <string name="error_google_sign_in_canceled">تم إلغاء عملية تسجيل الدخول بواسطة Google</string>
+    <string name="error_google_sign_in_failed">فشل تسجيل الدخول باستخدام Google</string>
+    <string name="error_google_no_id_token">لم يتم العثور على معرّف الهوية (ID Token)</string>
+    <string name="error_email_already_in_use">هذا البريد الإلكتروني مستخدم بالفعل</string>
+
+    <!-- forgot password -->
+    <string name="forgotPassword">نسيت كلمة المرور؟</string>
+    <string name="writeMailLbl">اكتب بريدك الإلكتروني وهنبعتلك رابط لإعادة تعيين كلمة المرور</string>
+    <string name="sendRestLink">إرسال رابط الاستعادة</string>
+    <string name="rememberedPassword">تذكرت كلمة المرور؟</string>
+
+
+    <!-- Mail sent -->
+    <string name="checkYourInbox">تحقق من بريدك الإلكتروني</string>
+    <string name="mailSentReset">تم إرسال رابط إعادة نعيين كلمة المرور الى</string>
+    <string name="mailSentVerify">تم إرسال رابط تحقق من البريد الإلكتروني الى</string>
+    <string name="resendMail">إعادة الإرسال</string>
+    <string name="backToLogin">الرجوع الى تسجيل الدخول</string>
+    <string name="Continue">التالي</string>
+
+
+    <!-- Setup APP -->
+
+    <string name="enterName">أدخل اسمك</string>
+
+    <!-- Academic Setup -->
+    <string name="setupTitle">خلينا نعرفك أكتر</string>
+    <string name="setupSubtitle">هنظبطلك المحتوى على مقاسك بالظبط</string>
+    <string name="gradeLabel">السنة الدراسية</string>
+    <string name="gradeFirstSecondary">أولى ثانوي</string>
+    <string name="gradeSecondSecondary">ثانية ثانوي</string>
+    <string name="gradeThirdSecondary">ثالثة ثانوي</string>
+    <string name="systemLabel">النظام التعليمي</string>
+    <string name="sectionAzhari"> النظام الأزهري</string>
+    <string name="sectionElmi">النظام العام عام</string>
+    <string name="setupCta">يلا نبدأ</string>
+
+    <!-- 3. الشعبة -->
+    <string name="sectionLabel">الشعبة</string>
+    <string name="sectionScientific">علمي</string>
+    <string name="sectionLiterary">أدبي</string>
+    <string name="sectionScientificScience">علمي علوم</string>
+    <string name="sectionScientificMath">علمي رياضة</string>
+
+    <!-- 4. المسار -->
+    <string name="trackLabel">المسار</string>
+    <string name="trackMedicineLifeSciences">الطب وعلوم الحياة</string>
+    <string name="trackEngineeringTech">الهندسة والتكنولوجيا</string>
+    <string name="trackBusinessSocialSciences">إدارة الأعمال والعلوم الاجتماعية</string>
+    <string name="trackArtsHumanities">الآداب والعلوم الإنسانية</string>
+
+    <!-- Home -->
+    <string name="home_welcome_title">أهلاً، %1$s 👋</string>
+    <string name="home_subtitle">عايز تعمل إيه دلوقتي؟</string>
+    <string name="home_streak_badge">%1$d أيام ذاكرة متتالية 🔥</string>
+
+    <string name="home_card_start_session_title">ابدأ جلسة مذاكرة</string>
+    <string name="home_card_start_session_desc">بومودورو + صوت تركيز + زينو جنبك تسأله وقت ما تحب</string>
+
+    <string name="home_card_ask_zeno_title">اسأل زينو</string>
+    <string name="home_card_ask_zeno_desc">شات سريع لأي سؤال في منهجك من غير جلسة مذاكرة</string>
+
+    <!-- Chat -->
+    <string name="showExplanation">عرض الشرح</string>
+    <string name="hideExplanation">إخفاء الشرح</string>
+    <string name="actionCopy">نسخ</string>
+    <string name="actionRetry">إعادة المحاولة</string>
+    <string name="actionReport">الإبلاغ</string>
+
+    <!-- Thinking -->
+    <string name="zenoThinking">Zeno بيفكر</string>
+
+    <!-- Conversations -->
+    <string name="conversationsTitle">محادثاتك</string>
+    <string name="conversationsSearchHint">ابحث في محادثاتك</string>
+    <string name="conversationsEmptyTitle">لسه مفيش محادثات</string>
+    <string name="conversationsEmptySubtitle">هتلاقي هنا كل الأسئلة اللي هتسألها لـ Zeno</string>
+    <string name="timeHoursAgo">منذ ساعتين</string>
+    <string name="timeYesterday">أمس</string>
+    <string name="timeDaysAgo">منذ 3 أيام</string>
+
+    <!-- Premium -->
+    <string name="premiumTitle">خلّي Zeno أقرب لمدرسك الخاص</string>
+    <string name="premiumBenefit1">شرح أعمق لكل سؤال</string>
+    <string name="premiumBenefit2">مزايا متقدمة</string>
+    <string name="premiumBenefit3">استخدام أكبر بدون حدود</string>
+    <string name="premiumBenefit4">بدون إعلانات</string>
+    <string name="premiumPriceMonthly">شهريًا</string>
+    <string name="premiumMostPopular">الأكثر شيوعًا</string>
+    <string name="premiumSubscribeButton">اشترك الآن</string>
+    <string name="premiumNotNow">ليس الآن</string>
+
+    <!-- Settings -->
+    <string name="settingsTitle">الإعدادات</string>
+    <string name="settingsSectionAccount">الحساب</string>
+    <string name="settingsGrade">السنة الدراسية</string>
+    <string name="settingsSection">الشعبة</string>
+    <string name="settingsSectionApp">التطبيق</string>
+    <string name="settingsDarkMode">الوضع الليلي</string>
+    <string name="settingsLanguage">اللغة</string>
+    <string name="settingsLanguageValue">العربية</string>
+    <string name="settingsSectionSubscription">الاشتراك</string>
+    <string name="settingsPremium">Premium</string>
+    <string name="settingsPremiumInactive">غير مفعّل</string>
+    <string name="settingsManageSubscription">إدارة الاشتراك</string>
+    <string name="settingsSectionOther">أخرى</string>
+    <string name="settingsAbout">حول Zeno</string>
+    <string name="settingsPrivacyPolicy">سياسة الخصوصية</string>
+    <string name="settingsTermsOfUse">شروط الاستخدام</string>
+    <string name="settingsReportProblem">الإبلاغ عن مشكلة</string>
+    <string name="settingsLogout">تسجيل الخروج</string>
+    <string name="settingsFooter">Zeno by NexorAI</string>
+
+    <!-- Navigation -->
+    <string name="navHome">الرئيسية</string>
+    <string name="navConversations">المحادثات</string>
+    <string name="navSettings">الإعدادات</string>
+
+    <!-- Error states -->
+    <string name="noInternetTitle">يبدو إن الإنترنت مش متاح</string>
+    <string name="noInternetSubtitle">تأكد من اتصالك وحاول تاني</string>
+    <string name="retryButton">إعادة المحاولة</string>
+    <string name="aiErrorTitle">Zeno مقدرش يجاوب دلوقتي</string>
+    <string name="aiErrorRetry">حاول مرة تانية</string>
+</resources>
