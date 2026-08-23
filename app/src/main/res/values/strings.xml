@@ -52,10 +52,13 @@
     <string name="backToLogin">الرجوع الى تسجيل الدخول</string>
     <string name="Continue">التالي</string>
 
-
     <!-- Setup APP -->
-
+    <string name="choose">اختيار</string>
+    <string name="cancel">إلغاء</string>
     <string name="enterName">أدخل اسمك</string>
+
+    <!-- رسالة عند اختيار عمر أقل من 13 سنة -->
+    <string name="ageRestrictionError">عذراً، يجب أن يكون عمرك 13 سنة أو أكثر للمتابعة</string>
 
     <!-- Academic Setup -->
     <string name="setupTitle">خلينا نعرفك أكتر</string>
@@ -66,8 +69,9 @@
     <string name="gradeThirdSecondary">ثالثة ثانوي</string>
     <string name="systemLabel">النظام التعليمي</string>
     <string name="sectionAzhari"> النظام الأزهري</string>
-    <string name="sectionElmi">النظام العام عام</string>
+    <string name="sectionElmi">النظام العام</string>
     <string name="setupCta">يلا نبدأ</string>
+    <string name="birthDate">تاريخ الميلاد</string>
 
     <!-- 3. الشعبة -->
     <string name="sectionLabel">الشعبة</string>
