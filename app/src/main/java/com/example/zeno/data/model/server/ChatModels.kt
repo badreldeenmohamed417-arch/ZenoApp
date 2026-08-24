@@ -1,8 +1,10 @@
 package com.example.zeno.data.model.server
 
+import com.google.gson.annotations.SerializedName
+
 data class CreateConversationRequest(
     val title: String? = null,
-    val subject_id: String? = null
+    @SerializedName("subject_id") val subjectId: String? = null
 )
 
 data class SendMessageRequest(
@@ -12,30 +14,30 @@ data class SendMessageRequest(
 
 data class MessageResponse(
     val id: String,
-    val conversation_id: String,
+    @SerializedName("conversation_id") val conversationId: String,
     val role: String,
     val content: String,
-    val created_at: String
+    @SerializedName("created_at") val createdAt: String
 )
 
 data class ConversationResponse(
     val id: String,
     val title: String?,
-    val subject_id: String?,
-    val created_at: String,
-    val updated_at: String,
-    val last_message_at: String,
-    val is_archived: Boolean
+    @SerializedName("subject_id") val subjectId: String?,
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String,
+    @SerializedName("last_message_at") val lastMessageAt: String,
+    @SerializedName("is_archived") val isArchived: Boolean
 )
 
 data class ConversationDetailResponse(
     val id: String,
     val title: String?,
-    val subject_id: String?,
-    val created_at: String,
-    val updated_at: String,
-    val last_message_at: String,
-    val is_archived: Boolean,
+    @SerializedName("subject_id") val subjectId: String?,
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String,
+    @SerializedName("last_message_at") val lastMessageAt: String,
+    @SerializedName("is_archived") val isArchived: Boolean,
     val messages: List<MessageResponse>
 )
 

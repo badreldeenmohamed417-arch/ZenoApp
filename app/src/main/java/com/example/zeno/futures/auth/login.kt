@@ -1,5 +1,6 @@
 package com.example.zeno.futures.auth
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +36,10 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
 
+    BackHandler {
+        // Restrict back button on login screen
+    }
+
     var error by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -60,6 +65,7 @@ fun LoginScreen(
                 login = { Email, password ->
                     email.email = Email
                     login(
+                        context = context,
                         authRepository = authRepository,
                         email = Email,
                         password = password,

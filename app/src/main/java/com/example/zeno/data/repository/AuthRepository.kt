@@ -32,29 +32,21 @@ class AuthRepository {
     }
 
     suspend fun completeData(
-        country: String? = null,
+        country: String? = "EG",
         displayName: String? = null,
         grade: String? = null,
         schoolSystem: String? = null,
         language: String = "ar"
     ) {
-        val accessToken = ApiClient.tokenManager().getAccessToken()
-            ?: error("No access token available.")
-
-        val response = api.completeData(
-            token = "Bearer $accessToken",
+        api.completeData(
             request = CompleteDataRequest(
-                country = country,
+                country = country ?: "EG",
                 displayName = displayName,
                 grade = grade,
                 schoolSystem = schoolSystem,
                 language = language
             )
         )
-
-        if (!response.isSuccessful) {
-            error("Failed to complete user data: ${response.code()}")
-        }
     }
 
     suspend fun login(
@@ -163,21 +155,15 @@ class AuthRepository {
     }
 
     suspend fun logout() {
-        val accessToken = ApiClient.tokenManager().getAccessToken()
-        if (accessToken != null) {
-            runCatching {
-                api.logout("Bearer $accessToken")
-            }
+        runCatching {
+            api.logout()
         }
         ApiClient.tokenManager().clearTokens()
     }
 
     suspend fun logoutAll() {
-        val accessToken = ApiClient.tokenManager().getAccessToken()
-        if (accessToken != null) {
-            runCatching {
-                api.logoutAll("Bearer $accessToken")
-            }
+        runCatching {
+            api.logoutAll()
         }
         ApiClient.tokenManager().clearTokens()
     }

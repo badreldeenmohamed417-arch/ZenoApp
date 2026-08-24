@@ -2,67 +2,97 @@ package com.example.zeno.data.server
 
 import android.content.Context
 import com.example.zeno.data.local.TokenManager
-import com.example.zeno.data.serverConnections.AuthApi
-import com.example.zeno.data.serverConnections.ChatApi
-import com.example.zeno.data.serverConnections.HealthApi
-import com.example.zeno.data.serverConnections.PaymentApi
-import com.example.zeno.data.serverConnections.SubscriptionApi
-import com.example.zeno.data.serverConnections.TokenApi
-import com.example.zeno.data.serverConnections.UserApi
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
+import com.example.zeno.data.model.server.RefreshRequest
+import com.example.zeno.data.serverConnections.*
+import okhttp3.*
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlinx.coroutines.runBlocking
 
-private const val BASE_URL = "http://10.0.2.2:8000/"
+private const val BASE_URL = "https://nexorai.top"
 
 class AuthInterceptor(
     private val tokenManager: TokenManager
 ) : Interceptor {
-
     override fun intercept(chain: Interceptor.Chain): Response {
-
         val accessToken = tokenManager.getAccessToken()
-
-        val request = chain.request()
-            .newBuilder()
-            .apply {
-                if (!accessToken.isNullOrBlank()) {
-                    addHeader(
-                        "Authorization",
-                        "Bearer $accessToken"
-                    )
-                }
+        val request = chain.request().newBuilder().apply {
+            if (!accessToken.isNullOrBlank()) {
+                addHeader("Authorization", "Bearer $accessToken")
             }
-            .build()
-
+        }.build()
         return chain.proceed(request)
     }
 }
 
+class TokenAuthenticator(
+    private val tokenManager: TokenManager
+) : Authenticator {
+    override fun authenticate(route: Route?, response: Response): Request? {
+        if (response.code == 401) {
+            synchronized(this) {
+                val currentToken = tokenManager.getAccessToken()
+                val requestToken = response.request.header("Authorization")?.removePrefix("Bearer ")
+
+                // If token changed, another request already refreshed it
+                if (currentToken != null && currentToken != requestToken) {
+                    return response.request.newBuilder()
+                        .header("Authorization", "Bearer $currentToken")
+                        .build()
+                }
+
+                val refreshToken = tokenManager.getRefreshToken()
+                if (refreshToken != null) {
+                    try {
+                        // Separate retrofit for refresh to avoid cycles
+                        val refreshRetrofit = Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build()
+                        val authApi = refreshRetrofit.create(AuthApi::class.java)
+                        
+                        val refreshResponse = runBlocking {
+                            authApi.refresh(RefreshRequest(refreshToken))
+                        }
+
+                        tokenManager.saveTokens(
+                            accessToken = refreshResponse.accessToken,
+                            refreshToken = refreshResponse.refreshToken
+                        )
+
+                        return response.request.newBuilder()
+                            .header("Authorization", "Bearer ${refreshResponse.accessToken}")
+                            .build()
+                    } catch (e: Exception) {
+                        tokenManager.clearTokens()
+                    }
+                }
+            }
+        }
+        return null
+    }
+}
+
 object ApiClient {
-
     private lateinit var tokenManager: TokenManager
-
     private lateinit var retrofit: Retrofit
 
     fun initialize(context: Context) {
-
         tokenManager = TokenManager(context.applicationContext)
-
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
         val client = OkHttpClient.Builder()
-            .addInterceptor(
-                AuthInterceptor(tokenManager)
-            )
+            .addInterceptor(logging)
+            .addInterceptor(AuthInterceptor(tokenManager))
+            .authenticator(TokenAuthenticator(tokenManager))
             .build()
 
         retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(
-                GsonConverterFactory.create()
-            )
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 

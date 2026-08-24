@@ -16,7 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
@@ -48,9 +48,9 @@ fun HomeScreenContent(
             .fillMaxSize()
             .background(AppColors.BG)
             .padding(horizontal = 20.dp),
-        horizontalAlignment = Alignment.End
+        horizontalAlignment = Alignment.Start
     ) {
-        // --- Header Section (ثابت - لا يتأثر بالسكرول) ---
+        // --- Header Section ---
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -58,7 +58,7 @@ fun HomeScreenContent(
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = AppColors.TextPrimary,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.Start
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -67,7 +67,7 @@ fun HomeScreenContent(
             text = txt("home_subtitle"),
             fontSize = 14.sp,
             color = AppColors.TextMuted,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.Start
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -96,7 +96,7 @@ fun HomeScreenContent(
                 .fillMaxWidth()
                 .weight(1f)
                 .verticalScroll(cardsScrollState),
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.Start
         ) {
             // Card 1: Start Session
             ActionCard(
@@ -143,9 +143,9 @@ private fun ActionCard(
         content = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.End
+                horizontalAlignment = Alignment.Start
             ) {
-                // Icon at Top End
+                // Icon at Top Start
                 Box(
                     modifier = Modifier
                         .size(48.dp)
@@ -169,18 +169,18 @@ private fun ActionCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = null,
-                        tint = AppColors.TextFaint,
-                        modifier = Modifier.size(20.dp)
-                    )
-
                     Text(
                         text = title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = AppColors.TextPrimary
+                    )
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = AppColors.TextFaint,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
 
@@ -191,7 +191,7 @@ private fun ActionCard(
                     text = description,
                     fontSize = 13.sp,
                     color = AppColors.TextMuted,
-                    textAlign = TextAlign.End,
+                    textAlign = TextAlign.Start,
                     lineHeight = 18.sp
                 )
             }

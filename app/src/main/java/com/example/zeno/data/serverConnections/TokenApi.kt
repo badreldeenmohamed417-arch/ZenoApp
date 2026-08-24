@@ -6,9 +6,9 @@ import retrofit2.http.GET
 
 interface TokenApi {
 
-    @GET("tokens/me")
+    @GET("main/tokens/me")
     suspend fun getBalance(): TokenBalanceResponse
 
-    @GET("tokens/transactions")
+    @GET("main/tokens/transactions")
     suspend fun getTransactions(): List<TokenTransactionResponse>
 }

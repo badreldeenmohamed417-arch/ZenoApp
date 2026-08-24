@@ -157,46 +157,44 @@ fun TopMessage(
             targetOffsetY = { -it }
         ) + fadeOut(animationSpec = tween(200))
     ) {
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            Box(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+                .border(
+                    width = 1.5.dp,
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            borderColor,
+                            borderColor.copy(alpha = 0.15f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .background(
+                    backgroundGlass,
+                    RoundedCornerShape(16.dp)
+                )
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(15.dp)
-                    .border(
-                        width = 1.5.dp,
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                borderColor,
-                                borderColor.copy(alpha = 0.15f)
-                            )
-                        ),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .background(
-                        backgroundGlass,
-                        RoundedCornerShape(16.dp)
-                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = iconTint
-                    )
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint
+                )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-                    Text(
-                        text = message,
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+                Text(
+                    text = message,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }

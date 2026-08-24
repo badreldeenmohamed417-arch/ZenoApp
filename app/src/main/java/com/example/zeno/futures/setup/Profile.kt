@@ -40,35 +40,29 @@ fun SetupProfile(
             errorMessage = null
         }
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        TopMessage(
+            message = errorMessage ?: txt(""),
+            visible = errorMessage != null,
+            type = MessageType.ERROR,
+        )
+        LetUsKnowYou()
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            TopMessage(
-                message = errorMessage?: txt(""),
-                visible = errorMessage != null,
-                type = MessageType.ERROR,
-            )
-            LetUsKnowYou()
-
-            ProfileMiddleSection(
-                continueButton = { name, birthDate ->
-                    userManager.saveProfileData(
-                        displayName = name,
-                        birthDate = birthDate
-                    )
-                    onContinue()
-                },
-                onError = { message ->
-                    errorMessage = message
-                },
-                modifier = Modifier.weight(1f)
-            )
-        }
+        ProfileMiddleSection(
+            continueButton = { name, birthDate ->
+                userManager.saveProfileData(
+                    displayName = name,
+                    birthDate = birthDate
+                )
+                onContinue()
+            },
+            onError = { message ->
+                errorMessage = message
+            },
+            modifier = Modifier.weight(1f)
+        )
     }
 }

@@ -1,9 +1,11 @@
 package com.example.zeno.futures
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.example.zeno.BuildConfig
+import com.example.zeno.core.NetworkUtils
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.repository.AuthRepository
 import com.example.zeno.data.repository.UserRepository
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 // ==========================================
 
 fun signUp(
+    context: Context,
     authRepository: AuthRepository,
     email: String,
     password: String,
@@ -28,9 +31,18 @@ fun signUp(
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
+            // 1. Register
             authRepository.register(
                 email = email,
                 password = password
+            )
+
+            // 2. Login immediately to get tokens for the next steps (Setup Profile)
+            authRepository.login(
+                email = email,
+                password = password,
+                deviceName = "Zeno Android",
+                platform = "android"
             )
 
             withContext(Dispatchers.Main) {
@@ -39,13 +51,14 @@ fun signUp(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "حدث خطأ أثناء إنشاء الحساب")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
 }
 
 fun login(
+    context: Context,
     authRepository: AuthRepository,
     email: String,
     password: String,
@@ -68,7 +81,7 @@ fun login(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun("حدث خطأ أثناء تسجيل الدخول")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
@@ -81,10 +94,13 @@ fun googleLogin(
     errorFun: (String) -> Unit,
     disableError: () -> Unit
 ) {
+    Log.d("GoogleLogin", "googleLogin started")
     CoroutineScope(Dispatchers.Main).launch {
         try {
+            Log.d("GoogleLogin", "Creating CredentialManager")
             val credentialManager = CredentialManager.create(context)
 
+            Log.d("GoogleLogin", "Building GetGoogleIdOption with Client ID: ${BuildConfig.GOOGLE_CLIENT_ID}")
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
                 .setFilterByAuthorizedAccounts(false)
@@ -95,10 +111,12 @@ fun googleLogin(
                 .addCredentialOption(googleIdOption)
                 .build()
 
+            Log.d("GoogleLogin", "Calling getCredential")
             val result = credentialManager.getCredential(
                 context = context,
                 request = request
             )
+            Log.d("GoogleLogin", "getCredential success")
 
             val credential = result.credential
             val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
@@ -116,12 +134,14 @@ fun googleLogin(
             onContinue(response.isNewUser == true)
 
         } catch (e: Exception) {
-            errorFun("حدث خطأ أثناء تسجيل الدخول باستخدام Google")
+            Log.e("GoogleLogin", "Error during Google login", e)
+            errorFun(context.getString(com.example.zeno.R.string.googleLoginError, e.message ?: ""))
         }
     }
 }
 
 fun completeUserData(
+    context: Context,
     authRepository: AuthRepository,
     country: String? = null,
     displayName: String? = null,
@@ -148,7 +168,7 @@ fun completeUserData(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "حدث خطأ أثناء حفظ البيانات")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
@@ -159,6 +179,7 @@ fun completeUserData(
 // ==========================================
 
 fun checkVerificationStatus(
+    context: Context,
     userRepository: UserRepository,
     userManager: UserManager,
     onVerified: () -> Unit,
@@ -168,11 +189,11 @@ fun checkVerificationStatus(
     CoroutineScope(Dispatchers.IO).launch {
         try {
             val user = userRepository.getMe()
-            userManager.saveVerificationStatus(user.is_verified)
+            userManager.saveVerificationStatus(user.isVerified)
             user.subjects?.let { userManager.saveSubjects(it) }
             
             withContext(Dispatchers.Main) {
-                if (user.is_verified) {
+                if (user.isVerified) {
                     onVerified()
                 } else {
                     onNotVerified()
@@ -180,13 +201,14 @@ fun checkVerificationStatus(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun("فشل التحقق من حالة الحساب. تأكد من اتصالك بالإنترنت.")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
 }
 
 fun verifyEmail(
+    context: Context,
     authRepository: AuthRepository,
     token: String,
     onSuccess: (String) -> Unit,
@@ -203,13 +225,14 @@ fun verifyEmail(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "رمز التحقق غير صالح أو انتهت صلاحيته")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
 }
 
 fun resendVerification(
+    context: Context,
     authRepository: AuthRepository,
     email: String,
     language: String = "ar",
@@ -230,7 +253,7 @@ fun resendVerification(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "حدث خطأ أثناء إعادة إرسال رابط التحقق")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }
@@ -241,6 +264,7 @@ fun resendVerification(
 // ==========================================
 
 fun forgotPassword(
+    context: Context,
     authRepository: AuthRepository,
     email: String,
     onSuccess: () -> Unit,
@@ -257,7 +281,7 @@ fun forgotPassword(
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "حدث خطأ أثناء إرسال رابط إعادة التعيين إلى البريد الإلكتروني")
+                errorFun(NetworkUtils.getErrorMessage(e, context))
             }
         }
     }

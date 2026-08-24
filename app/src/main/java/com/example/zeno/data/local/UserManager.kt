@@ -25,12 +25,42 @@ class UserManager(context: Context) {
 
     fun saveProfileData(
         displayName: String?,
-        birthDate: String?
+        birthDate: String?,
+        country: String? = null,
+        email: String? = null
     ) {
         preferences.edit()
             .putString("display_name", displayName)
             .putString("birth_date", birthDate)
+            .apply {
+                if (country != null) putString("country", country)
+                if (email != null) putString("email", email)
+            }
             .apply()
+    }
+
+    fun saveEmail(email: String?) {
+        preferences.edit().putString("email", email).apply()
+    }
+
+    fun getEmail(): String? {
+        return preferences.getString("email", null)
+    }
+
+    fun saveThemeMode(isDark: Boolean) {
+        preferences.edit().putBoolean("is_dark_mode", isDark).apply()
+    }
+
+    fun getThemeMode(systemDefault: Boolean): Boolean {
+        return preferences.getBoolean("is_dark_mode", systemDefault)
+    }
+
+    fun saveLanguage(lang: String) {
+        preferences.edit().putString("app_language", lang).apply()
+    }
+
+    fun getLanguage(): String {
+        return preferences.getString("app_language", "ar") ?: "ar"
     }
 
     fun saveVerificationStatus(isVerified: Boolean) {
@@ -66,6 +96,10 @@ class UserManager(context: Context) {
 
     fun getDisplayName(): String? {
         return preferences.getString("display_name", null)
+    }
+
+    fun getCountry(): String? {
+        return preferences.getString("country", "EG") // Default to EG
     }
 
     fun getBirthDate(): String? {

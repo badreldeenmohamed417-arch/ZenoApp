@@ -56,6 +56,7 @@ fun ForgotPasswordScreen(
                 forgotPassword = { inputEmail ->
                     email.email = inputEmail
                     forgotPassword(
+                        context = context,
                         authRepository = authRepository,
                         email = inputEmail,
                         onSuccess = {

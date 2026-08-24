@@ -13,12 +13,12 @@ data class ReadyResponse(
 
 interface HealthApi {
 
-    @GET("/")
+    @GET("main/")
     suspend fun home(): HealthResponse
 
-    @GET("health/live")
+    @GET("main/health/live")
     suspend fun live(): HealthResponse
 
-    @GET("health/ready")
+    @GET("main/health/ready")
     suspend fun ready(): ReadyResponse
 }

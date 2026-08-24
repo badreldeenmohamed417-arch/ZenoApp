@@ -40,53 +40,51 @@ fun TextFieldFun(
     // حالة للتحكم في إظهار أو إخفاء كلمة المرور
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = onTextChange,
-            label = {
-                Text(label)
-            },
-            placeholder = {
-                Text(placeholder)
-            },
-            // التبديل بين تشفير النص وإظهاره بناءً على اختيار المستخدم
-            visualTransformation = if (isPassword && !isPasswordVisible) {
-                PasswordVisualTransformation()
-            } else {
-                VisualTransformation.None
-            },
-            // إظهار أيقونة العين فقط إذا كان الحقل كلمة مرور
-            trailingIcon = if (isPassword) {
-                {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                        Icon(
-                            imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
-                            tint = AppColors.Black.copy(alpha = 0.6f)
-                        )
-                    }
+    OutlinedTextField(
+        value = text,
+        onValueChange = onTextChange,
+        label = {
+            Text(label)
+        },
+        placeholder = {
+            Text(placeholder)
+        },
+        // التبديل بين تشفير النص وإظهاره بناءً على اختيار المستخدم
+        visualTransformation = if (isPassword && !isPasswordVisible) {
+            PasswordVisualTransformation()
+        } else {
+            VisualTransformation.None
+        },
+        // إظهار أيقونة العين فقط إذا كان الحقل كلمة مرور
+        trailingIcon = if (isPassword) {
+            {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                        tint = AppColors.Black.copy(alpha = 0.6f)
+                    )
                 }
-            } else null,
-            isError = isError,
-            singleLine = true,
-            shape = RoundedCornerShape(cornerRadius.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = focusedTextColor,
-                unfocusedTextColor = unfocusedTextColor,
+            }
+        } else null,
+        isError = isError,
+        singleLine = true,
+        shape = RoundedCornerShape(cornerRadius.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = focusedTextColor,
+            unfocusedTextColor = unfocusedTextColor,
 
-                focusedBorderColor = AppColors.FocusedBorder,
-                unfocusedBorderColor = AppColors.UnfocusedBorder,
-                focusedContainerColor = AppColors.Surface,
-                unfocusedContainerColor = AppColors.Surface,
+            focusedBorderColor = AppColors.FocusedBorder,
+            unfocusedBorderColor = AppColors.UnfocusedBorder,
+            focusedContainerColor = AppColors.Surface,
+            unfocusedContainerColor = AppColors.Surface,
 
-                focusedPlaceholderColor = AppColors.Black.copy(alpha = 0.5f),
-                unfocusedPlaceholderColor = AppColors.Black.copy(alpha = 0.4f),
+            focusedPlaceholderColor = AppColors.Black.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = AppColors.Black.copy(alpha = 0.4f),
 
-                focusedLabelColor = AppColors.Black,
-                unfocusedLabelColor = AppColors.Black.copy(0.5f)
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
+            focusedLabelColor = AppColors.Black,
+            unfocusedLabelColor = AppColors.Black.copy(0.5f)
+        ),
+        modifier = Modifier.fillMaxWidth()
+    )
 }

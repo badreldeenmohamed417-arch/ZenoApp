@@ -5,6 +5,6 @@ import retrofit2.http.GET
 
 interface SubscriptionApi {
 
-    @GET("subscription/me")
+    @GET("main/subscription/me")
     suspend fun getMySubscription(): SubscriptionResponse
 }

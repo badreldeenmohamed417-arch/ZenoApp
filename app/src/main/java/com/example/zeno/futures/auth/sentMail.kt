@@ -1,5 +1,6 @@
 package com.example.zeno.futures.auth
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,11 +27,7 @@ import com.example.zeno.futures.TopMessage
 import com.example.zeno.futures.checkVerificationStatus
 import com.example.zeno.futures.forgotPassword
 import com.example.zeno.futures.resendVerification
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 sealed interface MailSentType {
     data object Verification : MailSentType
@@ -60,6 +57,7 @@ fun MailSentVerifyScreen(
             type = MailSentType.Verification,
             onPrimaryClick = {
                 checkVerificationStatus(
+                    context = context,
                     userRepository = userRepository,
                     userManager = userManager,
                     onVerified = onContinue,
@@ -75,6 +73,7 @@ fun MailSentVerifyScreen(
             },
             onSecondaryClick = { onSuccess, onError, onDisableError ->
                 resendVerification(
+                    context = context,
                     authRepository = authRepository,
                     email = email.email,
                     onSuccess = { msg ->
@@ -100,11 +99,13 @@ fun MailSentResetScreen(
     login: () -> Unit
 ) {
     val authRepository = remember { AuthRepository() }
+    val context = LocalContext.current
 
     MailSentContent(
         type = MailSentType.PasswordReset,
         onPrimaryClickWithAction = { onSuccess, onError, onDisableError ->
             forgotPassword(
+                context = context,
                 authRepository = authRepository,
                 email = email.email,
                 onSuccess = {
@@ -206,29 +207,6 @@ private fun MailSentContent(
                 },
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-        }
-    }
-}
-
-fun forgotPassword(
-    authRepository: AuthRepository,
-    email: String,
-    onSuccess: () -> Unit,
-    errorFun: (String) -> Unit,
-    disableError: () -> Unit
-) {
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            authRepository.forgotPassword(email = email)
-
-            withContext(Dispatchers.Main) {
-                disableError()
-                onSuccess()
-            }
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                errorFun(e.message ?: "حدث خطأ أثناء إرسال رابط إعادة التعيين إلى البريد الإلكتروني")
-            }
         }
     }
 }

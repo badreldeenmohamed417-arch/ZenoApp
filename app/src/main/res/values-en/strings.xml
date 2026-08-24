@@ -1,0 +1,282 @@
+<resources>
+    <string name="app_name" translatable="false">Zeno</string>
+    <string name="error_unexpected">An unexpected error occurred</string>
+
+    <!-- Splash -->
+    <string name="splashTagline">Your Smart Tutor</string>
+    <string name="splashBy">by NexorAI</string>
+
+    <!-- Auth -->
+    <string name="startExcellenceJourney">Start your journey to excellence</string>
+    <string name="emailLabel">Email</string>
+    <string name="emailPlaceholder">you@example.com</string>
+    <string name="passwordLabel">Password</string>
+    <string name="passwordPlaceholder">••••••••</string>
+    <string name="loginButton">Log In</string>
+    <string name="createAccountButton">Create Account</string>
+    <string name="orDivider">or</string>
+    <string name="ConfirmPasswordLabel">Confirm Password</string>
+    <string name="doNotHaveAccount">Don\'t have an account?</string>
+    <string name="alreadyHaveAccount">Already have an account?</string>
+    <string name="googleLoginButton">Sign in with Google</string>
+
+    <string name="fill_all_fields">Please fill in all fields</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="invalid_email">Please enter a valid email address</string>
+    <string name="invalid_email_or_password">Invalid email or password</string>
+    <string name="password_too_short">Password must be at least 8 characters long</string>
+    <string name="password_missing_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="password_missing_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="password_missing_number">Password must contain at least one number</string>
+    <string name="password_missing_special_character">Password must contain at least one special character</string>
+    <string name="error_user_data_null">User data is not available</string>
+    <string name="error_invalid_credentials">Incorrect email or password</string>
+    <string name="error_user_not_found">No account associated with this email</string>
+    <string name="error_google_sign_in_canceled">Google sign-in was canceled</string>
+    <string name="error_google_sign_in_failed">Google sign-in failed</string>
+    <string name="error_google_no_id_token">ID Token not found</string>
+    <string name="error_email_already_in_use">This email is already in use</string>
+
+    <!-- forgot password -->
+    <string name="forgotPassword">Forgot Password?</string>
+    <string name="writeMailLbl">Enter your email and we\'ll send you a link to reset your password</string>
+    <string name="sendRestLink">Send Reset Link</string>
+    <string name="rememberedPassword">Remembered your password?</string>
+
+    <!-- Mail sent -->
+    <string name="checkYourInbox">Check your inbox</string>
+    <string name="mailSentReset">Password reset link has been sent to</string>
+    <string name="mailSentVerify">Email verification link has been sent to</string>
+    <string name="resendMail">Resend</string>
+    <string name="backToLogin">Back to Login</string>
+    <string name="Continue">Next</string>
+
+    <!-- Setup APP -->
+    <string name="choose">Choose</string>
+    <string name="cancel">Cancel</string>
+    <string name="enterName">Enter your name</string>
+
+    <!-- Error message for age under 13 -->
+    <string name="ageRestrictionError">Sorry, you must be 13 years or older to proceed</string>
+
+    <!-- Academic Setup -->
+    <string name="setupTitle">Let\'s get to know you better</string>
+    <string name="setupSubtitle">We will tailor the content just for you</string>
+    <string name="gradeLabel">Academic Year</string>
+    <string name="gradeFirstSecondary">First Year Secondary</string>
+    <string name="gradeSecondSecondary">Second Year Secondary</string>
+    <string name="gradeThirdSecondary">Third Year Secondary</string>
+    <string name="systemLabel">Educational System</string>
+    <string name="sectionAzhari">Azhari System</string>
+    <string name="sectionElmi">General System</string>
+    <string name="setupCta">Let\'s Begin</string>
+    <string name="birthDate">Date of Birth</string>
+
+    <!-- 3. Division -->
+    <string name="sectionLabel">Division</string>
+    <string name="sectionScientific">Scientific</string>
+    <string name="sectionLiterary">Literary</string>
+    <string name="sectionScientificScience">Scientific (Science)</string>
+    <string name="sectionScientificMath">Scientific (Mathematics)</string>
+
+    <!-- 4. Track -->
+    <string name="trackLabel">Track</string>
+    <string name="trackMedicineLifeSciences">Medicine &amp; Life Sciences</string>
+    <string name="trackEngineeringTech">Engineering &amp; Technology</string>
+    <string name="trackBusinessSocialSciences">Business &amp; Social Sciences</string>
+    <string name="trackArtsHumanities">Arts &amp; Humanities</string>
+
+    <!-- Home -->
+    <string name="home_welcome_title">Welcome, %1$s 👋</string>
+    <string name="home_subtitle">What would you like to do now?</string>
+    <string name="home_streak_badge">%1$d Day Streak 🔥</string>
+
+    <string name="home_card_start_session_title">Start a Study Session</string>
+    <string name="home_card_start_session_desc">Pomodoro + Focus Sound + Zeno by your side whenever you need to ask</string>
+
+    <string name="home_card_ask_zeno_title">Ask Zeno</string>
+    <string name="home_card_ask_zeno_desc">Quick chat for any question in your curriculum without a study session</string>
+
+    <!-- Chat -->
+    <string name="showExplanation">Show Explanation</string>
+    <string name="hideExplanation">Hide Explanation</string>
+    <string name="actionCopy">Copy</string>
+    <string name="actionRetry">Retry</string>
+    <string name="actionReport">Report</string>
+
+    <!-- Thinking -->
+    <string name="zenoThinking">Zeno is thinking</string>
+
+    <!-- Conversations -->
+    <string name="conversationsTitle">Your Conversations</string>
+    <string name="conversationsSearchHint">Search your conversations</string>
+    <string name="conversationsEmptyTitle">No conversations yet</string>
+    <string name="conversationsEmptySubtitle">All the questions you ask Zeno will appear here</string>
+    <string name="timeHoursAgo">2 hours ago</string>
+    <string name="timeYesterday">Yesterday</string>
+    <string name="timeDaysAgo">3 days ago</string>
+
+    <!-- Premium -->
+    <string name="premiumTitle">Make Zeno closer to your private tutor</string>
+    <string name="premiumBenefit1">Deeper explanation for every question</string>
+    <string name="premiumBenefit2">Advanced features</string>
+    <string name="premiumBenefit3">Larger usage without limits</string>
+    <string name="premiumBenefit4">Ad-free experience</string>
+    <string name="premiumPriceMonthly">Monthly</string>
+    <string name="premiumMostPopular">Most Popular</string>
+    <string name="premiumSubscribeButton">Subscribe Now</string>
+    <string name="premiumNotNow">Not Now</string>
+
+    <!-- Settings -->
+    <string name="settingsTitle">Settings</string>
+    <string name="settingsSectionAccount">Account</string>
+    <string name="settingsGrade">Academic Year</string>
+    <string name="settingsSection">Division</string>
+    <string name="settingsSectionApp">App</string>
+    <string name="settingsDarkMode">Dark Mode</string>
+    <string name="settingsLanguage">Language</string>
+    <string name="settingsLanguageValue">English</string>
+    <string name="settingsSectionSubscription">Subscription</string>
+    <string name="settingsPremium">Premium</string>
+    <string name="settingsPremiumInactive">Inactive</string>
+    <string name="settingsManageSubscription">Manage Subscription</string>
+    <string name="settingsSectionOther">Other</string>
+    <string name="settingsAbout">About Zeno</string>
+    <string name="settingsPrivacyPolicy">Privacy Policy</string>
+    <string name="settingsTermsOfUse">Terms of Use</string>
+    <string name="settingsReportProblem">Report a Problem</string>
+    <string name="settingsLogout">Log Out</string>
+    <string name="settingsFooter">Zeno by NexorAI</string>
+
+    <!-- Navigation -->
+    <string name="navHome">Home</string>
+    <string name="navConversations">Conversations</string>
+    <string name="navSettings">Settings</string>
+
+    <!-- Study Session -->
+    <string name="newStudySession">New Study Session</string>
+    <string name="whatToStudyToday">What are you studying today?</string>
+    <string name="unspecified">Unspecified</string>
+    <string name="sessionDuration">Session Duration</string>
+    <string name="minutes">minutes</string>
+    <string name="focusSound">Focus Sound</string>
+    <string name="noSound">No Sound</string>
+    <string name="soundRain">Rain</string>
+    <string name="soundCafe">Cafe</string>
+    <string name="soundWhiteNoise">White Noise</string>
+    <string name="startSession">Start Session</string>
+    <string name="sessionHint">Zeno will be with you throughout the session, ask anytime without stopping the timer</string>
+    <string name="focusTime">Focus Time</string>
+    <string name="soundPlaying">%1$s is playing</string>
+    <string name="askZeno">Ask Zeno</string>
+    <string name="breakTime">Break Time 🌿</string>
+    <string name="breakDescription">Go take a short walk and rest, I\'ll be right back</string>
+    <string name="skipBreak">Skip Break</string>
+    <string name="greatSession">Great Session! 🎉</string>
+    <string name="finishedSessionIn">Completed a study session in %1$s</string>
+    <string name="focusMinutes">Focus Minutes</string>
+    <string name="questionsToZeno">Questions to Zeno</string>
+    <string name="consecutiveDays">Consecutive Days</string>
+    <string name="startAnotherSession">Start Another Session</string>
+    <string name="backToHome">Back to Home</string>
+    <string name="exitSessionTitle">Do you want to exit the study session?</string>
+    <string name="exitSessionMessage">You may lose current session progress.</string>
+
+    <!-- Error states -->
+    <string name="noInternetTitle">It looks like there is no internet</string>
+    <string name="noInternetSubtitle">Check your connection and try again</string>
+    <string name="retryButton">Retry</string>
+    <string name="aiErrorTitle">Zeno couldn\'t answer right now</string>
+    <string name="aiErrorRetry">Try again</string>
+
+    <!-- Detailed Popups -->
+    <string name="about_zeno_title">About Zeno</string>
+    <string name="about_zeno_content">
+        Zeno is an AI-powered educational platform designed to make learning smarter, simpler, and more personalized.
+        \n\nZeno helps students understand their educational content through smart AI assistance, contextual answers, and tailored learning experiences. Instead of just giving answers, Zeno is designed to help students understand the \"why\" behind what they learn.
+        \n\nWith technologies like Artificial Intelligence, RAG (Retrieval-Augmented Generation), and personalized learning systems, Zeno can work with educational materials and provide answers based on the student\'s actual curriculum.
+        \n\nOur Vision
+        \n\nWe believe every student should have access to a personal learning assistant available whenever they need it.
+        \n\nZeno\'s goal is to bridge the gap between traditional educational materials and modern artificial intelligence, creating a learning experience featuring:
+        \n\n🎓 Educational — Focused on true understanding.
+        \n🤖 Smart — Powered by modern AI technologies.
+        \n📚 Context-Aware — Based on the student\'s educational content.
+        \n🌍 Accessible — Designed to make high-quality learning assistance available to more students.
+        \n✨ Personalized — Adapting the experience to each student\'s needs.
+        \n\nBuilt for Students
+        \n\nWhether you are reviewing a lesson, preparing for an exam, asking about a difficult concept, or simply trying to understand something better, Zeno is built to be your personal AI learning companion.
+        \n\nLearn smarter. Understand deeper. Go further with Zeno.
+    </string>
+
+    <string name="privacy_policy_title">Privacy Policy — Zeno</string>
+    <string name="privacy_policy_content">
+        Last updated: August 24, 2026
+        \n\nAt Zeno, we respect your privacy and are committed to protecting your personal data. This Privacy Policy outlines how your data is collected, used, stored, and protected when you use the Zeno platform and services.
+        \n\nBy using Zeno, you agree to the practices described in this policy.
+        \n\n1. Information We Collect
+        \n\nWe may collect the following information when you use the platform:
+        \n\nAccount Information: Email, password (encrypted), display name, country, grade level, educational system, and preferred language.
+        \nUsage Information: Conversations with Zeno, questions, service consumption, subscription info, session logs, and basic technical details.
+        \nPayment Information: Payment details may be processed through third-party service providers.
+        \n\n2. How We Use Your Data
+        \n\nWe use the information to create and manage your account, provide Zeno educational services, personalize the learning experience, improve service quality, prevent fraud, and protect platform security.
+        \n\n3. Artificial Intelligence and Conversations
+        \n\nZeno may use artificial intelligence technologies to process questions. We strive to use this data solely to improve the service and do not sell your personal data to third parties.
+        \n\n4. Educational Content and RAG
+        \n\nCertain features rely on RAG technologies to access relevant information from educational content to provide more accurate answers.
+        \n\n5. Data Sharing
+        \n\nWe do not sell your personal data. We may share it with trusted service providers (AI, payment, hosting) to the extent necessary to provide the service.
+        \n\n6. Data Security
+        \n\nWe take appropriate technical measures to protect your data from unauthorized access, though no method of transmission over the internet is 100% secure.
+        \n\n7. Account Deletion
+        \n\nYou can request the deletion of your account and personal data at any time.
+        \n\n8. Your Rights
+        \n\nYou have the right to access, correct, or request deletion of your data in accordance with applicable laws.
+    </string>
+
+    <string name="terms_of_use_title">Zeno Terms of Use</string>
+    <string name="terms_of_use_content">
+        Last updated: August 24, 2026
+        \n\nWelcome to Zeno. By using the Zeno platform, apps, or services, you agree to comply with the terms of use outlined below.
+        \n\n1. Service Definition
+        \nZeno is an educational platform leveraging artificial intelligence technologies to help students learn and understand study materials.
+        \n\n2. Account Creation
+        \nPortal users are responsible for providing accurate information, maintaining login credentials confidentiality, and not sharing accounts with others.
+        \n\n3. Use of Artificial Intelligence
+        \nAI responses may occasionally contain errors and are not a replacement for a teacher or official educational resources.
+        \n\n4. Acceptable Use
+        \nZeno must be used for lawful purposes. Attempting to hack systems, bypass usage limits, or transmit harmful content is strictly prohibited.
+        \n\n5. Intellectual Property Rights
+        \nAll intellectual property rights related to the Zeno platform remain owned by Zeno or respective rights holders.
+        \n\n6. Disclaimer of Warranties
+        \nZeno is provided on an \"as is\" basis, and we do not guarantee the service will be entirely error-free or uninterrupted.
+        \n\n7. Suspension or Termination
+        \nWe reserve the right to suspend your account if you violate the terms of use or use the service unlawfully.
+    </string>
+
+    <string name="report_problem_hint">Contact us and we will reply within 24 hours.</string>
+    <string name="send_email_button">Send Email</string>
+    <string name="close_button">Close</string>
+    <string name="ok_button">OK</string>
+
+    <!-- New Strings -->
+    <string name="newConversation">New Conversation</string>
+    <string name="startChatWithZeno">Start chatting with Zeno</string>
+    <string name="chatInputPlaceholder">Type your message...</string>
+    <string name="untitled">Untitled</string>
+    <string name="lastMessagePlaceholder">Last message...</string>
+    <string name="logoutConfirmTitle">Logout</string>
+    <string name="logoutConfirmMessage">Are you sure you want to logout? All local data will be cleared.</string>
+    <string name="logoutConfirmAction">Logout</string>
+    <string name="googleLoginError">An error occurred during Google sign-in: %1$s</string>
+    <string name="error_network">No internet connection</string>
+    <string name="error_timeout">Connection timed out</string>
+    <string name="error_unknown">An unexpected error occurred</string>
+    <string name="error_request_failed">Request failed: %1$d</string>
+    <string name="guestUser">Student</string>
+    <string name="welcome_greeting">Welcome! 👋</string>
+    <string name="ask_zeno_intro">Ask Zeno anything about your curriculum.</string>
+    <string name="sound_label">%1$s sound</string>
+    <string name="notification_break_title">Break time, %1$s ☕</string>
+    <string name="notification_focus_title">Focus time: %1$s</string>
+</resources>

@@ -57,6 +57,7 @@ fun SignupScreen(
             SignupMiddleSection(
                 signup = { email, password ->
                     signUp(
+                        context = context,
                         authRepository = authRepository,
                         email = email,
                         password = password,
@@ -105,7 +106,8 @@ fun SignupScreen(
                         }
                     )
                 },
-                login = login
+                login = login,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
 

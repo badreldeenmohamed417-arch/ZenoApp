@@ -11,6 +11,7 @@ import com.example.zeno.data.model.server.ResendVerificationRequest
 import com.example.zeno.data.model.server.ResetPasswordRequest
 import com.example.zeno.data.model.server.SimpleResponse
 import com.example.zeno.data.model.server.TokenResponse
+import com.example.zeno.data.model.server.UserResponse
 import com.example.zeno.data.model.server.VerifyEmailRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -19,58 +20,53 @@ import retrofit2.http.POST
 
 interface AuthApi {
 
-    @POST("auth/register")
+    @POST("main/auth/register")
     suspend fun register(
         @Body request: RegisterRequest
     ): RegisterResponse
 
-    @POST("auth/complete-data")
+    @POST("main/auth/complete-data")
     suspend fun completeData(
-        @Header("Authorization") token: String,
         @Body request: CompleteDataRequest
-    ): Response<Unit>
+    ): UserResponse
 
-    @POST("auth/login")
+    @POST("main/auth/login")
     suspend fun login(
         @Body request: LoginRequest
     ): TokenResponse
 
-    @POST("auth/refresh")
+    @POST("main/auth/refresh")
     suspend fun refresh(
         @Body request: RefreshRequest
     ): TokenResponse
 
-    @POST("auth/logout")
-    suspend fun logout(
-        @Header("Authorization") token: String
-    ): Response<Unit>
+    @POST("main/auth/logout")
+    suspend fun logout(): Response<Unit>
 
-    @POST("auth/logout-all")
-    suspend fun logoutAll(
-        @Header("Authorization") token: String
-    ): Response<Unit>
+    @POST("main/auth/logout-all")
+    suspend fun logoutAll(): Response<Unit>
 
-    @POST("auth/forgot-password")
+    @POST("main/auth/forgot-password")
     suspend fun forgotPassword(
         @Body request: ForgotPasswordRequest
     ): Response<Unit>
 
-    @POST("auth/reset-password")
+    @POST("main/auth/reset-password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
     ): Response<Unit>
 
-    @POST("auth/google")
+    @POST("main/auth/google")
     suspend fun googleLogin(
         @Body request: GoogleLoginRequest
     ): TokenResponse
 
-    @POST("auth/verify-email")
+    @POST("main/auth/verify-email")
     suspend fun verifyEmail(
         @Body request: VerifyEmailRequest
     ): SimpleResponse
 
-    @POST("auth/resend-verification")
+    @POST("main/auth/resend-verification")
     suspend fun resendVerification(
         @Body request: ResendVerificationRequest
     ): SimpleResponse

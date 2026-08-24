@@ -84,9 +84,12 @@ fun completeUserDataFromLocal(
     val displayName = userManager.getDisplayName()
     val grade = userManager.getGrade()
     val schoolSystem = userManager.getSchoolSystem()
+    val country = userManager.getCountry()
 
     completeUserData(
+        context = context,
         authRepository = authRepository,
+        country = country,
         displayName = displayName,
         grade = grade,
         schoolSystem = schoolSystem,

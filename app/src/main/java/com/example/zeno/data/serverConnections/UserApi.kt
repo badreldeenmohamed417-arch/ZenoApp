@@ -8,10 +8,10 @@ import retrofit2.http.PATCH
 
 interface UserApi {
 
-    @GET("users/me")
+    @GET("main/users/me")
     suspend fun getMe(): UserResponse
 
-    @PATCH("users/me")
+    @PATCH("main/users/me")
     suspend fun updateMe(
         @Body request: UpdateUserRequest
     ): UserResponse

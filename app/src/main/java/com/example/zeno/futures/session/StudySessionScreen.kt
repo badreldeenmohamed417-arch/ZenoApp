@@ -2,6 +2,7 @@ package com.example.zeno.futures.session
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -198,6 +200,7 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
                     action = StudySessionService.ACTION_START
                     putExtra(StudySessionService.EXTRA_DURATION_MINUTES, selectedDuration)
                     putExtra(StudySessionService.EXTRA_SUBJECT, selectedSubject?.name ?: context.getString(R.string.unspecified))
+                    putExtra(StudySessionService.EXTRA_SOUND_ID, selectedSound)
                 }
                 context.startService(intent)
             },
@@ -359,12 +362,30 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // Sound indicator (Mock for now)
-        Row(
-            modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(AppColors.Surface).border(1.dp, AppColors.UnfocusedBorder, RoundedCornerShape(20.dp)).padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(txt("soundPlaying", "صوت المطر"), fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold, color = AppColors.TextMuted)
+        // Sound indicator
+        if (state.soundId != "none") {
+            val soundType = when (state.soundId) {
+                "rain" -> txt("soundRain")
+                "cafe" -> txt("soundCafe")
+                "white_noise" -> txt("soundWhiteNoise")
+                else -> ""
+            }
+            val soundName = txt("sound_label", soundType)
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(AppColors.Surface)
+                    .border(1.dp, AppColors.UnfocusedBorder, RoundedCornerShape(20.dp))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = txt("soundPlaying", soundName),
+                    fontSize = 12.5.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppColors.TextMuted
+                )
+            }
         }
         
         Spacer(modifier = Modifier.weight(1f))
@@ -419,12 +440,10 @@ fun SessionBreakView(context: Context, state: SessionState) {
 
 @Composable
 fun Orb(modifier: Modifier = Modifier, isGold: Boolean = false) {
-    // Simple representation of the Orb
-    val color = if (isGold) AppColors.Gold else AppColors.Accent
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(color)
+    Image(
+        painter = painterResource(id = R.drawable.zeno_ball),
+        contentDescription = "Zeno Ball",
+        modifier = modifier.clip(CircleShape)
     )
 }
 

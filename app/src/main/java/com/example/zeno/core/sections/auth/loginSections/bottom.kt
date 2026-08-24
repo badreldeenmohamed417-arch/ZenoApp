@@ -25,18 +25,18 @@ fun LoginBottomSection(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ButtonFun(
-            onClick = googleLogin,
-            items = {
-                Text(
-                    text = txt("googleLoginButton"),
-                    color = AppColors.Black,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            backgroundColor = AppColors.SurfaceVariant
-        )
+//        ButtonFun(
+//            onClick = googleLogin,
+//            items = {
+//                Text(
+//                    text = txt("googleLoginButton"),
+//                    color = AppColors.Black,
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.SemiBold
+//                )
+//            },
+//            backgroundColor = AppColors.SurfaceVariant
+//        )
 
         Spacer(modifier = Modifier.height(30.dp))
 

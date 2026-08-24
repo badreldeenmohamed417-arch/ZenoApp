@@ -1,28 +1,30 @@
 package com.example.zeno.data.model.server
 
+import com.google.gson.annotations.SerializedName
+
 data class SubscriptionResponse(
-    val current_plan: String?,
+    @SerializedName("current_plan") val currentPlan: String?,
     val status: String?,
-    val started_at: String?,
-    val expires_at: String?,
-    val available_token_balance: Int,
+    @SerializedName("started_at") val startedAt: String?,
+    @SerializedName("expires_at") val expiresAt: String?,
+    @SerializedName("available_token_balance") val availableTokenBalance: Int,
     val entitlements: Map<String, Any>
 )
 
 data class TokenBalanceResponse(
     val balance: Int,
-    val total_earned: Int,
-    val total_spent: Int
+    @SerializedName("total_earned") val totalEarned: Int,
+    @SerializedName("total_spent") val totalSpent: Int
 )
 
 data class TokenTransactionResponse(
     val id: String,
     val type: String,
     val amount: Int,
-    val balance_after: Int,
+    @SerializedName("balance_after") val balanceAfter: Int,
     val reason: String,
-    val reference_id: String?,
-    val created_at: String
+    @SerializedName("reference_id") val referenceId: String?,
+    @SerializedName("created_at") val createdAt: String
 )
 
 data class PaymentResponse(
@@ -31,5 +33,5 @@ data class PaymentResponse(
     val currency: String,
     val provider: String,
     val status: String,
-    val created_at: String
+    @SerializedName("created_at") val createdAt: String
 )

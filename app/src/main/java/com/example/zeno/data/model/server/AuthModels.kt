@@ -42,7 +42,8 @@ data class TokenResponse(
     @SerializedName("refresh_token") val refreshToken: String,
     @SerializedName("token_type") val tokenType: String,
     @SerializedName("session_id") val sessionId: String,
-    @SerializedName("is_new_user") val isNewUser: Boolean? = null
+    @SerializedName("is_new_user") val isNewUser: Boolean? = null,
+    @SerializedName("is_verified") val isVerified: Boolean? = null
 )
 
 data class RefreshRequest(

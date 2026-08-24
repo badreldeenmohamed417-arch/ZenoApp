@@ -14,26 +14,26 @@ import retrofit2.http.Path
 
 interface ChatApi {
 
-    @POST("chat/conversations")
+    @POST("main/chat/conversations")
     suspend fun createConversation(
         @Body request: CreateConversationRequest
     ): ConversationResponse
 
-    @GET("chat/conversations")
+    @GET("main/chat/conversations")
     suspend fun getConversations(): ConversationListResponse
 
-    @GET("chat/conversations/{conversationId}")
+    @GET("main/chat/conversations/{conversationId}")
     suspend fun getConversation(
         @Path("conversationId") conversationId: String
     ): ConversationDetailResponse
 
-    @POST("chat/conversations/{conversationId}/messages")
+    @POST("main/chat/conversations/{conversationId}/messages")
     suspend fun sendMessage(
         @Path("conversationId") conversationId: String,
         @Body request: SendMessageRequest
     ): MessageResponse
 
-    @DELETE("chat/conversations/{conversationId}")
+    @DELETE("main/chat/conversations/{conversationId}")
     suspend fun deleteConversation(
         @Path("conversationId") conversationId: String
     )

@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.sp
 import com.example.zeno.data.AppColors
 
 enum class BottomNavItem(val title: String, val icon: ImageVector) {
-    HOME("الرئيسية", Icons.Outlined.Home),
-    CHATS("المحادثات", Icons.Outlined.Chat),
-    SETTINGS("الإعدادات", Icons.Outlined.Settings)
+    HOME("", Icons.Outlined.Home),
+    CHATS("", Icons.Outlined.Chat),
+    SETTINGS("", Icons.Outlined.Settings)
 }
 
 @Composable
