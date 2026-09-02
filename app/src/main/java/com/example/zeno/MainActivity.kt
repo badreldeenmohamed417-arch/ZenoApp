@@ -4,68 +4,65 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import com.example.zeno.data.AppColors
-import com.example.zeno.data.local.TokenManager
-import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.server.ApiClient
-import com.example.zeno.futures.Screen
-import com.example.zeno.futures.ZenoNavHost
-import com.example.zeno.ui.theme.ZenoTheme
-import java.util.Locale
+import androidx.compose.material3.Surface
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.zeno.core.navigation.RootNavGraph
+import com.example.zeno.core.network.AuthInterceptor
+import com.example.zeno.core.network.RetrofitClient
+import com.example.zeno.core.data.EncryptedAuthStorageImpl
+import com.example.zeno.core.theme.ZenoTheme
+import com.example.zeno.features.auth.data.AuthApi
+import com.example.zeno.features.auth.data.AuthRepository
+
+import com.example.zeno.features.chat.data.ChatApi
+import com.example.zeno.features.chat.data.repository.ChatRepository
+import com.example.zeno.features.student.data.StudentApi
+import com.example.zeno.features.student.data.repository.StudentRepository
+import com.example.zeno.features.session.data.SessionApi
+import com.example.zeno.features.session.data.repository.SessionRepository
+import com.example.zeno.features.social.data.FriendsApi
+import com.example.zeno.features.social.data.repository.FriendsRepository
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val userManager = UserManager(this)
-        val language = userManager.getLanguage()
-        updateLocale(language)
+        // Manual DI for Phase 9, 10, 11 & 12
+        val authStorage = EncryptedAuthStorageImpl(this)
+        val authInterceptor = AuthInterceptor(authStorage)
+        val mainRetrofit = RetrofitClient.createMainServerRetrofit(authInterceptor)
+        val aiRetrofit = RetrofitClient.createAiServerRetrofit(authInterceptor)
+        
+        val authApi = mainRetrofit.create(AuthApi::class.java)
+        val authRepository = AuthRepository(authApi, authStorage)
+        
+        val studentApi = mainRetrofit.create(StudentApi::class.java)
+        val studentRepository = StudentRepository(studentApi)
+        
+        val chatApi = aiRetrofit.create(ChatApi::class.java)
+        val chatRepository = ChatRepository(chatApi)
 
-        ApiClient.initialize(this)
-        val tokenManager = ApiClient.tokenManager()
+        val sessionApi = mainRetrofit.create(SessionApi::class.java)
+        val sessionRepository = SessionRepository(sessionApi)
 
-        val startDestination = when {
-            tokenManager.getAccessToken().isNullOrBlank() -> Screen.Login.route
-            userManager.getDisplayName().isNullOrBlank() -> Screen.SetupProfile.route
-            else -> Screen.Main.route
-        }
-
+        val friendsApi = mainRetrofit.create(FriendsApi::class.java)
+        val friendsRepository = FriendsRepository(friendsApi)
+        
+        installSplashScreen()
+        
         enableEdgeToEdge()
         setContent {
-            val isDarkTheme = userManager.getThemeMode(androidx.compose.foundation.isSystemInDarkTheme())
-            ZenoTheme(darkTheme = isDarkTheme) {
-                val navController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding).background(AppColors.BG)) {
-                        ZenoNavHost(
-                            navController = navController,
-                            startDestination = startDestination
-                        )
-                    }
+            ZenoTheme {
+                Surface {
+                    RootNavGraph(
+                        authRepository = authRepository,
+                        studentRepository = studentRepository,
+                        chatRepository = chatRepository,
+                        sessionRepository = sessionRepository,
+                        friendsRepository = friendsRepository
+                    )
                 }
             }
         }
-    }
-
-    private fun updateLocale(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val config = resources.configuration
-        config.setLocale(locale)
-        config.setLayoutDirection(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
     }
 }

@@ -10,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlinx.coroutines.runBlocking
 
-private const val BASE_URL = "https://nexorai.top"
+private const val BASE_URL = "https://zenohostingserver.fastapicloud.dev/"
 
 class AuthInterceptor(
     private val tokenManager: TokenManager

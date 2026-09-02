@@ -1,283 +1,88 @@
+<?xml version="1.0" ?>
 <resources>
+    <string name="account_change_password">Change Password</string>
+    <string name="account_delete">Delete Account</string>
+    <string name="account_delete_all_chats">Delete All Chats</string>
+    <string name="account_delete_all_data">Delete All Data</string>
+    <string name="account_email">Email Address</string>
+    <string name="account_export_data">Export Data</string>
+    <string name="aiErrorTitle">Zeno couldn\'t answer right now</string>
     <string name="app_name" translatable="false">Zeno</string>
-    <string name="error_unexpected">حدث خطأ غير متوقع</string>
-
-    <!-- Splash -->
-    <string name="splashTagline">مدرسك الذكي</string>
-    <string name="splashBy">by NexorAI</string>
-
-    <!-- Auth -->
-    <string name="startExcellenceJourney">ابدأ رحلتك في التفوق</string>
-    <string name="emailLabel">البريد الإلكتروني</string>
-    <string name="emailPlaceholder">you@example.com</string>
-    <string name="passwordLabel">كلمة المرور</string>
-    <string name="passwordPlaceholder">••••••••</string>
-    <string name="loginButton">تسجيل الدخول</string>
-    <string name="createAccountButton">إنشاء حساب</string>
-    <string name="orDivider">أو</string>
-    <string name="ConfirmPasswordLabel">تأكيد كلمة المرور</string>
-    <string name="doNotHaveAccount">ليس لديك حساب؟</string>
-    <string name="alreadyHaveAccount">لديك حساب بالفعل</string>
-    <string name="googleLoginButton">تسجيل الدخول بواسطة جوجل</string>
-
-    <string name="fill_all_fields">من فضلك املأ جميع الحقول</string>
-    <string name="passwords_do_not_match">كلمتا المرور غير متطابقتين</string>
-    <string name="invalid_email">من فضلك أدخل بريدًا إلكترونيًا صالحًا</string>
-    <string name="invalid_email_or_password">البريد الإلكتروني أو كلمة المرور غير صحيحة</string>
-    <string name="password_too_short">كلمة المرور يجب أن تكون 8 أحرف على الأقل</string>
-    <string name="password_missing_uppercase">كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل</string>
-    <string name="password_missing_lowercase">كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل</string>
-    <string name="password_missing_number">كلمة المرور يجب أن تحتوي على رقم واحد على الأقل</string>
-    <string name="password_missing_special_character">كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل</string>
-    <string name="error_user_data_null">بيانات المستخدم غير متوفرة</string>
-    <string name="error_invalid_credentials">كلمة المرور أو البريد غير صحيح</string>
-    <string name="error_user_not_found">لا يوجد حساب مرتبط بهذا البريد</string>
-    <string name="error_google_sign_in_canceled">تم إلغاء عملية تسجيل الدخول بواسطة Google</string>
-    <string name="error_google_sign_in_failed">فشل تسجيل الدخول باستخدام Google</string>
-    <string name="error_google_no_id_token">لم يتم العثور على معرّف الهوية (ID Token)</string>
-    <string name="error_email_already_in_use">هذا البريد الإلكتروني مستخدم بالفعل</string>
-
-    <!-- forgot password -->
-    <string name="forgotPassword">نسيت كلمة المرور؟</string>
-    <string name="writeMailLbl">اكتب بريدك الإلكتروني وهنبعتلك رابط لإعادة تعيين كلمة المرور</string>
-    <string name="sendRestLink">إرسال رابط الاستعادة</string>
-    <string name="rememberedPassword">تذكرت كلمة المرور؟</string>
-
-
-    <!-- Mail sent -->
-    <string name="checkYourInbox">تحقق من بريدك الإلكتروني</string>
-    <string name="mailSentReset">تم إرسال رابط إعادة نعيين كلمة المرور الى</string>
-    <string name="mailSentVerify">تم إرسال رابط تحقق من البريد الإلكتروني الى</string>
-    <string name="resendMail">إعادة الإرسال</string>
-    <string name="backToLogin">الرجوع الى تسجيل الدخول</string>
-    <string name="Continue">التالي</string>
-
-    <!-- Setup APP -->
-    <string name="choose">اختيار</string>
-    <string name="cancel">إلغاء</string>
-    <string name="enterName">أدخل اسمك</string>
-
-    <!-- رسالة عند اختيار عمر أقل من 13 سنة -->
-    <string name="ageRestrictionError">عذراً، يجب أن يكون عمرك 13 سنة أو أكثر للمتابعة</string>
-
-    <!-- Academic Setup -->
-    <string name="setupTitle">خلينا نعرفك أكتر</string>
-    <string name="setupSubtitle">هنظبطلك المحتوى على مقاسك بالظبط</string>
-    <string name="gradeLabel">السنة الدراسية</string>
-    <string name="gradeFirstSecondary">أولى ثانوي</string>
-    <string name="gradeSecondSecondary">ثانية ثانوي</string>
-    <string name="gradeThirdSecondary">ثالثة ثانوي</string>
-    <string name="systemLabel">النظام التعليمي</string>
-    <string name="sectionAzhari"> النظام الأزهري</string>
-    <string name="sectionElmi">النظام العام</string>
-    <string name="setupCta">يلا نبدأ</string>
-    <string name="birthDate">تاريخ الميلاد</string>
-
-    <!-- 3. الشعبة -->
-    <string name="sectionLabel">الشعبة</string>
-    <string name="sectionScientific">علمي</string>
-    <string name="sectionLiterary">أدبي</string>
-    <string name="sectionScientificScience">علمي علوم</string>
-    <string name="sectionScientificMath">علمي رياضة</string>
-
-    <!-- 4. المسار -->
-    <string name="trackLabel">المسار</string>
-    <string name="trackMedicineLifeSciences">الطب وعلوم الحياة</string>
-    <string name="trackEngineeringTech">الهندسة والتكنولوجيا</string>
-    <string name="trackBusinessSocialSciences">إدارة الأعمال والعلوم الاجتماعية</string>
-    <string name="trackArtsHumanities">الآداب والعلوم الإنسانية</string>
-
-    <!-- Home -->
-    <string name="home_welcome_title">أهلاً، %1$s 👋</string>
-    <string name="home_subtitle">عايز تعمل إيه دلوقتي؟</string>
-    <string name="home_streak_badge">%1$d أيام ذاكرة متتالية 🔥</string>
-
-    <string name="home_card_start_session_title">ابدأ جلسة مذاكرة</string>
-    <string name="home_card_start_session_desc">بومودورو + صوت تركيز + زينو جنبك تسأله وقت ما تحب</string>
-
-    <string name="home_card_ask_zeno_title">اسأل زينو</string>
-    <string name="home_card_ask_zeno_desc">شات سريع لأي سؤال في منهجك من غير جلسة مذاكرة</string>
-
-    <!-- Chat -->
-    <string name="showExplanation">عرض الشرح</string>
-    <string name="hideExplanation">إخفاء الشرح</string>
-    <string name="actionCopy">نسخ</string>
-    <string name="actionRetry">إعادة المحاولة</string>
-    <string name="actionReport">الإبلاغ</string>
-
-    <!-- Thinking -->
-    <string name="zenoThinking">Zeno بيفكر</string>
-
-    <!-- Conversations -->
-    <string name="conversationsTitle">محادثاتك</string>
-    <string name="conversationsSearchHint">ابحث في محادثاتك</string>
-    <string name="conversationsEmptyTitle">لسه مفيش محادثات</string>
-    <string name="conversationsEmptySubtitle">هتلاقي هنا كل الأسئلة اللي هتسألها لـ Zeno</string>
-    <string name="timeHoursAgo">منذ ساعتين</string>
-    <string name="timeYesterday">أمس</string>
-    <string name="timeDaysAgo">منذ 3 أيام</string>
-
-    <!-- Premium -->
-    <string name="premiumTitle">خلّي Zeno أقرب لمدرسك الخاص</string>
-    <string name="premiumBenefit1">شرح أعمق لكل سؤال</string>
-    <string name="premiumBenefit2">مزايا متقدمة</string>
-    <string name="premiumBenefit3">استخدام أكبر بدون حدود</string>
-    <string name="premiumBenefit4">بدون إعلانات</string>
-    <string name="premiumPriceMonthly">شهريًا</string>
-    <string name="premiumMostPopular">الأكثر شيوعًا</string>
-    <string name="premiumSubscribeButton">اشترك الآن</string>
-    <string name="premiumNotNow">ليس الآن</string>
-
-    <!-- Settings -->
-    <string name="settingsTitle">الإعدادات</string>
-    <string name="settingsSectionAccount">الحساب</string>
-    <string name="settingsGrade">السنة الدراسية</string>
-    <string name="settingsSection">الشعبة</string>
-    <string name="settingsSectionApp">التطبيق</string>
-    <string name="settingsDarkMode">الوضع الليلي</string>
-    <string name="settingsLanguage">اللغة</string>
-    <string name="settingsLanguageValue">العربية</string>
-    <string name="settingsSectionSubscription">الاشتراك</string>
-    <string name="settingsPremium">Premium</string>
-    <string name="settingsPremiumInactive">غير مفعّل</string>
-    <string name="settingsManageSubscription">إدارة الاشتراك</string>
-    <string name="settingsSectionOther">أخرى</string>
-    <string name="settingsAbout">حول Zeno</string>
-    <string name="settingsPrivacyPolicy">سياسة الخصوصية</string>
-    <string name="settingsTermsOfUse">شروط الاستخدام</string>
-    <string name="settingsReportProblem">الإبلاغ عن مشكلة</string>
-    <string name="settingsLogout">تسجيل الخروج</string>
-    <string name="settingsFooter">Zeno by NexorAI</string>
-
-    <!-- Navigation -->
-    <string name="navHome">الرئيسية</string>
-    <string name="navConversations">المحادثات</string>
-    <string name="navSettings">الإعدادات</string>
-
-    <!-- Study Session -->
-    <string name="newStudySession">جلسة مذاكرة جديدة</string>
-    <string name="whatToStudyToday">هتذاكر إيه النهاردة؟</string>
-    <string name="unspecified">بدون تحديد</string>
-    <string name="sessionDuration">مدة الجلسة</string>
-    <string name="minutes">دقيقة</string>
-    <string name="focusSound">صوت التركيز</string>
-    <string name="noSound">بدون صوت</string>
-    <string name="soundRain">مطر</string>
-    <string name="soundCafe">مقهى</string>
-    <string name="soundWhiteNoise">ضوضاء بيضاء</string>
-    <string name="startSession">ابدأ الجلسة</string>
-    <string name="sessionHint">Zeno هيكون معاك طول الجلسة، اسأله في أي وقت من غير ما توقف التايمر</string>
-    <string name="focusTime">وقت التركيز</string>
-    <string name="soundPlaying">%1$s شغال</string>
-    <string name="askZeno">اسأل Zeno</string>
-    <string name="breakTime">وقت الراحة 🌿</string>
-    <string name="breakDescription">قوم اتمشى شوية وارتاح، وهرجعلك تاني</string>
-    <string name="skipBreak">تخطي الراحة</string>
-    <string name="greatSession">جلسة رائعة! 🎉</string>
-    <string name="finishedSessionIn">خلصت جلسة مذاكرة في %1$s</string>
-    <string name="focusMinutes">دقيقة تركيز</string>
-    <string name="questionsToZeno">أسئلة لـ Zeno</string>
-    <string name="consecutiveDays">أيام متتالية</string>
-    <string name="startAnotherSession">ابدأ جلسة تانية</string>
-    <string name="backToHome">الرجوع للرئيسية</string>
-    <string name="exitSessionTitle">هل تريد الخروج من جلسة المذاكرة؟</string>
-    <string name="exitSessionMessage">قد تفقد تقدم الجلسة الحالية.</string>
-
-    <!-- Error states -->
-    <string name="noInternetTitle">يبدو إن الإنترنت مش متاح</string>
-    <string name="noInternetSubtitle">تأكد من اتصالك وحاول تاني</string>
-    <string name="retryButton">إعادة المحاولة</string>
-    <string name="aiErrorTitle">Zeno مقدرش يجاوب دلوقتي</string>
-    <string name="aiErrorRetry">حاول مرة تانية</string>
-
-    <!-- Detailed Popups -->
-    <string name="about_zeno_title">حول Zeno</string>
-    <string name="about_zeno_content">
-        Zeno هي منصة تعليمية مدعومة بالذكاء الاصطناعي مصممة لجعل التعلم أكثر ذكاءً وبساطة وتخصيصًا.
-        \n\nتساعد Zeno الطلاب على فهم محتواهم التعليمي من خلال مساعدة ذكية من الذكاء الاصطناعي، وإجابات سياقية، وتجارب تعليمية مخصصة. بدلاً من مجرد تقديم الإجابات، تم تصميم Zeno لمساعدة الطلاب على فهم \"السبب\" وراء ما يتعلمونه.
-        \n\nمع تقنيات مثل الذكاء الاصطناعي، والـ RAG (الجيل المعزز بالاسترجاع)، وأنظمة التعلم المخصصة، يمكن لـ Zeno العمل مع المواد التعليمية وتقديم إجابات تستند إلى المنهج الفعلي للطالب.
-        \n\nرؤيتنا
-        \n\nنعتقد أن كل طالب يجب أن يكون لديه وصول إلى مساعد تعلم شخصي متاح متى احتاج إليه.
-        \n\nهدف Zeno هو سد الفجوة بين المواد التعليمية التقليدية والذكاء الاصطناعي الحديث، مما يخلق تجربة تعليمية تتميز بما يلي:
-        \n\n🎓 تعليمية — تركز على الفهم الحقيقي.
-        \n🤖 ذكية — مدعومة بتقنيات الذكاء الاصطناعي الحديثة.
-        \n📚 واعية بالسياق — تستند إلى المحتوى التعليمي للطالب.
-        \n🌍 متاحة — مصممة لجعل مساعدة التعلم عالية الجودة متاحة لمزيد من الطلاب.
-        \n✨ مخصصة — تكيف التجربة مع احتياجات كل طالب.
-        \n\nبنيت للطلاب
-        \n\nسواء كنت تراجع درساً، أو تستعد للامتحان، أو تسأل عن مفهوم صعب، أو تحاول ببساطة فهم شيء ما بشكل أفضل، فقد تم بناء Zeno ليكون رفيقك الشخصي في التعلم بالذكاء الاصطناعي.
-        \n\nتعلم بذكاء. افهم بشكل أعمق. اذهب أبعد مع Zeno.
-    </string>
-
-    <string name="privacy_policy_title">سياسة الخصوصية — Zeno</string>
-    <string name="privacy_policy_content">
-        آخر تحديث: 24 أغسطس 2026
-        \n\nفي Zeno، نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع بياناتك واستخدامها وتخزينها وحمايتها عند استخدامك لمنصة Zeno وخدماتها.
-        \n\nباستخدامك لـ Zeno، فإنك توافق على الممارسات الموضحة في هذه السياسة.
-        \n\n1. المعلومات التي نجمعها
-        \n\nقد نقوم بجمع المعلومات التالية عند استخدامك للمنصة:
-        \n\nمعلومات الحساب: البريد الإلكتروني، كلمة المرور (مشفرة)، اسم العرض، الدولة، الصف الدراسي، النظام التعليمي، اللغة المفضلة.
-        \nمعلومات الاستخدام: المحادثات مع Zeno، الأسئلة، استهلاك الخدمات، معلومات الاشتراك، سجلات الجلسات، ومعلومات تقنية أساسية.
-        \nمعلومات الدفع: قد تتم معالجة معلومات الدفع من خلال مزودي خدمات خارجيين.
-        \n\n2. كيف نستخدم بياناتك؟
-        \n\nنستخدم المعلومات لإنشاء وإدارة حسابك، تقديم خدمات Zeno التعليمية، تخصيص تجربة التعلم، تحسين جودة الخدمات، منع الاحتيال، وحماية أمن المنصة.
-        \n\n3. الذكاء الاصطناعي والمحادثات
-        \n\nقد تستخدم Zeno تقنيات الذكاء الاصطناعي لمعالجة الأسئلة. نسعى لاستخدام هذه البيانات فقط لتحسين الخدمة ولا نبيع بياناتك الشخصية لأطراف ثالثة.
-        \n\n4. المحتوى التعليمي وRAG
-        \n\nتعتمد بعض الميزات على تقنيات RAG للوصول إلى المعلومات ذات الصلة من المحتوى التعليمي لتقديم إجابات أكثر دقة.
-        \n\n5. مشاركة البيانات
-        \n\nلا نبيع بياناتك الشخصية. قد نشاركها مع مزودي خدمات موثوقين (ذكاء اصطناعي، دفع، استضافة) بالقدر اللازم لتقديم الخدمة.
-        \n\n6. أمن البيانات
-        \n\nنتخذ إجراءات تقنية مناسبة لحماية بياناتك من الوصول غير المصرح به، ولكن لا توجد وسيلة نقل عبر الإنترنت آمنة بنسبة 100%.
-        \n\n7. حذف الحساب
-        \n\nيمكنك طلب حذف حسابك وبياناتك الشخصية في أي وقت.
-        \n\n8. حقوقك
-        \n\nلديك الحق في الوصول إلى بياناتك، تصحيحها، أو طلب حذفها وفقاً للقوانين المعمول بها.
-    </string>
-
-    <string name="terms_of_use_title">شروط استخدام Zeno</string>
-    <string name="terms_of_use_content">
-        آخر تحديث: 24 أغسطس 2026
-        \n\nمرحبًا بك في Zeno. باستخدامك لمنصة Zeno أو تطبيقاتها أو خدماتها، فإنك توافق على الالتزم بشروط الاستخدام الموضحة أدناه.
-        \n\n1. التعريف بالخدمة
-        \nZeno هي منصة تعليمية تعتمد على تقنيات الذكاء الاصطناعي لمساعدة الطلاب على التعلم وفهم المحتوى الدراسي.
-        \n\n2. إنشاء الحساب
-        \nأنت مسؤول عن تقديم معلومات صحيحة والحفاظ على سرية بيانات تسجيل الدخول وعدم مشاركة حسابك مع الآخرين.
-        \n\n3. استخدام الذكاء الاصطناعي
-        \nإجابات الذكاء الاصطناعي قد تحتوي أحياناً على أخطاء، ولا تعتبر بديلاً عن المعلم أو المصادر التعليمية الرسمية.
-        \n\n4. الاستخدام المقبول
-        \nيجب استخدام Zeno لأغراض قانونية. يُمنع محاولة اختراق الأنظمة أو التحايل على حدود الاستخدام أو إرسال محتوى ضار.
-        \n\n5. حقوق الملكية الفكرية
-        \nجميع حقوق الملكية الفكرية المتعلقة بمنصة Zeno تظل مملوكة لـ Zeno أو لأصحاب الحقوق المعنيين.
-        \n\n6. إخلاء المسؤولية
-        \nيتم تقديم Zeno على أساس \"كما هي\"، ولا نضمن أن الخدمة ستكون خالية تماماً من الأخطاء أو الانقطاعات.
-        \n\n7. تعليق أو إنهاء الحساب
-        \nيجوز لنا تعليق حسابك إذا خالفت شروط الاستخدام أو استخدمت الخدمة بطريقة غير قانونية.
-    </string>
-
-    <string name="report_problem_hint">كلمونا وهنرد عليكم في خلال 24 ساعة.</string>
-    <string name="send_email_button">إرسال بريد إلكتروني</string>
-    <string name="close_button">إغلاق</string>
-    <string name="ok_button">حسناً</string>
-
-    <!-- New Strings -->
-    <string name="newConversation">محادثة جديدة</string>
-    <string name="startChatWithZeno">ابدأ المحادثة مع زينو</string>
-    <string name="chatInputPlaceholder">اكتب رسالتك...</string>
-    <string name="untitled">بدون عنوان</string>
-    <string name="lastMessagePlaceholder">آخر رسالة...</string>
-    <string name="logoutConfirmTitle">تسجيل الخروج</string>
-    <string name="logoutConfirmMessage">هل أنت متأكد أنك تريد تسجيل الخروج؟ سيتم مسح جميع البيانات المحلية.</string>
-    <string name="logoutConfirmAction">خروج</string>
-    <string name="googleLoginError">حدث خطأ أثناء تسجيل الدخول باستخدام Google: %1$s</string>
-    <string name="error_network">لا يوجد اتصال بالإنترنت</string>
-    <string name="error_timeout">انتهت مهلة الاتصال بالسيرفر</string>
-    <string name="error_unknown">حدث خطأ غير متوقع</string>
-    <string name="error_request_failed">خطأ في الطلب: %1$d</string>
-    <string name="guestUser">طالب</string>
-    <string name="welcome_greeting">أهلاً بيك 👋</string>
-    <string name="ask_zeno_intro">اسأل Zeno عن أي حاجة في منهجك.</string>
-    <string name="sound_label">صوت %1$s</string>
-    <string name="notification_break_title">وقت الراحة يا %1$s ☕</string>
-    <string name="notification_focus_title">وقت التركيز: %1$s</string>
+    <string name="auth_back_to_login">Back to Login</string>
+    <string name="auth_email_hint">Email Address</string>
+    <string name="auth_forgot_password">Forgot Password?</string>
+    <string name="auth_forgot_subtitle">Enter your email and we\'ll send a reset link</string>
+    <string name="auth_forgot_title">Forgot Password</string>
+    <string name="auth_has_account">Already have an account?</string>
+    <string name="auth_login_button">Login</string>
+    <string name="auth_login_google">Continue with Google</string>
+    <string name="auth_login_subtitle">Welcome back to Zeno</string>
+    <string name="auth_login_title">Login</string>
+    <string name="auth_name_hint">Full Name</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+    <string name="auth_or_login_with">Or login with</string>
+    <string name="auth_password_hint">Password</string>
+    <string name="auth_register_button">Register</string>
+    <string name="auth_register_subtitle">Create your Zeno account</string>
+    <string name="auth_register_title">Register</string>
+    <string name="auth_send_link_button">Send Reset Link</string>
+    <string name="chat_empty_state_subtitle">Start a conversation to see it here</string>
+    <string name="chat_empty_state_title">No conversations yet</string>
+    <string name="chat_input_hint">Type your message...</string>
+    <string name="chat_typing_indicator">Typing...</string>
+    <string name="demo_button">Button</string>
+    <string name="demo_card_desc">Card Description</string>
+    <string name="demo_card_title">Card Title</string>
+    <string name="demo_error">Error!</string>
+    <string name="demo_loading">Loading...</string>
+    <string name="demo_textfield_hint">Enter text...</string>
+    <string name="demo_title">Demo</string>
+    <string name="error_network">No internet connection</string>
+    <string name="error_request_failed">Request failed: %1$d</string>
+    <string name="error_timeout">Connection timeout</string>
+    <string name="error_unknown">An unexpected error occurred</string>
+    <string name="googleLoginError">Google login failed: %1$s</string>
+    <string name="guestUser">Student</string>
+    <string name="home_daily_goal">Daily Goal</string>
+    <string name="home_daily_progress">Daily Progress</string>
+    <string name="home_greeting">Welcome to Zeno</string>
+    <string name="home_next_session_action">Start Session</string>
+    <string name="home_next_session_title">Next Session</string>
+    <string name="home_recent_topics">Recent Topics</string>
+    <string name="home_streak">Streak</string>
+    <string name="info_privacy">Privacy Policy</string>
+    <string name="info_terms">Terms of Use</string>
+    <string name="info_version">Version</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_sessions">Sessions</string>
+    <string name="noInternetSubtitle">Check your connection and try again</string>
+    <string name="notification_break_title">Break time, %1$s ☕</string>
+    <string name="notification_focus_title">Focus time: %1$s</string>
+    <string name="profile_edit_picture">Edit Picture</string>
+    <string name="profile_xp">XP</string>
+    <string name="session_action_continue">Continue</string>
+    <string name="session_action_start">Start</string>
+    <string name="session_status_completed">Completed</string>
+    <string name="session_status_in_progress">In Progress</string>
+    <string name="session_status_pending">Pending</string>
+    <string name="sessions_tab_completed">Completed</string>
+    <string name="sessions_tab_upcoming">Upcoming</string>
+    <string name="sessions_title">Sessions</string>
+    <string name="settings_account">Account Settings</string>
+    <string name="settings_info">Information</string>
+    <string name="settings_profile">Profile Settings</string>
+    <string name="settings_title">Settings</string>
+    <string name="setup_grade_label">Grade</string>
+    <string name="setup_save_button">Save</string>
+    <string name="setup_subtitle">Customize your learning experience</string>
+    <string name="setup_title">Let\'s know you better</string>
+    <string name="setup_track_label">Track</string>
+    <string name="social_streak">Streak</string>
+    <string name="social_tab_list">Friends</string>
+    <string name="social_tab_requests">Requests</string>
+    <string name="social_title">Community</string>
+    <string name="social_xp">XP</string>
+    <string name="unspecified">Unspecified</string>
 </resources>

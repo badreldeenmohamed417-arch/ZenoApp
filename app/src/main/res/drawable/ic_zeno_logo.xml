@@ -1,0 +1,15 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <!-- Minimalist Z shape representing Zeno (Abstract and scaleable) -->
+  <path
+      android:fillColor="#000000"
+      android:pathData="M5,5 L19,5 L19,8 L9,19 L19,19 L19,22 L5,22 L5,19 L15,8 L5,8 Z" />
+  
+  <!-- A subtle dot representing a spark of AI / Idea -->
+  <path
+      android:fillColor="#000000"
+      android:pathData="M19.5,4.5 m-2.5,0 a2.5,2.5 0,1 1,5 0 a2.5,2.5 0,1 1,-5 0" />
+</vector>
