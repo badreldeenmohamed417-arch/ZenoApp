@@ -112,7 +112,7 @@ fun StudyPlanScreen(navController: NavController, sessionsViewModel: SessionsVie
                     val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
                     var daysSinceStart = 0L
                     try {
-                        val startDate = dateFormat.parse(plan.startDate)
+                        val startDate = dateFormat.parse(plan.startDate) ?: java.util.Date()
                         val now = java.util.Date()
                         val diff = now.time - startDate.time
                         daysSinceStart = maxOf(0L, diff / (1000 * 60 * 60 * 24))
