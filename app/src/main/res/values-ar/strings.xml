@@ -409,4 +409,7 @@
     <string name="auth_or_signup_with">أو سجل عن طريق</string>
     <string name="stop_session">إنهاء الجلسة</string>
     <string name="profile_username_hint">\@اسم_المستخدم</string>
+    <string name="home_streak_start">ابدأ أول جلسة مذاكرة اليوم!</string>
+    <string name="home_streak_keep_going">استمر كده متوقفش!</string>
+    <string name="home_streak_goal_reached">عاش! لقد حققت هدف اليوم 🌟</string>
 </resources>

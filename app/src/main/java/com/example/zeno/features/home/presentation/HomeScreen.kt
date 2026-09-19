@@ -291,14 +291,13 @@ fun HomeScreen(
                     val heightRatio = if (maxVal > 0) (value.toFloat() / maxVal.toFloat()).coerceIn(0.15f, 1f) else 0.15f
                     val isToday = day == currentDayStr
                     
-                    val barColor = if (isToday) {
-                        if (value == 0) Color.Green
-                        else if (value < dailyGoalMin / 3) Color.Red
+                    val barColor = if (value == 0) {
+                        if (isToday) Color.Green else Color(0xFF2B2E38)
+                    } else {
+                        if (value < dailyGoalMin / 3) Color.Red
                         else if (value < dailyGoalMin * 0.8f) Color.Yellow
                         else if (value <= dailyGoalMin * 1.2f) Color.Blue
                         else Color(0xFFFFD700) // Golden
-                    } else {
-                        Color(0xFF2B2E38) // Other days are not colored as per requirement: "العمود الملون هو العمود تبع اليوم الحالي بس"
                     }
 
                     Column(
