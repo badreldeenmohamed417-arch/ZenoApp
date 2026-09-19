@@ -149,15 +149,15 @@ fun SettingsDashboardScreen(
                 modifier = Modifier
                     .size(80.dp)
                     .clip(CircleShape)
-                    .background(CardBG)
-                    .border(2.dp, CardBorder, CircleShape),
+                    .background(com.example.zeno.data.AppColors.SurfaceVariant)
+                    .border(2.dp, com.example.zeno.data.AppColors.CardBorder, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = avatarInitial,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    color = com.example.zeno.data.AppColors.TextPrimary
                 )
             }
 
@@ -167,7 +167,7 @@ fun SettingsDashboardScreen(
                 text = userName,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextWhite
+                color = com.example.zeno.data.AppColors.TextPrimary
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -284,13 +284,13 @@ fun SettingsRowItem(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF23262E)),
+                    .background(com.example.zeno.data.AppColors.SurfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = Color(0xFF60A5FA),
+                    tint = com.example.zeno.data.AppColors.Accent,
                     modifier = Modifier.size(16.dp)
                 )
             }
