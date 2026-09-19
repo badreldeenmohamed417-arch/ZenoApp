@@ -124,7 +124,7 @@ fun StudyPlanScreen(navController: NavController, sessionsViewModel: SessionsVie
                                 6 -> stringResource(id = R.string.auto_str_اليوم_السابع)
                                 else -> stringResource(id = R.string.auto_str_يوم_index_1)
                             }
-                            Pair(dayName, items.map { stringResource(id = R.string.auto_str_itsubjectId_ittopicId_itplannedDurationMinutes) })
+                            Pair(dayName, items.map { stringResource(id = R.string.auto_str_itsubjectId_ittopicId_itplannedDurationMinutes, it.subjectId, it.topicId, it.plannedDurationMinutes) })
                         }
 
                         LazyColumn(
