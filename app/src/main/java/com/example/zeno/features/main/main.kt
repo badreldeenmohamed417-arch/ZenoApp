@@ -42,17 +42,7 @@ fun MainScreen(
             TopSectionMainScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            val homeViewModel: com.example.zeno.features.home.presentation.HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
-                factory = object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                        HomeViewModel(
-                            ProgressRepository(
-                                ApiClient.progress()
-                            )
-                        ) as T
-                }
-            )
+            val homeViewModel: com.example.zeno.features.home.presentation.HomeViewModel = org.koin.androidx.compose.koinViewModel()
             com.example.zeno.features.home.presentation.HomeScreen(
                 viewModel = homeViewModel,
                 onStartSession = onStartSession

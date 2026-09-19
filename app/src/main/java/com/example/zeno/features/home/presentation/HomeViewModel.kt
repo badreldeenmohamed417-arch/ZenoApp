@@ -26,11 +26,18 @@ class HomeViewModel(private val repository: ProgressRepository) : ViewModel() {
 
     fun loadDashboard() {
         viewModelScope.launch {
-            _uiState.value = HomeUiState.Loading
+            val cached = repository.getCachedProgress()
+            if (cached != null) {
+                _uiState.value = HomeUiState.Success(cached)
+            } else {
+                _uiState.value = HomeUiState.Loading
+            }
             val result = repository.getProgressOverview()
             if (result.isSuccess) {
+                // If server returns less minutes than local (due to sync delay), keep local? 
+                // For simplicity, just use server data. Sync will catch up.
                 _uiState.value = HomeUiState.Success(result.getOrThrow())
-            } else {
+            } else if (cached == null) {
                 _uiState.value = HomeUiState.Error(result.exceptionOrNull().getUserFriendlyMessage())
             }
         }

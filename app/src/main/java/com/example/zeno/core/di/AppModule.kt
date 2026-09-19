@@ -26,6 +26,7 @@ import com.example.zeno.features.student.data.repository.StudentRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.koin.android.ext.koin.androidContext
 
 val appModule = module {
     // Core & Storage
@@ -57,7 +58,8 @@ val appModule = module {
     // Repositories
     single { AuthRepository(get(), get(), get()) }
     single { StudentRepository(get()) }
-    single { ProgressRepository(get()) }
+    single { com.example.zeno.features.home.data.HomeCacheManager(androidContext()) }
+    single { ProgressRepository(get(), get()) }
     single { ChatRepository(get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }

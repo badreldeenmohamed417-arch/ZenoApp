@@ -47,6 +47,10 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboard()
+    }
     val homeData = (uiState as? HomeUiState.Success)?.data
 
     val streakDays = homeData?.streak ?: 0
@@ -73,11 +77,7 @@ fun HomeScreen(
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val rawGreeting = homeData?.greeting?.trim()
-                val greetingText = when (rawGreeting) {
-                    txt("home_greeting"), "Good evening", "أهلاً بيك في زينو", "Welcome to Zeno", null, "" -> stringResource(R.string.home_greeting)
-                    "صباح الخير", "Good morning" -> stringResource(R.string.home_greeting)
-                    else -> rawGreeting
-                }
+                val greetingText = stringResource(R.string.home_greeting)
                 Text(
                     text = greetingText,
                     fontSize = 22.sp,
@@ -111,6 +111,18 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val dailyGoalStr2 = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
+                val dailyGoalMin2 = dailyGoalStr2.toIntOrNull() ?: 60
+                
+                val streakText = if (minutesToday == 0) "ابدأ أول جلسة مذاكرة اليوم!"
+                                 else if (minutesToday < dailyGoalMin2) "استمر كده متوقفش!"
+                                 else "عاش! لقد حققت هدف اليوم 🌟"
+                                 
+                val emoji = if (minutesToday == 0) "💤" 
+                            else if (minutesToday < dailyGoalMin2 / 2) "🔥" 
+                            else if (minutesToday < dailyGoalMin2) "🚀" 
+                            else "👑"
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "$streakDays ${stringResource(R.string.home_streak)}",
@@ -120,7 +132,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = if (streakDays > 0) stringResource(id = R.string.auto_str_استمر_كده_متوقفش) else stringResource(id = R.string.auto_str_ابدأ_أول_يوم),
+                        text = streakText,
                         fontSize = 13.sp,
                         color = TextMuted
                     )
@@ -140,7 +152,7 @@ fun HomeScreen(
                             useCenter = false,
                             style = Stroke(width = 12f)
                         )
-                        val sweep = if (streakDays > 0) (streakDays.toFloat() / 30f * 360f).coerceAtMost(360f) else 45f
+                        val sweep = if (minutesToday == 0) 0f else (minutesToday.toFloat() / dailyGoalMin2.toFloat() * 360f).coerceAtMost(360f)
                         drawArc(
                             color = activeLime,
                             startAngle = -90f,
@@ -149,7 +161,7 @@ fun HomeScreen(
                             style = Stroke(width = 12f, cap = StrokeCap.Round)
                         )
                     }
-                    Text(text = "🔥", fontSize = 22.sp)
+                    Text(text = emoji, fontSize = 22.sp)
                 }
             }
         }
@@ -253,26 +265,60 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
+
                 val daysOrder = listOf(stringResource(id = R.string.auto_str_س), stringResource(id = R.string.auto_str_ح), stringResource(id = R.string.auto_str_ن), stringResource(id = R.string.auto_str_ث), stringResource(id = R.string.auto_str_ر), stringResource(id = R.string.auto_str_خ), stringResource(id = R.string.auto_str_ج))
                 val maxVal = (weeklyData.values.maxOrNull() ?: 50).coerceAtLeast(1)
+                
+                // Extract daily goal in minutes
+                val dailyGoalStr = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
+                val dailyGoalMin = dailyGoalStr.toIntOrNull() ?: 60
+
+                // Get current day index
+                val calendar = java.util.Calendar.getInstance()
+                val currentDayStr = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
+                    java.util.Calendar.SATURDAY -> stringResource(id = R.string.auto_str_س)
+                    java.util.Calendar.SUNDAY -> stringResource(id = R.string.auto_str_ح)
+                    java.util.Calendar.MONDAY -> stringResource(id = R.string.auto_str_ن)
+                    java.util.Calendar.TUESDAY -> stringResource(id = R.string.auto_str_ث)
+                    java.util.Calendar.WEDNESDAY -> stringResource(id = R.string.auto_str_ر)
+                    java.util.Calendar.THURSDAY -> stringResource(id = R.string.auto_str_خ)
+                    java.util.Calendar.FRIDAY -> stringResource(id = R.string.auto_str_ج)
+                    else -> ""
+                }
 
                 daysOrder.forEach { day ->
                     val value = weeklyData[day] ?: 0
                     val heightRatio = if (maxVal > 0) (value.toFloat() / maxVal.toFloat()).coerceIn(0.15f, 1f) else 0.15f
-                    val isHighlight = day == stringResource(id = R.string.auto_str_س)
+                    val isToday = day == currentDayStr
+                    
+                    val barColor = if (isToday) {
+                        if (value == 0) Color.Green
+                        else if (value < dailyGoalMin / 3) Color.Red
+                        else if (value < dailyGoalMin * 0.8f) Color.Yellow
+                        else if (value <= dailyGoalMin * 1.2f) Color.Blue
+                        else Color(0xFFFFD700) // Golden
+                    } else {
+                        Color(0xFF2B2E38) // Other days are not colored as per requirement: "العمود الملون هو العمود تبع اليوم الحالي بس"
+                    }
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .width(28.dp)
-                                .fillMaxHeight(heightRatio)
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (isHighlight) LimeAccent else Color(0xFF2B2E38))
-                        )
+                        Box(contentAlignment = Alignment.TopCenter) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = if (isToday && value > dailyGoalMin * 1.2f) 10.dp else 0.dp)
+                                    .width(28.dp)
+                                    .fillMaxHeight(heightRatio)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(barColor)
+                            )
+                            if (isToday && value > dailyGoalMin * 1.2f) {
+                                Text(text = "⭐", fontSize = 12.sp, modifier = Modifier.offset(y = (-10).dp))
+                            }
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = day,
