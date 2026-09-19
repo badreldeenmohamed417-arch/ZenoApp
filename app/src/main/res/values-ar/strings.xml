@@ -67,7 +67,7 @@
     <string name="nav_chat">المحادثة</string>
     <string name="nav_sessions">الجلسات</string>
     <string name="nav_upgrade">الاشتراك</string>
-    <string name="nav_profile">الملف الشخصي</string>
+    <string name="nav_profile">حسابي</string>
     <string name="gradeLabel">السنة الدراسية</string>
     <string name="gradeFirstSecondary">أولى ثانوي</string>
     <string name="gradeSecondSecondary">تانية ثانوي</string>
