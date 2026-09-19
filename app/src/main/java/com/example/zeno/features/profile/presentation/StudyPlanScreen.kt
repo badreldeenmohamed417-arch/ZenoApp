@@ -105,7 +105,27 @@ fun StudyPlanScreen(navController: NavController, sessionsViewModel: SessionsVie
                     }
                 }
                 is SessionsUiState.Success -> {
-                    val planItems = (uiState as SessionsUiState.Success).plan.items
+                    val plan = (uiState as SessionsUiState.Success).plan
+                    val planItemsAll = plan.items
+                    
+                    // Filter to show only the current week's items
+                    val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                    var daysSinceStart = 0L
+                    try {
+                        val startDate = dateFormat.parse(plan.startDate)
+                        val now = java.util.Date()
+                        val diff = now.time - startDate.time
+                        daysSinceStart = maxOf(0L, diff / (1000 * 60 * 60 * 24))
+                    } catch (e: Exception) { e.printStackTrace() }
+                    
+                    val currentWeekIndex = (daysSinceStart / 7).toInt()
+                    val startIndex = currentWeekIndex * 7 * 3 // 3 items per day
+                    val endIndex = startIndex + (7 * 3)
+                    
+                    val planItems = if (planItemsAll.size > startIndex) {
+                        planItemsAll.subList(startIndex, minOf(endIndex, planItemsAll.size))
+                    } else planItemsAll
+
                     if (planItems.isEmpty()) {
                         Text(
                             text = stringResource(id = R.string.auto_str_الخطة_فارغة),
