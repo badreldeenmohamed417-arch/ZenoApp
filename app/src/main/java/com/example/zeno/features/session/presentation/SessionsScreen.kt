@@ -52,13 +52,10 @@ fun SessionsScreen(viewModel: SessionsViewModel) {
     val context = LocalContext.current
     val sessionState by StudySessionService.sessionState.collectAsState()
 
-    val uiState by viewModel.uiState.collectAsState()
-    val planItems = (uiState as? SessionsUiState.Success)?.plan?.items
+    val userManager = remember { UserManager(context) }
+    val userSubjects = remember { userManager.getSubjects().map { it.name }.filter { it.isNotBlank() } }
     val defaultSubjectsList = listOf(stringResource(id = R.string.auto_str_الرياضيات), stringResource(id = R.string.auto_str_الفيزياء), stringResource(id = R.string.auto_str_عربي), "English")
-    val currentLang = remember { UserManager(context).getLanguage() }
-    val subjects = planItems?.map { it.getLocalizedSubject(currentLang) }?.distinct()?.filter { it.isNotBlank() }
-        ?.ifEmpty { defaultSubjectsList }
-        ?: defaultSubjectsList
+    val subjects = if (userSubjects.isNotEmpty()) userSubjects else defaultSubjectsList
 
     val totalTime = if (sessionState.totalTimeMillis > 0) sessionState.totalTimeMillis else 25 * 60 * 1000L
     val timeLeft = if (sessionState.totalTimeMillis > 0) sessionState.timeLeftMillis else totalTime
@@ -330,55 +327,7 @@ fun SessionsScreen(viewModel: SessionsViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
 
-        // Upcoming Sessions (from Study Plan) Section
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(id = R.string.auto_str_جلساتك_القادمة_اليوم),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (planItems.isNullOrEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.auto_str_لا_توجد_جلسات),
-                    fontSize = 13.sp,
-                    color = TextMuted,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            } else {
-                planItems.forEach { item ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(CardBG)
-                            .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.auto_str_itemplannedDurationMinutes_د),
-                            fontSize = 12.sp,
-                            color = TextMuted
-                        )
-                        Text(
-                            text = item.getLocalizedSubject(currentLang),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextWhite
-                        )
-                    }
-                }
-            }
-        }
 
         Spacer(modifier = Modifier.height(30.dp))
     }
