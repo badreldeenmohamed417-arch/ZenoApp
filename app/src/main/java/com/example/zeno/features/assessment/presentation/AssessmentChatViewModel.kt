@@ -155,7 +155,12 @@ class AssessmentChatViewModel(
                     )
                     currentStep = 1
 
-                    val options = config?.assessmentOptions?.focusAreas ?: listOf("Understanding Concepts 🧠", "Memorization 📖", "Solving ✍️")
+                    var options = config?.assessmentOptions?.focusAreas
+                    if (options.isNullOrEmpty()) {
+                        options = if (isArabic) listOf("فهم المفاهيم", "الحفظ", "الحل والتدريب") else listOf("Understanding Concepts", "Memorization", "Solving")
+                    } else {
+                        options = options.map { it.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim() }
+                    }
 
                     addMessage(
                         AssessmentChatMessage(
@@ -172,7 +177,12 @@ class AssessmentChatViewModel(
                     )
                     currentStep = 2
 
-                    val styles = config?.assessmentOptions?.explanationStyles ?: listOf("Detailed 📝", "Practical 💡", "Concise ⚡")
+                    var styles = config?.assessmentOptions?.explanationStyles
+                    if (styles.isNullOrEmpty()) {
+                        styles = if (isArabic) listOf("مفصل", "عملي تطبيقي", "مختصر") else listOf("Detailed", "Practical", "Concise")
+                    } else {
+                        styles = styles.map { it.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim() }
+                    }
 
                     addMessage(
                         AssessmentChatMessage(
@@ -189,7 +199,12 @@ class AssessmentChatViewModel(
                     )
                     currentStep = 3
 
-                    val options = config?.assessmentOptions?.strengths ?: listOf("Memorization", "Understanding", "Application")
+                    var options = config?.assessmentOptions?.strengths
+                    if (options.isNullOrEmpty()) {
+                        options = if (isArabic) listOf("الحفظ", "الفهم", "التطبيق") else listOf("Memorization", "Understanding", "Application")
+                    } else {
+                        options = options.map { it.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim() }
+                    }
                     val question = context.getString(R.string.assessment_q4)
 
                     addMessage(
@@ -252,7 +267,7 @@ class AssessmentChatViewModel(
                         AssessmentChatMessage(
                             sender = MessageSender.ZENO,
                             text = context.getString(R.string.assessment_q6),
-                            quickReplies = listOf("⏱️ 1 Hour", "⏱️ 2.5 Hours", "⏱️ 5 Hours", "⏱️ +5 Hours")
+                            quickReplies = if (isArabic) listOf("ساعة واحدة", "ساعتين ونصف", "5 ساعات", "أكثر من 5 ساعات") else listOf("1 Hour", "2.5 Hours", "5 Hours", "+5 Hours")
                         )
                     )
                 }
