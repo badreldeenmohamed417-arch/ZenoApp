@@ -60,7 +60,7 @@ fun GradeMiddleSection(
         // 1. Grade / Academic Year
         SelectionGroupWidget(
             title = stringResource(R.string.gradeLabel),
-            options = listOf(gradeOne, gradeTwo, gradeThree),
+            options = listOf(gradeTwo, gradeThree),
             selectedOption = selectedGrade.ifEmpty { null },
             onOptionSelected = { newSelection ->
                 selectedGrade = newSelection
@@ -71,9 +71,14 @@ fun GradeMiddleSection(
 
         // 2. Educational System
         if (selectedGrade.isNotEmpty()) {
+            val systemOptions = if (selectedGrade == gradeTwo) {
+                listOf(systemBacc)
+            } else {
+                listOf(systemGeneral, systemAzhari)
+            }
             SelectionGroupWidget(
                 title = stringResource(R.string.systemLabel),
-                options = listOf(systemGeneral, systemAzhari, systemBacc),
+                options = systemOptions,
                 selectedOption = selectedSystem.ifEmpty { null },
                 onOptionSelected = { newSelection ->
                     selectedSystem = newSelection

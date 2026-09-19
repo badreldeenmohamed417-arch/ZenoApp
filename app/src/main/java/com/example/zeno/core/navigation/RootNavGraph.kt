@@ -149,7 +149,7 @@ fun RootNavGraph(
             AuthNavGraph(
                 authRepository = authRepository,
                 onAuthSuccess = {
-                    navController.navigate("setup") {
+                    navController.navigate("splash") {
                         popUpTo("auth") { inclusive = true }
                     }
                 }
