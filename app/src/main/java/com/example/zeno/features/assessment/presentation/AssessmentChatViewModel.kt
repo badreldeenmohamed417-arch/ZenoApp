@@ -66,16 +66,22 @@ class AssessmentChatViewModel(
                 )
             )
 
-            val subjects = userManager.getSubjects().map { it.name }.take(5).toMutableList()
+            val subjects = userManager.getSubjects().map { 
+                it.name.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim()
+            }.take(5).toMutableList()
             if (subjects.isEmpty()) {
                 val dynamicSubjects = config?.defaultSubjects
                 if (!dynamicSubjects.isNullOrEmpty()) {
                     subjects.addAll(dynamicSubjects)
                 } else {
-                    subjects.addAll(listOf("Math 🔢", "Arabic 📚", "English 🇬🇧", "Science 🔬"))
+                    if (isArabic) {
+                        subjects.addAll(listOf("اللغة العربية", "الفيزياء", "الكيمياء", "الرياضيات", "الأحياء", "التاريخ"))
+                    } else {
+                        subjects.addAll(listOf("Arabic", "Physics", "Chemistry", "Math", "Biology", "History"))
+                    }
                 }
             }
-            subjects.add(if (isArabic) "auto_str_مادة_أخرى" else "Other Subject")
+            subjects.add(if (isArabic) context.getString(R.string.auto_str_مادة_أخرى) else "Other Subject")
 
             delay(1000)
             addMessage(
