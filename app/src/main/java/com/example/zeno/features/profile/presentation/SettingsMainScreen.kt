@@ -79,9 +79,7 @@ fun SettingsMainScreen(
         composable(SettingsRoute.Info.route) {
             AppInfoScreen(navController, configRepository)
         }
-        composable(SettingsRoute.StudyPlan.route) {
-            StudyPlanScreen(navController, sessionsViewModel)
-        }
+
         composable(SettingsRoute.Appearance.route) {
             AppearanceScreen(navController, viewModel)
         }
@@ -197,12 +195,7 @@ fun SettingsDashboardScreen(
                 icon = Icons.Default.Person,
                 onClick = { navController.navigate(SettingsRoute.Profile.route) }
             )
-            HorizontalDivider(color = CardBorder, thickness = 1.dp)
-            SettingsRowItem(
-                title = stringResource(id = R.string.settings_study_plan),
-                icon = Icons.Default.EventNote,
-                onClick = { navController.navigate(SettingsRoute.StudyPlan.route) }
-            )
+
             HorizontalDivider(color = CardBorder, thickness = 1.dp)
             SettingsRowItem(
                 title = stringResource(id = R.string.nav_upgrade),
