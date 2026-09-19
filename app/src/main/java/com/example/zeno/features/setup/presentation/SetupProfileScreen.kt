@@ -129,6 +129,10 @@ fun SetupProfileScreen(
                     errorMessage = requiredUsernameError
                     return@GradeMiddleSection
                 }
+                if (usernameInput.trim().length < 2 || usernameInput.trim().length > 15) {
+                    errorMessage = "اسم المستخدم يجب أن يكون بين 2 و 15 حرفاً"
+                    return@GradeMiddleSection
+                }
 
                 isLoading = true
                 errorMessage = null

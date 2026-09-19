@@ -168,15 +168,19 @@ fun ProfileScreen(
                         .background(LimeAccent)
                         .bounceClickable {
                             if (inputUsername.isNotBlank()) {
-                                viewModel.updateUsername(inputUsername) { success, message ->
-                                    val msg = if (success) {
-                                        message
-                                    } else {
-                                        if (message.contains("already taken", ignoreCase = true)) {
-                                            usernameTakenMsg
-                                        } else message
+                                if (inputUsername.trim().length < 2 || inputUsername.trim().length > 15) {
+                                    Toast.makeText(context, "اسم المستخدم يجب أن يكون بين 2 و 15 حرفاً", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    viewModel.updateUsername(inputUsername) { success, message ->
+                                        val msg = if (success) {
+                                            message
+                                        } else {
+                                            if (message.contains("already taken", ignoreCase = true)) {
+                                                usernameTakenMsg
+                                            } else message
+                                        }
+                                        Toast.makeText(context, context.txtStr(msg), Toast.LENGTH_SHORT).show()
                                     }
-                                    Toast.makeText(context, context.txtStr(msg), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }

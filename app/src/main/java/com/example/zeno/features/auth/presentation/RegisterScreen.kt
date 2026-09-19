@@ -141,6 +141,10 @@ fun RegisterScreen(
                     errorMessage = requiredFieldsMsg
                     return@ZenoButton
                 }
+                if (username.trim().length < 2 || username.trim().length > 15) {
+                    errorMessage = "اسم المستخدم يجب أن يكون بين 2 و 15 حرفاً"
+                    return@ZenoButton
+                }
                 
                 isLoading = true
                 coroutineScope.launch {
