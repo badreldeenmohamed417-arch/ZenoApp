@@ -113,8 +113,8 @@ fun SettingsDashboardScreen(
     ) {
         // Title Header Surface
         Surface(
-            color = CardBG,
-            shadowElevation = 6.dp,
+            color = Color.Transparent,
+            shadowElevation = 0.dp,
             modifier = Modifier.fillMaxWidth()
         ) {
             Box(

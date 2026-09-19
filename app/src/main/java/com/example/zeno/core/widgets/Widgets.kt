@@ -30,8 +30,8 @@ fun SettingsTopHeaderBar(
     onBackClick: () -> Unit
 ) {
     Surface(
-        color = AppColors.Surface,
-        shadowElevation = 4.dp,
+        color = Color.Transparent,
+        shadowElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
