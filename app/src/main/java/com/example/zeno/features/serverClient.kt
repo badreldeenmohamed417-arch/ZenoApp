@@ -1,4 +1,4 @@
-package com.example.zeno.futures
+package com.example.zeno.features
 
 import android.content.Context
 import android.util.Log
@@ -7,8 +7,6 @@ import androidx.credentials.GetCredentialRequest
 import com.example.zeno.BuildConfig
 import com.example.zeno.core.NetworkUtils
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.repository.AuthRepository
-import com.example.zeno.data.repository.UserRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 fun signUp(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     email: String,
     password: String,
     onContinue: () -> Unit,
@@ -33,16 +31,12 @@ fun signUp(
         try {
             // 1. Register
             authRepository.register(
-                email = email,
-                password = password
+                com.example.zeno.features.auth.data.RegisterRequest(email = email, password = password)
             )
 
             // 2. Login immediately to get tokens for the next steps (Setup Profile)
             authRepository.login(
-                email = email,
-                password = password,
-                deviceName = "Zeno Android",
-                platform = "android"
+                com.example.zeno.features.auth.data.LoginRequest(email = email, password = password)
             )
 
             withContext(Dispatchers.Main) {
@@ -59,7 +53,7 @@ fun signUp(
 
 fun login(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     email: String,
     password: String,
     onContinue: () -> Unit,
@@ -69,10 +63,7 @@ fun login(
     CoroutineScope(Dispatchers.IO).launch {
         try {
             authRepository.login(
-                email = email,
-                password = password,
-                deviceName = "Zeno Android",
-                platform = "android"
+                com.example.zeno.features.auth.data.LoginRequest(email = email, password = password)
             )
 
             withContext(Dispatchers.Main) {
@@ -89,7 +80,7 @@ fun login(
 
 fun googleLogin(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     onContinue: (isNewUser: Boolean) -> Unit,
     errorFun: (String) -> Unit,
     disableError: () -> Unit
@@ -124,14 +115,12 @@ fun googleLogin(
 
             // Send Google ID Token to Zeno Server
             val response = withContext(Dispatchers.IO) {
-                authRepository.googleLogin(
-                    idToken = googleIdToken
-                )
+                authRepository.googleLogin(googleIdToken)
             }
 
             // Zeno login successful
             disableError()
-            onContinue(response.isNewUser == true)
+            onContinue(response.getOrNull()?.isNewUser == true)
 
         } catch (e: Exception) {
             Log.e("GoogleLogin", "Error during Google login", e)
@@ -142,11 +131,12 @@ fun googleLogin(
 
 fun completeUserData(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     country: String? = null,
     displayName: String? = null,
     grade: String? = null,
     schoolSystem: String? = null,
+    track: String? = null,
     language: String = "ar",
     onContinue: () -> Unit,
     errorFun: (String) -> Unit,
@@ -155,11 +145,13 @@ fun completeUserData(
     CoroutineScope(Dispatchers.IO).launch {
         try {
             authRepository.completeData(
-                country = country,
-                displayName = displayName,
-                grade = grade,
-                schoolSystem = schoolSystem,
-                language = language
+                com.example.zeno.features.auth.data.CompleteDataRequest(
+                    country = country ?: "EG",
+                    displayName = displayName,
+                    grade = grade ?: "",
+                    schoolSystem = schoolSystem,
+                    track = track
+                )
             )
 
             withContext(Dispatchers.Main) {
@@ -180,7 +172,7 @@ fun completeUserData(
 
 fun checkVerificationStatus(
     context: Context,
-    userRepository: UserRepository,
+    userRepository: com.example.zeno.features.student.data.repository.StudentRepository,
     userManager: UserManager,
     onVerified: () -> Unit,
     onNotVerified: () -> Unit,
@@ -188,15 +180,22 @@ fun checkVerificationStatus(
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
-            val user = userRepository.getMe()
-            userManager.saveVerificationStatus(user.isVerified)
-            user.subjects?.let { userManager.saveSubjects(it) }
-            
-            withContext(Dispatchers.Main) {
-                if (user.isVerified) {
-                    onVerified()
-                } else {
-                    onNotVerified()
+            val result = userRepository.getProfile()
+            if (result.isSuccess) {
+                val user = result.getOrNull()!!
+                userManager.saveVerificationStatus(user.isVerified)
+                user.subjects?.let { userManager.saveSubjects(it) }
+                
+                withContext(Dispatchers.Main) {
+                    if (user.isVerified) {
+                        onVerified()
+                    } else {
+                        onNotVerified()
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    errorFun(NetworkUtils.getErrorMessage(result.exceptionOrNull() ?: Exception("Unknown"), context))
                 }
             }
         } catch (e: Exception) {
@@ -209,7 +208,7 @@ fun checkVerificationStatus(
 
 fun verifyEmail(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     token: String,
     onSuccess: (String) -> Unit,
     errorFun: (String) -> Unit,
@@ -217,11 +216,16 @@ fun verifyEmail(
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
-            val response = authRepository.verifyEmail(token = token)
-
+            val response = authRepository.verifyEmail(com.example.zeno.features.auth.data.VerifyEmailRequest(token = token))
+            val result = response.getOrNull()
+            
             withContext(Dispatchers.Main) {
-                disableError()
-                onSuccess(response.message)
+                if (response.isSuccess && result != null) {
+                    disableError()
+                    onSuccess(result.message)
+                } else {
+                    errorFun(NetworkUtils.getErrorMessage(response.exceptionOrNull() ?: Exception("Unknown"), context))
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -233,7 +237,7 @@ fun verifyEmail(
 
 fun resendVerification(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     email: String,
     language: String = "ar",
     onSuccess: (String) -> Unit,
@@ -243,13 +247,17 @@ fun resendVerification(
     CoroutineScope(Dispatchers.IO).launch {
         try {
             val response = authRepository.resendVerification(
-                email = email,
-                language = language
+                com.example.zeno.features.auth.data.ResendVerificationRequest(email = email)
             )
+            val result = response.getOrNull()
 
             withContext(Dispatchers.Main) {
-                disableError()
-                onSuccess(response.message)
+                if (response.isSuccess && result != null) {
+                    disableError()
+                    onSuccess(result.message)
+                } else {
+                    errorFun(NetworkUtils.getErrorMessage(response.exceptionOrNull() ?: Exception("Unknown"), context))
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
@@ -265,7 +273,7 @@ fun resendVerification(
 
 fun forgotPassword(
     context: Context,
-    authRepository: AuthRepository,
+    authRepository: com.example.zeno.features.auth.data.AuthRepository,
     email: String,
     onSuccess: () -> Unit,
     errorFun: (String) -> Unit,
@@ -273,11 +281,16 @@ fun forgotPassword(
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
-            authRepository.forgotPassword(email = email)
+            val response = authRepository.forgotPassword(com.example.zeno.features.auth.data.ForgotPasswordRequest(email = email))
+            val result = response.getOrNull()
 
             withContext(Dispatchers.Main) {
-                disableError()
-                onSuccess()
+                if (response.isSuccess) {
+                    disableError()
+                    onSuccess()
+                } else {
+                    errorFun(NetworkUtils.getErrorMessage(response.exceptionOrNull() ?: Exception("Unknown"), context))
+                }
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {

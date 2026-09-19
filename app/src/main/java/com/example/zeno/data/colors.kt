@@ -24,4 +24,10 @@ object AppColors {
     val UserBubble: Color @Composable get() = LocalZenoColors.current.UserBubble
     val UserBubbleText: Color @Composable get() = LocalZenoColors.current.UserBubbleText
     val Black: Color @Composable get() = LocalZenoColors.current.Black
+
+    // Aliases for seamless theme switching across all screens
+    val CardBG: Color @Composable get() = LocalZenoColors.current.Surface
+    val CardBorder: Color @Composable get() = LocalZenoColors.current.UnfocusedBorder
+    val TextWhite: Color @Composable get() = LocalZenoColors.current.TextPrimary
+    val LimeAccent: Color @Composable get() = LocalZenoColors.current.Accent
 }

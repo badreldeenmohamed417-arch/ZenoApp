@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,7 @@ fun SelectionGroupWidget(
 ) {
     CardFun(
         modifier = modifier.fillMaxWidth(),
-        backgroundColor = AppColors.SurfaceVariant, // استخدام لون السطح الفرعي المتناسق
+        backgroundColor = AppColors.SurfaceVariant,
         contentPadding = 16.dp,
         cornerRadius = 20.dp,
         content = {
@@ -48,27 +47,26 @@ fun SelectionGroupWidget(
                     ),
                     color = AppColors.TextPrimary,
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.End
+                    textAlign = TextAlign.Start
                 )
 
                 options.forEach { option ->
                     val isSelected = option == selectedOption
 
-                    // أنيميشن تحول الألوان عند الاختيار
                     val targetBgColor by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFF1E1B4B) else AppColors.Surface,
+                        targetValue = if (isSelected) AppColors.AccentSoft else AppColors.Surface,
                         animationSpec = tween(durationMillis = 200),
                         label = "bgColorAnimation"
                     )
 
                     val targetBorderColor by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFF6366F1) else Color(0xFF1F2937),
+                        targetValue = if (isSelected) AppColors.FocusedBorder else AppColors.UnfocusedBorder,
                         animationSpec = tween(durationMillis = 200),
                         label = "borderColorAnimation"
                     )
 
                     val targetTextColor by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFF818CF8) else AppColors.Black,
+                        targetValue = if (isSelected) AppColors.Accent else AppColors.TextPrimary,
                         animationSpec = tween(durationMillis = 200),
                         label = "textColorAnimation"
                     )
@@ -95,7 +93,7 @@ fun SelectionGroupWidget(
                                 ),
                                 color = targetTextColor,
                                 modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.End
+                                textAlign = TextAlign.Start
                             )
                         }
                     )

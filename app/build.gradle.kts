@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    id("com.google.gms.google-services") version "4.5.0" apply false
+    id("com.google.gms.google-services") version "4.5.0"
 }
 
 val localProperties = Properties()
@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.koin.androidx.compose)
 
     testImplementation(libs.junit)
 
@@ -104,4 +105,15 @@ dependencies {
     
     // Security for EncryptedSharedPreferences
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
+    // RevenueCat
+    implementation("com.revenuecat.purchases:purchases:8.6.0")
+    
+    // Koin for Compose
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+
 }

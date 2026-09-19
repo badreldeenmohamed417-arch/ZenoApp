@@ -1,4 +1,4 @@
-package com.example.zeno.futures.setup
+package com.example.zeno.features.setup
 
 import android.content.Context
 import androidx.compose.foundation.layout.Column
@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import org.koin.compose.koinInject
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,8 +19,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.zeno.core.sections.setup.Grade.GradeMiddleSection
 import com.example.zeno.core.sections.setup.LetUsKnowYou
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.repository.AuthRepository
-import com.example.zeno.futures.completeUserData
+import com.example.zeno.features.auth.data.AuthRepository
+
+import com.example.zeno.features.completeUserData
 
 @Composable
 fun SetupGrade(
@@ -27,7 +29,7 @@ fun SetupGrade(
 ) {
     val context = LocalContext.current
     val userManager = remember { UserManager(context) }
-    val authRepository = remember { AuthRepository() }
+    val authRepository = koinInject<com.example.zeno.features.auth.data.AuthRepository>()
 
     var error by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -47,10 +49,11 @@ fun SetupGrade(
         LetUsKnowYou()
 
         GradeMiddleSection(
-            continueButton = { grade, schoolSystem ->
+            continueButton = { grade, schoolSystem, track ->
                 userManager.saveAcademicData(
                     grade = grade,
-                    schoolSystem = schoolSystem
+                    schoolSystem = schoolSystem,
+                    track = track
                 )
 
                 completeUserDataFromLocal(
@@ -84,6 +87,7 @@ fun completeUserDataFromLocal(
     val displayName = userManager.getDisplayName()
     val grade = userManager.getGrade()
     val schoolSystem = userManager.getSchoolSystem()
+    val track = userManager.getTrack()
     val country = userManager.getCountry()
 
     completeUserData(
@@ -93,6 +97,7 @@ fun completeUserDataFromLocal(
         displayName = displayName,
         grade = grade,
         schoolSystem = schoolSystem,
+        track = track,
         language = language,
         onContinue = onContinue,
         errorFun = errorFun,

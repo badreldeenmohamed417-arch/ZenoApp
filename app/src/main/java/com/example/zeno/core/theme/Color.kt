@@ -2,30 +2,35 @@ package com.example.zeno.core.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Zeno Emerald/Teal Accent Palette
-val Emerald50 = Color(0xFFF0FDFA)
-val Emerald100 = Color(0xFFCCFBF1)
-val Emerald200 = Color(0xFF99F6E4)
-val Emerald300 = Color(0xFF5EEAD4)
-val Emerald400 = Color(0xFF2DD4BF)
-val Emerald500 = Color(0xFF14B8A6) // Primary Accent
-val Emerald600 = Color(0xFF0D9488) // Primary Darker
-val Emerald700 = Color(0xFF0F766E)
-val Emerald800 = Color(0xFF115E59)
-val Emerald900 = Color(0xFF134E4A)
+// Lime Green Accent Palette
+val Lime50 = Color(0xFFF7FEE7)
+val Lime100 = Color(0xFFECFCCB)
+val Lime200 = Color(0xFFD9F99D)
+val Lime300 = Color(0xFFBEF264)
+val Lime400 = Color(0xFFA3E635)
+val Lime500 = Color(0xFF84CC16) // Primary Accent
+val Lime600 = Color(0xFF65A30D)
+val Lime700 = Color(0xFF4D7C0F)
+val Lime800 = Color(0xFF3F6212)
+val Lime900 = Color(0xFF365314)
 
-// Neutral Palette (Slate/Blue-Gray for a premium tech feel)
-val Slate50 = Color(0xFFF8FAFC)
-val Slate100 = Color(0xFFF1F5F9)
-val Slate200 = Color(0xFFE2E8F0)
-val Slate300 = Color(0xFFCBD5E1)
-val Slate400 = Color(0xFF94A3B8)
-val Slate500 = Color(0xFF64748B)
-val Slate600 = Color(0xFF475569)
-val Slate700 = Color(0xFF334155)
-val Slate800 = Color(0xFF1E293B)
-val Slate900 = Color(0xFF0F172A)
-val Slate950 = Color(0xFF020617)
+// Backward compatibility aliases for Emerald references (now mapped to Lime)
+val Emerald300 = Lime300
+val Emerald500 = Lime500
+val Emerald700 = Lime700
+
+// Neutral Palette (True Grayscale for monochrome look)
+val Slate50 = Color(0xFFFAFAFA)
+val Slate100 = Color(0xFFF4F4F5)
+val Slate200 = Color(0xFFE4E4E7)
+val Slate300 = Color(0xFFD4D4D8)
+val Slate400 = Color(0xFFA1A1AA)
+val Slate500 = Color(0xFF71717A)
+val Slate600 = Color(0xFF52525B)
+val Slate700 = Color(0xFF3F3F46)
+val Slate800 = Color(0xFF27272A)
+val Slate900 = Color(0xFF18181B)
+val Slate950 = Color(0xFF09090B)
 
 val ErrorRed = Color(0xFFEF4444)
 val SuccessGreen = Color(0xFF22C55E)

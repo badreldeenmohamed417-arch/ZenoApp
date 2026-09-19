@@ -1,4 +1,4 @@
-package com.example.zeno.futures.main
+package com.example.zeno.features.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,8 +28,7 @@ import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.db.AppDatabase
 import com.example.zeno.data.model.server.MessageResponse
-import com.example.zeno.data.repository.ChatRepository
-import com.example.zeno.futures.session.Orb
+import com.example.zeno.features.session.Orb
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,9 +40,7 @@ fun ChatScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val chatRepository = remember {
-        ChatRepository(AppDatabase.getDatabase(context).chatDao())
-    }
+    val chatRepository = org.koin.core.context.GlobalContext.get().get<com.example.zeno.data.repository.ChatRepository>(org.koin.core.qualifier.named("legacyChat"))
     
     var currentConversationId by remember { mutableStateOf(conversationId) }
     var messageText by remember { mutableStateOf("") }

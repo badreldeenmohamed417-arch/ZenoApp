@@ -9,7 +9,9 @@ data class LoginRequest(
 
 data class RegisterRequest(
     val email: String,
-    val password: String
+    val password: String,
+    val username: String? = null,
+    @SerializedName("display_name") val displayName: String? = null
 )
 
 data class ForgotPasswordRequest(
@@ -23,10 +25,11 @@ data class GoogleLoginRequest(
 
 data class TokenResponse(
     @SerializedName("access_token") val accessToken: String,
-    @SerializedName("refresh_token") val refreshToken: String,
-    @SerializedName("token_type") val tokenType: String,
-    @SerializedName("expires_in") val expiresIn: Int,
-    @SerializedName("is_new_user") val isNewUser: Boolean? = false
+    @SerializedName("refresh_token") val refreshToken: String?,
+    @SerializedName("token_type") val tokenType: String?,
+    @SerializedName("session_id") val sessionId: String?,
+    @SerializedName("is_new_user") val isNewUser: Boolean? = false,
+    @SerializedName("is_onboarded") val isOnboarded: Boolean? = false
 )
 
 data class RegisterResponse(
@@ -55,6 +58,19 @@ data class UserResponse(
     @SerializedName("display_name") val displayName: String?,
     val grade: String?,
     val track: String?,
-    @SerializedName("is_verified") val isVerified: Boolean
+    @SerializedName("is_verified") val isVerified: Boolean,
+    @SerializedName("is_onboarded") val isOnboarded: Boolean? = false
 )
 
+data class RefreshTokenRequest(
+    val refreshToken: String
+)
+
+data class VerifyEmailRequest(
+    val token: String
+)
+
+data class ResendVerificationRequest(
+    val email: String,
+    val language: String = "ar"
+)

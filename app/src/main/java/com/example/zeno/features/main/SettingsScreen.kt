@@ -1,5 +1,7 @@
 package com.example.zeno.futures.main
 
+import org.koin.compose.koinInject
+
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -29,7 +31,6 @@ import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.core.widgets.BottomNavItem
 import com.example.zeno.core.widgets.ZenoBottomNavigationBar
-import com.example.zeno.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
 @Composable
@@ -42,7 +43,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val userManager = remember { UserManager(context) }
-    val userRepository = remember { UserRepository() }
+    val studentRepository = koinInject<com.example.zeno.features.student.data.repository.StudentRepository>()
     val scope = rememberCoroutineScope()
 
     var isDarkMode by remember { mutableStateOf(userManager.getThemeMode(false)) }
@@ -60,15 +61,18 @@ fun SettingsScreen(
 
     LaunchedEffect(Unit) {
         try {
-            val user = userRepository.getMe()
-            userEmail = user.email
-            userGrade = user.grade ?: ""
-            userSection = user.schoolSystem ?: ""
-            displayName = user.displayName ?: ""
-            
-            userManager.saveEmail(user.email)
-            userManager.saveAcademicData(user.grade, user.schoolSystem)
-            userManager.saveProfileData(user.displayName, userManager.getBirthDate(), user.country, user.email)
+            val result = studentRepository.getProfile()
+            if (result.isSuccess) {
+                val user = result.getOrNull()!!
+                userEmail = user.email
+                userGrade = user.grade ?: ""
+                userSection = user.schoolSystem ?: ""
+                displayName = user.displayName ?: ""
+                
+                userManager.saveEmail(user.email)
+                userManager.saveAcademicData(user.grade, user.schoolSystem)
+                userManager.saveProfileData(user.displayName, userManager.getBirthDate(), user.country, user.email)
+            }
         } catch (e: Exception) {
             // Fallback to local data already loaded
         }
@@ -102,7 +106,7 @@ fun SettingsScreen(
                         userManager.saveThemeMode(it)
                         (context as? Activity)?.recreate()
                     }
-                    SettingsRow(txt("settingsLanguage"), if (userManager.getLanguage() == "ar") "العربية" else "English") {
+                    SettingsRow(txt("settingsLanguage"), if (userManager.getLanguage() == "ar") txt("auto_str_العربية") else "English") {
                         showLanguageDialog = true
                     }
                 }
@@ -320,7 +324,7 @@ fun LanguageSelectionDialog(currentLanguage: String, onLanguageSelected: (String
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(txt("settingsLanguage"), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
-                LanguageOption("العربية", "ar", currentLanguage == "ar") { onLanguageSelected("ar") }
+                LanguageOption(txt("auto_str_العربية"), "ar", currentLanguage == "ar") { onLanguageSelected("ar") }
                 LanguageOption("English", "en", currentLanguage == "en") { onLanguageSelected("en") }
             }
         }

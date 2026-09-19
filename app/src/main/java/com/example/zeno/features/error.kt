@@ -1,4 +1,4 @@
-package com.example.zeno.futures
+package com.example.zeno.features
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -66,7 +66,7 @@ fun BackBU(onBack: ()-> Unit, text: String){
                 .border(0.5.dp, Color.Transparent, CircleShape),
             elevation = FloatingActionButtonDefaults.elevation(2.dp)
         ) {
-            Icon(Icons.Outlined.ArrowBack, contentDescription = "Back", modifier = Modifier.size(25.dp), tint = AppColors.Surface)
+            Icon(Icons.Outlined.ArrowBack, contentDescription = null, modifier = Modifier.size(25.dp), tint = AppColors.Surface)
         }
         Text(
             text = text,

@@ -36,7 +36,7 @@ fun ZenoDesignDemo() {
                 navigationIcon = {
                     Image(
                         painter = painterResource(id = R.drawable.ic_zeno_logo),
-                        contentDescription = "Zeno Logo",
+                        contentDescription = null,
                         modifier = Modifier
                             .padding(16.dp)
                             .size(24.dp),
@@ -67,7 +67,7 @@ fun ZenoDesignDemo() {
             )
             
             Text(
-                text = "مرحباً بك في زينو",
+                text = stringResource(id = R.string.auto_str_مرحبا_بك_في),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )

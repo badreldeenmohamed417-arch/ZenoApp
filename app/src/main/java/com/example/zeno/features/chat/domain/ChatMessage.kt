@@ -6,5 +6,8 @@ data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val text: String,
     val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val isError: Boolean = false,
+    val isUpgradeRequired: Boolean = false,
+    val failedText: String? = null
 )

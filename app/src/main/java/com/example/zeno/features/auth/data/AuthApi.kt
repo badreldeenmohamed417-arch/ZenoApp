@@ -17,6 +17,15 @@ interface AuthApi {
     @POST("main/auth/forgot-password")
     suspend fun forgotPassword(@Body request: ForgotPasswordRequest): BaseResponse
 
-    @PUT("main/auth/complete-data")
+    @POST("main/auth/complete-data")
     suspend fun completeData(@Body request: CompleteDataRequest): UserResponse
+
+    @POST("main/auth/refresh")
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): TokenResponse
+
+    @POST("main/auth/verify-email")
+    suspend fun verifyEmail(@Body request: VerifyEmailRequest): BaseResponse
+
+    @POST("main/auth/resend-verification")
+    suspend fun resendVerification(@Body request: ResendVerificationRequest): BaseResponse
 }

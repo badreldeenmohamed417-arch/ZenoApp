@@ -1,51 +1,78 @@
 package com.example.zeno.data.server
 
 import android.content.Context
+import com.example.zeno.core.data.EncryptedAuthStorageImpl
 import com.example.zeno.data.local.TokenManager
 import com.example.zeno.data.model.server.RefreshRequest
 import com.example.zeno.data.serverConnections.*
+import com.example.zeno.features.home.data.ProgressApi
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import kotlinx.coroutines.runBlocking
 
-private const val BASE_URL = "https://zenohostingserver.fastapicloud.dev/"
+private const val BASE_URL = "https://zenohostingserver.fastapicloud.dev"
 
 class AuthInterceptor(
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val context: Context
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val accessToken = tokenManager.getAccessToken()
-        val request = chain.request().newBuilder().apply {
-            if (!accessToken.isNullOrBlank()) {
-                addHeader("Authorization", "Bearer $accessToken")
+        val originalRequest = chain.request()
+        val requestBuilder = originalRequest.newBuilder()
+
+        var accessToken = tokenManager.getAccessToken()?.trim()
+        if (accessToken.isNullOrBlank()) {
+            val encryptedStorage = EncryptedAuthStorageImpl(context)
+            accessToken = encryptedStorage.getToken()?.trim()
+        }
+
+        if (!accessToken.isNullOrBlank()) {
+            val cleanToken = if (accessToken.startsWith("Bearer ", ignoreCase = true)) {
+                accessToken
+            } else {
+                "Bearer $accessToken"
             }
-        }.build()
-        return chain.proceed(request)
+            requestBuilder.header("Authorization", cleanToken)
+        }
+
+        return chain.proceed(requestBuilder.build())
     }
 }
 
 class TokenAuthenticator(
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val context: Context
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
         if (response.code == 401) {
-            synchronized(this) {
-                val currentToken = tokenManager.getAccessToken()
-                val requestToken = response.request.header("Authorization")?.removePrefix("Bearer ")
+            val path = response.request.url.encodedPath
+            if (path.contains("/auth/login") || path.contains("/auth/register") || path.contains("/auth/refresh")) {
+                return null
+            }
 
-                // If token changed, another request already refreshed it
-                if (currentToken != null && currentToken != requestToken) {
+            synchronized(this) {
+                var currentToken = tokenManager.getAccessToken()
+                if (currentToken.isNullOrBlank()) {
+                    currentToken = EncryptedAuthStorageImpl(context).getToken()
+                }
+                val requestToken = response.request.header("Authorization")?.removePrefix("Bearer ")?.trim()
+
+                // If token changed while waiting, retry with new token
+                if (!currentToken.isNullOrBlank() && currentToken != requestToken) {
                     return response.request.newBuilder()
                         .header("Authorization", "Bearer $currentToken")
                         .build()
                 }
 
-                val refreshToken = tokenManager.getRefreshToken()
-                if (refreshToken != null) {
+                var refreshToken = tokenManager.getRefreshToken()
+                if (refreshToken.isNullOrBlank()) {
+                    refreshToken = EncryptedAuthStorageImpl(context).getRefreshToken()
+                }
+
+                if (!refreshToken.isNullOrBlank()) {
                     try {
-                        // Separate retrofit for refresh to avoid cycles
                         val refreshRetrofit = Retrofit.Builder()
                             .baseUrl(BASE_URL)
                             .addConverterFactory(GsonConverterFactory.create())
@@ -58,15 +85,24 @@ class TokenAuthenticator(
 
                         tokenManager.saveTokens(
                             accessToken = refreshResponse.accessToken,
+                            refreshToken = refreshResponse.refreshToken ?: ""
+                        )
+                        EncryptedAuthStorageImpl(context).saveTokens(
+                            accessToken = refreshResponse.accessToken,
                             refreshToken = refreshResponse.refreshToken
                         )
 
                         return response.request.newBuilder()
                             .header("Authorization", "Bearer ${refreshResponse.accessToken}")
+                            .header("ngrok-skip-browser-warning", "true")
                             .build()
                     } catch (e: Exception) {
                         tokenManager.clearTokens()
+                        EncryptedAuthStorageImpl(context).clearToken()
                     }
+                } else {
+                    tokenManager.clearTokens()
+                    EncryptedAuthStorageImpl(context).clearToken()
                 }
             }
         }
@@ -77,16 +113,18 @@ class TokenAuthenticator(
 object ApiClient {
     private lateinit var tokenManager: TokenManager
     private lateinit var retrofit: Retrofit
+    lateinit var context: Context
 
     fun initialize(context: Context) {
+        this.context = context.applicationContext
         tokenManager = TokenManager(context.applicationContext)
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .authenticator(TokenAuthenticator(tokenManager))
+            .addInterceptor(AuthInterceptor(tokenManager, context.applicationContext))
+            .authenticator(TokenAuthenticator(tokenManager, context.applicationContext))
             .build()
 
         retrofit = Retrofit.Builder()
@@ -122,6 +160,11 @@ object ApiClient {
         return retrofit.create(SubscriptionApi::class.java)
     }
 
+    fun progress(): ProgressApi {
+        checkInitialized()
+        return retrofit.create(ProgressApi::class.java)
+    }
+
     fun tokens(): TokenApi {
         checkInitialized()
         return retrofit.create(TokenApi::class.java)
@@ -140,5 +183,10 @@ object ApiClient {
     fun tokenManager(): TokenManager {
         checkInitialized()
         return tokenManager
+    }
+
+    fun notification(): com.example.zeno.features.notification.data.NotificationApi {
+        checkInitialized()
+        return retrofit.create(com.example.zeno.features.notification.data.NotificationApi::class.java)
     }
 }

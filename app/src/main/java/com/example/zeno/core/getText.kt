@@ -7,6 +7,10 @@ import androidx.compose.ui.res.stringResource
 @Composable
 fun txt(key: String, vararg formatArgs: Any): String {
     val context = LocalContext.current
-    val resId = context.resources.getIdentifier(key, "string", context.packageName)
-    return if (resId != 0) stringResource(id = resId, *formatArgs) else key
+    return context.txtStr(key, *formatArgs)
+}
+
+fun android.content.Context.txtStr(key: String, vararg formatArgs: Any): String {
+    val resId = resources.getIdentifier(key, "string", packageName)
+    return if (resId != 0) getString(resId, *formatArgs) else key
 }

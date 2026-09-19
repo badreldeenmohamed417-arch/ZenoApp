@@ -9,23 +9,31 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
+import com.example.zeno.data.local.UserManager
+import com.example.zeno.ui.theme.DarkColors
+import com.example.zeno.ui.theme.LightColors
+import com.example.zeno.ui.theme.LocalZenoColors
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Emerald500,
-    onPrimary = Slate50,
-    primaryContainer = Emerald800,
-    onPrimaryContainer = Emerald100,
+    primary = Lime500,
+    onPrimary = Slate950,
+    primaryContainer = Lime800,
+    onPrimaryContainer = Lime100,
     
-    secondary = Emerald300,
+    secondary = Lime300,
     onSecondary = Slate900,
-    secondaryContainer = Emerald900,
-    onSecondaryContainer = Emerald200,
+    secondaryContainer = Lime900,
+    onSecondaryContainer = Lime200,
 
     background = Slate950,
     onBackground = Slate50,
@@ -43,15 +51,15 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Emerald600,
+    primary = Lime600,
     onPrimary = Slate50,
-    primaryContainer = Emerald100,
-    onPrimaryContainer = Emerald900,
+    primaryContainer = Lime100,
+    onPrimaryContainer = Lime900,
     
-    secondary = Emerald500,
+    secondary = Lime500,
     onSecondary = Slate50,
-    secondaryContainer = Emerald50,
-    onSecondaryContainer = Emerald800,
+    secondaryContainer = Lime50,
+    onSecondaryContainer = Lime800,
     
     background = Slate50,
     onBackground = Slate900,
@@ -71,32 +79,41 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun ZenoTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    // But we disable it by default to maintain our brand identity
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    val userManager = remember { UserManager(context) }
+    val isDark = userManager.getThemeMode(darkTheme)
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
+        isDark -> DarkColorScheme
         else -> LightColorScheme
     }
-    
+
+    val zenoColors = if (isDark) DarkColors else LightColors
+    val layoutDirection = if (userManager.getLanguage() == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = zenoColors.BG.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDark
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = ZenoTypography,
-        content = content
-    )
+    CompositionLocalProvider(
+        LocalZenoColors provides zenoColors,
+        LocalLayoutDirection provides layoutDirection
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = ZenoTypography,
+            content = content
+        )
+    }
 }

@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,9 +34,10 @@ fun SignupTopSection(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.zeno_logo),
-                contentDescription = "Zeno Logo",
-                modifier = Modifier.size(100.dp)
+                painter = painterResource(id = R.drawable.ic_zeno_logo),
+                contentDescription = null,
+                modifier = Modifier.size(100.dp),
+                colorFilter = ColorFilter.tint(AppColors.TextPrimary)
             )
 
             Text(

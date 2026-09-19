@@ -1,4 +1,4 @@
-package com.example.zeno.futures.setup
+package com.example.zeno.features.setup
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,8 +18,8 @@ import com.example.zeno.core.sections.setup.LetUsKnowYou
 import com.example.zeno.core.sections.setup.NameAge.ProfileMiddleSection
 import com.example.zeno.core.txt
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.futures.MessageType
-import com.example.zeno.futures.TopMessage
+import com.example.zeno.features.MessageType
+import com.example.zeno.features.TopMessage
 import kotlinx.coroutines.delay
 
 @Composable

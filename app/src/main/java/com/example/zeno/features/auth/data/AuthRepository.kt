@@ -1,18 +1,21 @@
 package com.example.zeno.features.auth.data
 
 import com.example.zeno.core.data.AuthStorage
+import com.example.zeno.data.local.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class AuthRepository(
     private val authApi: AuthApi,
-    private val authStorage: AuthStorage
+    private val authStorage: AuthStorage,
+    private val userManager: UserManager
 ) {
 
     suspend fun login(request: LoginRequest): Result<TokenResponse> = withContext(Dispatchers.IO) {
         try {
             val response = authApi.login(request)
-            authStorage.saveToken(response.accessToken)
+            authStorage.saveTokens(response.accessToken, response.refreshToken)
+            userManager.saveOnboardingStatus(response.isOnboarded == true)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -22,7 +25,8 @@ class AuthRepository(
     suspend fun googleLogin(idToken: String): Result<TokenResponse> = withContext(Dispatchers.IO) {
         try {
             val response = authApi.googleLogin(GoogleLoginRequest(idToken))
-            authStorage.saveToken(response.accessToken)
+            authStorage.saveTokens(response.accessToken, response.refreshToken)
+            userManager.saveOnboardingStatus(response.isOnboarded == true)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
@@ -50,6 +54,25 @@ class AuthRepository(
     suspend fun completeData(request: CompleteDataRequest): Result<UserResponse> = withContext(Dispatchers.IO) {
         try {
             val response = authApi.completeData(request)
+            userManager.saveOnboardingStatus(true)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun verifyEmail(request: VerifyEmailRequest): Result<BaseResponse> = withContext(Dispatchers.IO) {
+        try {
+            val response = authApi.verifyEmail(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun resendVerification(request: ResendVerificationRequest): Result<BaseResponse> = withContext(Dispatchers.IO) {
+        try {
+            val response = authApi.resendVerification(request)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)

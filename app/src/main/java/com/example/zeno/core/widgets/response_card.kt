@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.zeno.R
 import com.example.zeno.core.theme.CardFun
 import com.example.zeno.data.AppColors
 
@@ -61,7 +63,7 @@ fun ResponseCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.MenuBook,
-                        contentDescription = "عرض الشرح",
+                        contentDescription = stringResource(id = R.string.auto_str_عرض_الشرح),
                         tint = AppColors.TextPrimary
                     )
 
@@ -70,7 +72,7 @@ fun ResponseCard(
                     )
 
                     Text(
-                        text = "عرض الشرح",
+                        text = stringResource(id = R.string.auto_str_عرض_الشرح),
                         color = AppColors.TextPrimary
                     )
                 }

@@ -90,7 +90,8 @@ fun ZenoTheme(
 ) {
     val context = LocalContext.current
     val userManager = remember { UserManager(context) }
-    val colors = if (darkTheme) DarkColors else LightColors
+    val isDark = userManager.getThemeMode(darkTheme)
+    val colors = if (isDark) DarkColors else LightColors
     val layoutDirection = if (userManager.getLanguage() == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
 
     CompositionLocalProvider(

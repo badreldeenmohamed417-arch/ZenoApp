@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "739429258970",
+    "project_id": "zeno-20d23",
+    "storage_bucket": "zeno-20d23.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739429258970:android:55e59156766cafe82ef7e3",
+        "android_client_info": {
+          "package_name": "com.example.zeno"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739429258970-6l0j7t1gjme37qbstdn3a4rs7dru7bpr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsgUhqFXu1HXGD9jNvfeCR-PRX8iivaYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "739429258970-6l0j7t1gjme37qbstdn3a4rs7dru7bpr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

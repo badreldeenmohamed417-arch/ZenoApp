@@ -13,6 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.zeno.R
+import com.example.zeno.core.NetworkUtils
 import com.example.zeno.core.widgets.ZenoButton
 import com.example.zeno.core.widgets.ZenoTextField
 import com.example.zeno.features.auth.data.AuthRepository
@@ -41,7 +42,7 @@ fun ForgotPasswordScreen(
         
         Image(
             painter = painterResource(id = R.drawable.ic_zeno_logo),
-            contentDescription = "Zeno Logo",
+            contentDescription = null,
             modifier = Modifier.size(64.dp),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
         )
@@ -113,7 +114,9 @@ fun ForgotPasswordScreen(
                     if (result.isSuccess) {
                         successMessage = result.getOrNull()?.message ?: "Link sent successfully."
                     } else {
-                        errorMessage = result.exceptionOrNull()?.message ?: "Failed to send link"
+                        errorMessage = result.exceptionOrNull()?.let {
+                            NetworkUtils.getErrorMessage(it)
+                        } ?: "Failed to send link"
                     }
                 }
             }

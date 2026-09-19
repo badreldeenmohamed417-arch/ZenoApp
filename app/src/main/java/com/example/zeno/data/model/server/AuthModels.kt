@@ -5,7 +5,9 @@ import com.google.gson.annotations.SerializedName
 // 1. طلب التسجيل الأساسي (بريد وكلمة مرور فقط)
 data class RegisterRequest(
     @SerializedName("email") val email: String,
-    @SerializedName("password") val password: String
+    @SerializedName("password") val password: String,
+    @SerializedName("username") val username: String? = null,
+    @SerializedName("display_name") val displayName: String? = null
 )
 
 data class RegisterResponse(
@@ -20,6 +22,7 @@ data class CompleteDataRequest(
     @SerializedName("display_name") val displayName: String? = null,
     @SerializedName("grade") val grade: String? = null,
     @SerializedName("school_system") val schoolSystem: String? = null,
+    @SerializedName("track") val track: String? = null,
     @SerializedName("language") val language: String = "ar"
 )
 
@@ -39,10 +42,11 @@ data class GoogleLoginRequest(
 // 5. استجابة التوكنات (مضاف إليها is_new_user لـ Google Auth)
 data class TokenResponse(
     @SerializedName("access_token") val accessToken: String,
-    @SerializedName("refresh_token") val refreshToken: String,
-    @SerializedName("token_type") val tokenType: String,
-    @SerializedName("session_id") val sessionId: String,
-    @SerializedName("is_new_user") val isNewUser: Boolean? = null,
+    @SerializedName("refresh_token") val refreshToken: String?,
+    @SerializedName("token_type") val tokenType: String?,
+    @SerializedName("session_id") val sessionId: String?,
+    @SerializedName("is_new_user") val isNewUser: Boolean? = false,
+    @SerializedName("is_onboarded") val isOnboarded: Boolean? = false,
     @SerializedName("is_verified") val isVerified: Boolean? = null
 )
 

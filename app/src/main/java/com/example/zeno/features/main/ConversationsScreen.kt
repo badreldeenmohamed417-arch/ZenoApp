@@ -1,4 +1,4 @@
-package com.example.zeno.futures.main
+package com.example.zeno.features.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,10 +27,9 @@ import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.db.AppDatabase
 import com.example.zeno.data.model.server.ConversationResponse
-import com.example.zeno.data.repository.ChatRepository
 import com.example.zeno.core.widgets.BottomNavItem
 import com.example.zeno.core.widgets.ZenoBottomNavigationBar
-import com.example.zeno.futures.session.Orb
+import com.example.zeno.features.session.Orb
 
 @Composable
 fun ConversationsScreen(
@@ -41,9 +40,7 @@ fun ConversationsScreen(
     onConversationClick: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val chatRepository = remember {
-        ChatRepository(AppDatabase.getDatabase(context).chatDao())
-    }
+    val chatRepository = org.koin.core.context.GlobalContext.get().get<com.example.zeno.data.repository.ChatRepository>(org.koin.core.qualifier.named("legacyChat"))
     
     var searchQuery by remember { mutableStateOf("") }
     val localConversations by chatRepository.getLocalConversations().collectAsStateWithLifecycle(initialValue = emptyList())

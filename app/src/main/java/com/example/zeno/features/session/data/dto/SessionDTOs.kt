@@ -16,10 +16,19 @@ data class SessionListResponse(
 )
 
 data class StartSessionRequest(
-    val id: String
+    @SerializedName("subject_id") val subjectId: String,
+    @SerializedName("topic_id") val topicId: String? = "general"
+)
+
+data class CompleteStudySessionPayload(
+    val minutes: Int = 0,
+    @SerializedName("questions_count") val questionsCount: Int = 0
 )
 
 data class SessionActionResponse(
-    val success: Boolean,
-    val message: String
+    val sessionId: String?,
+    val subjectId: String?,
+    val status: String?,
+    val minutes: Int?,
+    @SerializedName("questions_count") val questionsCount: Int?
 )

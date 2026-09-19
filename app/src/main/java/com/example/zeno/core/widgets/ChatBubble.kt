@@ -33,26 +33,30 @@ fun ChatBubble(message: MessageResponse) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = alignment
     ) {
-        Box(
-            modifier = Modifier
-                .widthIn(max = 300.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 18.dp,
-                        topEnd = 18.dp,
-                        bottomStart = bottomStart,
-                        bottomEnd = bottomEnd
+        if (!isUser && (message.content.contains(".pdf", ignoreCase = true) || message.content.contains("notebook_", ignoreCase = true))) {
+            PdfHandoutCard(messageText = message.content)
+        } else {
+            Box(
+                modifier = Modifier
+                    .widthIn(max = 300.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 18.dp,
+                            topEnd = 18.dp,
+                            bottomStart = bottomStart,
+                            bottomEnd = bottomEnd
+                        )
                     )
+                    .background(if (isUser) AppColors.Accent else AppColors.SurfaceVariant)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = message.content,
+                    color = if (isUser) AppColors.AccentInk else AppColors.TextPrimary,
+                    fontSize = 15.sp,
+                    lineHeight = 20.sp
                 )
-                .background(if (isUser) AppColors.Accent else AppColors.SurfaceVariant)
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = message.content,
-                color = if (isUser) AppColors.AccentInk else AppColors.TextPrimary,
-                fontSize = 15.sp,
-                lineHeight = 20.sp
-            )
+            }
         }
     }
 }

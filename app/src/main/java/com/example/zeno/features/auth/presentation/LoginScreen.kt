@@ -11,13 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.zeno.R
 import com.example.zeno.core.widgets.ZenoButton
 import com.example.zeno.core.widgets.ZenoTextField
+import com.example.zeno.core.NetworkUtils
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.auth.data.LoginRequest
 import kotlinx.coroutines.launch
@@ -28,13 +27,16 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onNavigateToForgotPassword: () -> Unit,
-    onGoogleSignIn: () -> Unit
+    onGoogleSignIn: (onComplete: () -> Unit) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
+    var isGoogleLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val isAnyLoading = isLoading || isGoogleLoading
 
     Column(
         modifier = Modifier
@@ -47,7 +49,7 @@ fun LoginScreen(
         
         Image(
             painter = painterResource(id = R.drawable.ic_zeno_logo),
-            contentDescription = "Zeno Logo",
+            contentDescription = null,
             modifier = Modifier.size(64.dp),
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
         )
@@ -76,7 +78,7 @@ fun LoginScreen(
             onValueChange = { email = it; errorMessage = null },
             placeholder = stringResource(id = R.string.auth_email_hint),
             isError = errorMessage != null,
-            enabled = !isLoading
+            enabled = !isAnyLoading
         )
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -87,13 +89,13 @@ fun LoginScreen(
             placeholder = stringResource(id = R.string.auth_password_hint),
             isError = errorMessage != null,
             isPassword = true,
-            enabled = !isLoading
+            enabled = !isAnyLoading
         )
         
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             TextButton(
                 onClick = onNavigateToForgotPassword,
-                enabled = !isLoading
+                enabled = !isAnyLoading
             ) {
                 Text(
                     text = stringResource(id = R.string.auth_forgot_password),
@@ -117,6 +119,7 @@ fun LoginScreen(
         ZenoButton(
             text = stringResource(id = R.string.auth_login_button),
             isLoading = isLoading,
+            enabled = !isAnyLoading,
             onClick = {
                 if (email.isBlank() || password.isBlank()) {
                     errorMessage = "Please enter email and password"
@@ -130,7 +133,9 @@ fun LoginScreen(
                     if (result.isSuccess) {
                         onLoginSuccess()
                     } else {
-                        errorMessage = result.exceptionOrNull()?.message ?: "Login failed"
+                        errorMessage = result.exceptionOrNull()?.let {
+                            NetworkUtils.getErrorMessage(it)
+                        } ?: "Login failed"
                     }
                 }
             }
@@ -140,9 +145,9 @@ fun LoginScreen(
         
         Text(
             text = stringResource(id = R.string.auth_no_account),
-            color = if (isLoading) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onBackground,
+            color = if (isAnyLoading) MaterialTheme.colorScheme.onBackground.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.clickable(enabled = !isLoading) { onNavigateToRegister() }
+            modifier = Modifier.clickable(enabled = !isAnyLoading) { onNavigateToRegister() }
         )
         
         Spacer(modifier = Modifier.weight(1f))
@@ -164,20 +169,35 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         OutlinedButton(
-            onClick = onGoogleSignIn,
+            onClick = {
+                if (!isAnyLoading) {
+                    isGoogleLoading = true
+                    onGoogleSignIn {
+                        isGoogleLoading = false
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            enabled = !isLoading,
+            enabled = !isAnyLoading,
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.onBackground,
                 disabledContentColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.38f)
             )
         ) {
-            Text(
-                text = stringResource(id = R.string.auth_login_google),
-                style = MaterialTheme.typography.titleMedium
-            )
+            if (isGoogleLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(
+                    text = stringResource(id = R.string.auth_login_google),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(32.dp))

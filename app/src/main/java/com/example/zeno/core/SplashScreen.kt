@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,9 +43,10 @@ fun SplashScreenContent(
 
             // اللوجو من drawable
             Image(
-                painter = painterResource(id = R.drawable.zeno_logo),
-                contentDescription = "Zeno Logo",
-                modifier = Modifier.size(72.dp)
+                painter = painterResource(id = R.drawable.ic_zeno_logo),
+                contentDescription = null,
+                modifier = Modifier.size(72.dp),
+                colorFilter = ColorFilter.tint(AppColors.TextPrimary)
             )
 
             Text(
@@ -55,7 +58,7 @@ fun SplashScreenContent(
             )
 
             Text(
-                text = "مدرسك الذكي",
+                text = stringResource(id = R.string.splash_smart_tutor),
                 color = AppColors.TextMuted,
                 fontSize = 15.sp,
                 modifier = Modifier.padding(top = 6.dp)
@@ -72,3 +75,7 @@ fun SplashScreenContent(
         )
     }
 }
+
+
+@Composable
+fun mainSplash() {SplashScreenContent({})}

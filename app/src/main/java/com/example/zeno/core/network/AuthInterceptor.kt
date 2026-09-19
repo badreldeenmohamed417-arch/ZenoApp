@@ -7,21 +7,28 @@ import okhttp3.Response
 class AuthInterceptor(private val authStorage: AuthStorage) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        
-        // Don't add token to login/register endpoints
         val path = originalRequest.url.encodedPath
-        if (path.contains("/auth/login") || path.contains("/auth/register")) {
-            return chain.proceed(originalRequest)
+
+        val requestBuilder = originalRequest.newBuilder()
+
+        // Don't add auth token to auth initialization endpoints
+        val isAuthEndpoint = path.endsWith("/login") || 
+                path.endsWith("/register") || 
+                path.endsWith("/google") || 
+                path.endsWith("/forgot-password")
+
+        if (!isAuthEndpoint) {
+            val token = authStorage.getToken()?.trim()
+            if (!token.isNullOrBlank()) {
+                val cleanToken = if (token.startsWith("Bearer ", ignoreCase = true)) {
+                    token
+                } else {
+                    "Bearer $token"
+                }
+                requestBuilder.header("Authorization", cleanToken)
+            }
         }
 
-        val token = authStorage.getToken()
-        return if (token != null) {
-            val newRequest = originalRequest.newBuilder()
-                .header("Authorization", "Bearer $token")
-                .build()
-            chain.proceed(newRequest)
-        } else {
-            chain.proceed(originalRequest)
-        }
+        return chain.proceed(requestBuilder.build())
     }
 }

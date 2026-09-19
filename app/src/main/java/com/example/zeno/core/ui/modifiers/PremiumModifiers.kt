@@ -48,12 +48,13 @@ fun Modifier.animatedGradientBackground(colors: List<Color>): Modifier = compose
  */
 @Composable
 fun Modifier.bounceClickable(
+    enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     onClick: () -> Unit
 ): Modifier {
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
+        targetValue = if (isPressed && enabled) 0.95f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -69,6 +70,7 @@ fun Modifier.bounceClickable(
         .clickable(
             interactionSource = interactionSource,
             indication = null,
+            enabled = enabled,
             onClick = onClick
         )
 }

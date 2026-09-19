@@ -1,17 +1,18 @@
 package com.example.zeno.features.auth.presentation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.zeno.features.auth.data.AuthRepository
-
-import android.util.Log
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
 import com.example.zeno.BuildConfig
+import com.example.zeno.core.NetworkUtils
+import com.example.zeno.features.auth.data.AuthRepository
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
@@ -23,9 +24,9 @@ fun AuthNavGraph(
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
-    val handleGoogleSignIn: () -> Unit = {
+    val handleGoogleSignIn: (onComplete: () -> Unit) -> Unit = { onComplete ->
         coroutineScope.launch {
             try {
                 val credentialManager = CredentialManager.create(context)
@@ -48,12 +49,15 @@ fun AuthNavGraph(
                 
                 val apiResult = authRepository.googleLogin(googleCredential.idToken)
                 
+                onComplete()
                 if (apiResult.isSuccess) {
                     onAuthSuccess()
                 } else {
-                    Toast.makeText(context, "Login failed: ${apiResult.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                    val errMsg = apiResult.exceptionOrNull()?.let { NetworkUtils.getErrorMessage(it, context) } ?: "Login failed"
+                    Toast.makeText(context, "Login failed: $errMsg", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
+                onComplete()
                 Log.e("AuthNavGraph", "Google Sign-In error", e)
                 Toast.makeText(context, "Google Sign-In failed: ${e.message}", Toast.LENGTH_LONG).show()
             }

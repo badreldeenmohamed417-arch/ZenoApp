@@ -8,12 +8,11 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,119 +20,144 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.zeno.R
 import com.example.zeno.core.sections.setup.SelectionGroupWidget
 import com.example.zeno.core.theme.ButtonFun
-import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
 
 @Composable
 fun GradeMiddleSection(
-    continueButton: (String, String) -> Unit,
+    continueButton: (grade: String, schoolSystem: String, track: String) -> Unit,
+    isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val gradeOne = txt("gradeFirstSecondary")
-    val gradeTwo = txt("gradeSecondSecondary")
-    val gradeThree = txt("gradeThirdSecondary")
+    val gradeOne = stringResource(R.string.gradeFirstSecondary)
+    val gradeTwo = stringResource(R.string.gradeSecondSecondary)
+    val gradeThree = stringResource(R.string.gradeThirdSecondary)
+
+    val systemGeneral = stringResource(R.string.sectionElmi)
+    val systemAzhari = stringResource(R.string.sectionAzhari)
+    val systemBacc = stringResource(R.string.trackBaccalaureate)
 
     var selectedGrade by remember { mutableStateOf("") }
     var selectedSystem by remember { mutableStateOf("") }
     var selectedSection by remember { mutableStateOf("") }
 
-    val scrollState = rememberScrollState()
+    val isTrackRequired = (selectedGrade == gradeTwo || selectedGrade == gradeThree) &&
+            (selectedSystem == systemBacc || selectedSystem == systemGeneral || selectedSystem == systemAzhari)
+
+    val isFormValid = selectedGrade.isNotEmpty() &&
+            selectedSystem.isNotEmpty() &&
+            (!isTrackRequired || selectedSection.isNotEmpty())
 
     Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            SelectionGroupWidget(
-                title = txt("gradeLabel"),
-                options = listOf(gradeOne, gradeTwo, gradeThree),
-                selectedOption = selectedGrade.ifEmpty { null },
-                onOptionSelected = { newSelection ->
-                    selectedGrade = newSelection
-                    selectedSection = ""
-                }
-            )
+        // 1. Grade / Academic Year
+        SelectionGroupWidget(
+            title = stringResource(R.string.gradeLabel),
+            options = listOf(gradeOne, gradeTwo, gradeThree),
+            selectedOption = selectedGrade.ifEmpty { null },
+            onOptionSelected = { newSelection ->
+                selectedGrade = newSelection
+                selectedSystem = ""
+                selectedSection = ""
+            }
+        )
 
+        // 2. Educational System
+        if (selectedGrade.isNotEmpty()) {
             SelectionGroupWidget(
-                title = txt("systemLabel"),
-                options = listOf(txt("sectionAzhari"), txt("sectionElmi")),
+                title = stringResource(R.string.systemLabel),
+                options = listOf(systemGeneral, systemAzhari, systemBacc),
                 selectedOption = selectedSystem.ifEmpty { null },
                 onOptionSelected = { newSelection ->
                     selectedSystem = newSelection
                     selectedSection = ""
                 }
             )
-
-            AnimatedVisibility(
-                visible = selectedSystem.isNotEmpty() && selectedGrade.isNotEmpty(),
-                enter = fadeIn() + slideInVertically(),
-                exit = fadeOut() + slideOutVertically()
-            ) {
-                when (selectedSystem) {
-                    txt("sectionElmi") -> {
-                        when (selectedGrade) {
-                            gradeTwo -> {
-                                SelectionGroupWidget(
-                                    title = txt("trackLabel"),
-                                    options = listOf(
-                                        txt("trackMedicineLifeSciences"),
-                                        txt("trackEngineeringTech"),
-                                        txt("trackBusinessSocialSciences"),
-                                        txt("trackArtsHumanities")
-                                    ),
-                                    selectedOption = selectedSection.ifEmpty { null },
-                                    onOptionSelected = { selectedSection = it }
-                                )
-                            }
-                            gradeThree -> {
-                                SelectionGroupWidget(
-                                    title = txt("sectionLabel"),
-                                    options = listOf(
-                                        txt("sectionScientificScience"),
-                                        txt("sectionScientificMath"),
-                                        txt("sectionLiterary")
-                                    ),
-                                    selectedOption = selectedSection.ifEmpty { null },
-                                    onOptionSelected = { selectedSection = it }
-                                )
-                            }
-                        }
-                    }
-                    txt("sectionAzhari") -> {
-                        SelectionGroupWidget(
-                            title = txt("sectionLabel"),
-                            options = listOf(txt("sectionScientific"), txt("sectionLiterary")),
-                            selectedOption = selectedSection.ifEmpty { null },
-                            onOptionSelected = { selectedSection = it }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
 
+        // 3. Track / Section
+        AnimatedVisibility(
+            visible = selectedSystem.isNotEmpty() && selectedGrade.isNotEmpty() && isTrackRequired,
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically()
+        ) {
+            when {
+                selectedSystem == systemBacc -> {
+                    SelectionGroupWidget(
+                        title = stringResource(R.string.trackLabel),
+                        options = listOf(
+                            stringResource(R.string.trackMedicineLifeSciences),
+                            stringResource(R.string.trackEngineeringTech),
+                            stringResource(R.string.trackBusinessSocialSciences),
+                            stringResource(R.string.trackArtsHumanities)
+                        ),
+                        selectedOption = selectedSection.ifEmpty { null },
+                        onOptionSelected = { selectedSection = it }
+                    )
+                }
+                selectedGrade == gradeTwo -> {
+                    SelectionGroupWidget(
+                        title = stringResource(R.string.sectionLabel),
+                        options = listOf(
+                            stringResource(R.string.sectionScientific),
+                            stringResource(R.string.sectionLiterary)
+                        ),
+                        selectedOption = selectedSection.ifEmpty { null },
+                        onOptionSelected = { selectedSection = it }
+                    )
+                }
+                selectedGrade == gradeThree && selectedSystem == systemGeneral -> {
+                    SelectionGroupWidget(
+                        title = stringResource(R.string.sectionLabel),
+                        options = listOf(
+                            stringResource(R.string.sectionScientificScience),
+                            stringResource(R.string.sectionScientificMath),
+                            stringResource(R.string.sectionLiterary)
+                        ),
+                        selectedOption = selectedSection.ifEmpty { null },
+                        onOptionSelected = { selectedSection = it }
+                    )
+                }
+                selectedGrade == gradeThree && selectedSystem == systemAzhari -> {
+                    SelectionGroupWidget(
+                        title = stringResource(R.string.sectionLabel),
+                        options = listOf(
+                            stringResource(R.string.sectionScientific),
+                            stringResource(R.string.sectionLiterary)
+                        ),
+                        selectedOption = selectedSection.ifEmpty { null },
+                        onOptionSelected = { selectedSection = it }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         ButtonFun(
-            onClick = { continueButton(selectedGrade, selectedSystem) },
-            enabled = selectedGrade.isNotEmpty() && selectedSystem.isNotEmpty(),
+            onClick = { continueButton(selectedGrade, selectedSystem, selectedSection) },
+            enabled = isFormValid && !isLoading,
             items = {
-                Text(
-                    text = txt("setupCta"),
-                    color = AppColors.Surface,
-                    fontSize = 16.sp
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = AppColors.AccentInk,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.setupCta),
+                        color = AppColors.AccentInk,
+                        fontSize = 16.sp
+                    )
+                }
             }
         )
     }

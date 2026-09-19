@@ -1,192 +1,385 @@
 package com.example.zeno.features.session.presentation
 
+import android.content.Intent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.zeno.R
-import com.example.zeno.features.session.domain.SessionStatus
-import com.example.zeno.features.session.domain.StudySession
+import com.example.zeno.core.ui.modifiers.bounceClickable
+import com.example.zeno.data.local.UserManager
+import com.example.zeno.features.session.SessionPhase
+import com.example.zeno.features.session.StudySessionService
+import java.util.Locale
 
-import com.example.zeno.features.session.presentation.SessionsViewModel
-import com.example.zeno.features.session.presentation.SessionsUiState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import com.example.zeno.features.session.data.dto.StudySessionDTO
+import com.example.zeno.data.AppColors
+
+private val DarkBG: Color @Composable get() = AppColors.BG
+private val CardBG: Color @Composable get() = AppColors.CardBG
+private val CardBorder: Color @Composable get() = AppColors.CardBorder
+private val LimeAccent: Color @Composable get() = AppColors.LimeAccent
+private val GoldAccent: Color @Composable get() = AppColors.Gold
+private val TextWhite: Color @Composable get() = AppColors.TextWhite
+private val TextMuted: Color @Composable get() = AppColors.TextMuted
 
 @Composable
 fun SessionsScreen(viewModel: SessionsViewModel) {
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf(R.string.sessions_tab_upcoming, R.string.sessions_tab_completed)
-    
+    val scrollState = rememberScrollState()
+    val defaultSubject = stringResource(id = R.string.auto_str_الرياضيات)
+    var selectedSubject by remember(defaultSubject) { mutableStateOf(defaultSubject) }
+    val context = LocalContext.current
+    val sessionState by StudySessionService.sessionState.collectAsState()
+
     val uiState by viewModel.uiState.collectAsState()
-    
-    val currentList = when (uiState) {
-        is SessionsUiState.Success -> {
-            val sessions = (uiState as SessionsUiState.Success).sessions
-            if (selectedTabIndex == 0) {
-                sessions.filter { it.status != "COMPLETED" }
-            } else {
-                sessions.filter { it.status == "COMPLETED" }
-            }
-        }
-        else -> emptyList()
-    }
+    val planItems = (uiState as? SessionsUiState.Success)?.plan?.items
+    val defaultSubjectsList = listOf(stringResource(id = R.string.auto_str_الرياضيات), stringResource(id = R.string.auto_str_الفيزياء), stringResource(id = R.string.auto_str_عربي), "English")
+    val currentLang = remember { UserManager(context).getLanguage() }
+    val subjects = planItems?.map { it.getLocalizedSubject(currentLang) }?.distinct()?.filter { it.isNotBlank() }
+        ?.ifEmpty { defaultSubjectsList }
+        ?: defaultSubjectsList
+
+    val totalTime = if (sessionState.totalTimeMillis > 0) sessionState.totalTimeMillis else 25 * 60 * 1000L
+    val timeLeft = if (sessionState.totalTimeMillis > 0) sessionState.timeLeftMillis else totalTime
+    val progress = if (totalTime > 0) 1f - (timeLeft.toFloat() / totalTime.toFloat()) else 0f
+
+    val minutes = (timeLeft / 1000) / 60
+    val seconds = (timeLeft / 1000) % 60
+    val timeString = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(DarkBG)
+            .verticalScroll(scrollState)
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
-        Surface(
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 4.dp,
-            modifier = Modifier.fillMaxWidth()
+        // Top Title
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column {
+            Text(
+                text = if (sessionState.phase == SessionPhase.BREAK) stringResource(id = R.string.auto_str_وقت_الراحة) else stringResource(id = R.string.auto_str_جلسة_مذاكرة),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextWhite
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = if (sessionState.phase == SessionPhase.BREAK) stringResource(id = R.string.auto_str_افصل_شوية_واشحن) else stringResource(id = R.string.auto_str_ركز_شوية_وخلص),
+                fontSize = 13.sp,
+                color = TextMuted
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Subject Selection (Only show when IDLE)
+        if (sessionState.phase == SessionPhase.IDLE) {
+            Text(
+                text = stringResource(id = R.string.auto_str_اختر_المادة),
+                fontSize = 14.sp,
+                color = TextWhite,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            // Use a simple Row with horizontal scroll for subjects
+            androidx.compose.foundation.lazy.LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp)
+            ) {
+                items(subjects.size) { index ->
+                    val subject = subjects[index]
+                    val isSelected = selectedSubject == subject
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isSelected) LimeAccent else CardBG)
+                            .border(1.dp, if (isSelected) LimeAccent else CardBorder, RoundedCornerShape(12.dp))
+                            .clickable { selectedSubject = subject }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = subject,
+                            color = if (isSelected) Color.Black else TextWhite,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        // Big Circular Countdown Timer
+        Box(
+            modifier = Modifier.size(220.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                progress = { 1f },
+                modifier = Modifier.fillMaxSize(),
+                color = Color(0xFF2C2F38),
+                strokeWidth = 16.dp,
+                strokeCap = StrokeCap.Round
+            )
+            CircularProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxSize(),
+                color = if (sessionState.phase == SessionPhase.BREAK) GoldAccent else LimeAccent,
+                strokeWidth = 16.dp,
+                strokeCap = StrokeCap.Round
+            )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(id = R.string.sessions_title),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(16.dp)
+                    text = timeString,
+                    fontSize = 44.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextWhite
                 )
-                
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary
-                ) {
-                    tabs.forEachIndexed { index, titleRes ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = { 
-                                Text(
-                                    text = stringResource(id = titleRes),
-                                    style = MaterialTheme.typography.labelLarge
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = if (sessionState.phase == SessionPhase.BREAK) stringResource(id = R.string.auto_str_وقت_الراحة) else stringResource(id = R.string.auto_str_وقت_التركيز),
+                    fontSize = 13.sp,
+                    color = TextMuted
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Timer Control Buttons Row
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            // Cancel / Stop Button
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(CardBG)
+                    .clickable { 
+                        sessionState.sessionId?.let { viewModel.completeSession(it) }
+                        context.startService(
+                            Intent(context, StudySessionService::class.java).apply {
+                                action = StudySessionService.ACTION_STOP
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null,
+                    tint = TextWhite,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+            // Play / Pause Primary Button
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(if (sessionState.phase == SessionPhase.BREAK) GoldAccent else LimeAccent)
+                    .bounceClickable { 
+                        if (sessionState.phase == SessionPhase.IDLE) {
+                            // Call API to start session, then start service
+                            viewModel.startSession(selectedSubject) { newSessionId ->
+                                ContextCompat.startForegroundService(
+                                    context,
+                                    Intent(context, StudySessionService::class.java).apply {
+                                        action = StudySessionService.ACTION_START
+                                        putExtra(StudySessionService.EXTRA_DURATION_MINUTES, 25)
+                                        putExtra(StudySessionService.EXTRA_SUBJECT, selectedSubject)
+                                        putExtra(StudySessionService.EXTRA_SOUND_ID, "white_noise")
+                                        putExtra(StudySessionService.EXTRA_SESSION_ID, newSessionId)
+                                    }
                                 )
                             }
+                        } else if (sessionState.isPaused) {
+                            context.startService(
+                                Intent(context, StudySessionService::class.java).apply {
+                                    action = StudySessionService.ACTION_RESUME
+                                }
+                            )
+                        } else {
+                            context.startService(
+                                Intent(context, StudySessionService::class.java).apply {
+                                    action = StudySessionService.ACTION_PAUSE
+                                }
+                            )
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            // Reset Button
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(CardBG)
+                    .clickable { 
+                        sessionState.sessionId?.let { viewModel.completeSession(it) }
+                        context.startService(
+                            Intent(context, StudySessionService::class.java).apply {
+                                action = StudySessionService.ACTION_STOP
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    tint = TextWhite,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        // Stats Cards Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBG)
+                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "${sessionState.totalTimeMillis / 60000}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(id = R.string.auto_str_دقيقة_تركيز),
+                        fontSize = 12.sp,
+                        color = TextMuted
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBG)
+                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "0",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(id = R.string.auto_str_سؤال_سألته),
+                        fontSize = 12.sp,
+                        color = TextMuted
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Upcoming Sessions (from Study Plan) Section
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(id = R.string.auto_str_جلساتك_القادمة_اليوم),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextWhite,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (planItems.isNullOrEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.auto_str_لا_توجد_جلسات),
+                    fontSize = 13.sp,
+                    color = TextMuted,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            } else {
+                planItems.forEach { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(CardBG)
+                            .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.auto_str_itemplannedDurationMinutes_د),
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                        Text(
+                            text = item.getLocalizedSubject(currentLang),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
                         )
                     }
                 }
             }
         }
 
-        // List
-        val displayList = currentList.map { dto ->
-            StudySession(
-                title = dto.title,
-                subject = dto.subject,
-                status = when(dto.status.uppercase()) {
-                    "PENDING" -> SessionStatus.PENDING
-                    "IN_PROGRESS" -> SessionStatus.IN_PROGRESS
-                    "COMPLETED" -> SessionStatus.COMPLETED
-                    else -> SessionStatus.PENDING
-                }
-            )
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            items(displayList) { session ->
-                SessionCard(session = session)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun SessionCard(session: StudySession) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = session.subject,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-                
-                Text(
-                    text = when(session.status) {
-                        SessionStatus.PENDING -> stringResource(id = R.string.session_status_pending)
-                        SessionStatus.IN_PROGRESS -> stringResource(id = R.string.session_status_in_progress)
-                        SessionStatus.COMPLETED -> stringResource(id = R.string.session_status_completed)
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = when(session.status) {
-                        SessionStatus.COMPLETED -> Color(0xFF4CAF50)
-                        SessionStatus.IN_PROGRESS -> MaterialTheme.colorScheme.primary
-                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            Text(
-                text = session.title,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            
-            if (session.status != SessionStatus.COMPLETED) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = { /* TODO: Start/Continue Session */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (session.status == SessionStatus.IN_PROGRESS) 
-                            stringResource(id = R.string.session_action_continue) 
-                        else 
-                            stringResource(id = R.string.session_action_start),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
-        }
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }

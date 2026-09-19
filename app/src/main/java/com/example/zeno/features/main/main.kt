@@ -1,4 +1,4 @@
-package com.example.zeno.futures.main
+package com.example.zeno.features.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,12 @@ import com.example.zeno.core.widgets.ZenoBottomNavigationBar
 
 import com.example.zeno.core.txt
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.zeno.data.local.UserManager
+import com.example.zeno.data.server.ApiClient
+import com.example.zeno.features.home.data.repository.ProgressRepository
+import com.example.zeno.features.home.presentation.HomeViewModel
 
 @Composable
 fun MainScreen(
@@ -37,10 +42,20 @@ fun MainScreen(
             TopSectionMainScreen(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            HomeScreenContent(
-                userName = userManager.getDisplayName() ?: guestUser,
-                onStartSessionClick = onStartSession,
-                onAskZenoClick = onAskZeno
+            val homeViewModel: com.example.zeno.features.home.presentation.HomeViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                        HomeViewModel(
+                            ProgressRepository(
+                                ApiClient.progress()
+                            )
+                        ) as T
+                }
+            )
+            com.example.zeno.features.home.presentation.HomeScreen(
+                viewModel = homeViewModel,
+                onStartSession = onStartSession
             )
         }
         Column(
