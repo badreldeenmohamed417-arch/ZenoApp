@@ -114,9 +114,9 @@ fun HomeScreen(
                 val dailyGoalStr2 = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
                 val dailyGoalMin2 = dailyGoalStr2.toIntOrNull() ?: 60
                 
-                val streakText = if (minutesToday == 0) "ابدأ أول جلسة مذاكرة اليوم!"
-                                 else if (minutesToday < dailyGoalMin2) "استمر كده متوقفش!"
-                                 else "عاش! لقد حققت هدف اليوم 🌟"
+                val streakText = if (minutesToday == 0) stringResource(R.string.home_streak_start)
+                                 else if (minutesToday < dailyGoalMin2) stringResource(R.string.home_streak_keep_going)
+                                 else stringResource(R.string.home_streak_goal_reached)
                                  
                 val emoji = if (minutesToday == 0) "💤" 
                             else if (minutesToday < dailyGoalMin2 / 2) "🔥" 
