@@ -69,17 +69,49 @@ class AssessmentChatViewModel(
             val subjects = userManager.getSubjects().map { 
                 it.name.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim()
             }.take(5).toMutableList()
+            
             if (subjects.isEmpty()) {
-                val dynamicSubjects = config?.defaultSubjects
-                if (!dynamicSubjects.isNullOrEmpty()) {
-                    subjects.addAll(dynamicSubjects)
+                val grade = userManager.getGrade() ?: ""
+                val track = userManager.getTrack() ?: ""
+                
+                val trackSubjects2nd = mapOf(
+                    "ثانوي عام - علمي علوم" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "الفيزياء", "الكيمياء", "الأحياء", "الرياضيات"),
+                    "ثانوي عام - علمي رياضة" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "الفيزياء", "الكيمياء", "الرياضيات البحتة", "الرياضيات التطبيقية"),
+                    "ثانوي عام - أدبي" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "التاريخ", "الجغرافيا", "علم النفس والاجتماع"),
+                    "ثانوي أزهري - علمي" to listOf("القرآن الكريم", "الفقه", "الفيزياء", "الكيمياء", "الأحياء", "الرياضيات"),
+                    "ثانوي أزهري - أدبي" to listOf("القرآن الكريم", "الفقه", "التاريخ", "الجغرافيا", "المنطق", "النحو")
+                )
+                
+                val trackSubjects3rd = mapOf(
+                    "ثانوي عام - علمي علوم" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "الأحياء", "الكيمياء", "الفيزياء"),
+                    "ثانوي عام - علمي رياضة" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "الفيزياء", "الكيمياء", "الرياضيات"),
+                    "ثانوي عام - أدبي" to listOf("اللغة العربية", "اللغة الأجنبية الأولى", "التاريخ", "الجغرافيا", "الإحصاء"),
+                    "ثانوي أزهري - علمي" to listOf("القرآن الكريم", "الفقه", "الحديث", "التوحيد", "الفيزياء", "الكيمياء", "الأحياء", "الرياضيات"),
+                    "ثانوي أزهري - أدبي" to listOf("القرآن الكريم", "الفقه", "الحديث", "التوحيد", "التاريخ", "الجغرافيا", "المنطق", "النحو")
+                )
+                
+                var matchedSubjects = if (grade.contains("2") || grade.contains("الثاني") || grade.contains("ثانية")) {
+                    trackSubjects2nd[track]
                 } else {
-                    if (isArabic) {
-                        subjects.addAll(listOf("اللغة العربية", "الفيزياء", "الكيمياء", "الرياضيات", "الأحياء", "التاريخ"))
+                    trackSubjects3rd[track]
+                }
+                
+                if (matchedSubjects.isNullOrEmpty()) {
+                    val dynamicSubjects = config?.defaultSubjects
+                    if (!dynamicSubjects.isNullOrEmpty()) {
+                        matchedSubjects = dynamicSubjects.map { subj -> 
+                            subj.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim() 
+                        }
                     } else {
-                        subjects.addAll(listOf("Arabic", "Physics", "Chemistry", "Math", "Biology", "History"))
+                        matchedSubjects = if (isArabic) {
+                            listOf("اللغة العربية", "الفيزياء", "الكيمياء", "الرياضيات", "الأحياء", "التاريخ")
+                        } else {
+                            listOf("Arabic", "Physics", "Chemistry", "Math", "Biology", "History")
+                        }
                     }
                 }
+                
+                subjects.addAll(matchedSubjects)
             }
             subjects.add(if (isArabic) context.getString(R.string.auto_str_مادة_أخرى) else "Other Subject")
 
