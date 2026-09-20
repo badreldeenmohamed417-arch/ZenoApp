@@ -327,14 +327,10 @@ class StudySessionService : Service() {
         val state = _sessionState.value
         val timeStr = formatTime(state.timeLeftMillis)
         
-        val userManager = UserManager(this)
-        val guestUser = getString(R.string.guestUser)
-        val userName = userManager.getDisplayName() ?: guestUser
-        
         val title = if (state.phase == SessionPhase.BREAK) {
-            getString(R.string.notification_break_title, userName)
+            "Break Time"
         } else {
-            getString(R.string.notification_focus_title, state.subjectName)
+            "Focus Session: ${state.subjectName}"
         }
 
         val openAppIntent = Intent(this, MainActivity::class.java).apply {
@@ -365,7 +361,7 @@ class StudySessionService : Service() {
     private fun formatTime(millis: Long): String {
         val seconds = (millis / 1000) % 60
         val minutes = (millis / (1000 * 60)) % 60
-        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+        return String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
 
     override fun onDestroy() {

@@ -104,7 +104,7 @@ fun RootNavGraph(
                         }
                     } else {
                         val exception = result?.exceptionOrNull()
-                        if (exception is HttpException && (exception.code() == 401 || exception.code() == 404)) {
+                        if (exception is HttpException && exception.code() == 401) {
                             authRepository.logout()
                             userManager.clearUserData()
                             navController.navigate("auth") {

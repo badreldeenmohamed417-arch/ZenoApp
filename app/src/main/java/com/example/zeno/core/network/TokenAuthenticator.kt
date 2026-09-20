@@ -72,7 +72,7 @@ class TokenAuthenticator(
 
     private fun showSessionExpiredToast() {
         android.os.Handler(android.os.Looper.getMainLooper()).post {
-            val message = context.getString(com.example.zeno.R.string.error_session_expired)
+            val message = "Your session has expired. Please log in again."
             android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_LONG).show()
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -87,7 +87,7 @@ class TokenAuthenticator(
             val pendingIntent = android.app.PendingIntent.getActivity(context, 0, intent, android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
-                .setContentTitle("تسجيل خروج")
+                .setContentTitle("Session Expired")
                 .setContentText(message)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
