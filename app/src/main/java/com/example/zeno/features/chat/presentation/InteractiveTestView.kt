@@ -11,6 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -252,9 +254,11 @@ fun InteractiveTestDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "🏆",
-                                fontSize = 32.sp
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = LimeAccent,
+                                modifier = Modifier.size(36.dp)
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(

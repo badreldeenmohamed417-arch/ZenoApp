@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -464,7 +465,12 @@ fun ChatScreen(
                                 .border(1.dp, CardBorder, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "🤖", fontSize = 32.sp)
+                            androidx.compose.foundation.Image(
+                                painter = painterResource(id = R.drawable.ic_zeno_logo),
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(LimeAccent)
+                            )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(

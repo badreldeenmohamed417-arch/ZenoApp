@@ -130,7 +130,7 @@ fun LanguageSelectionScreen(
         // Language Option: Arabic
         LanguageOptionCard(
             title = txt("auto_str_العربية"),
-            flag = "🇪🇬",
+            badge = "AR",
             isSelected = selectedLanguage == "ar",
             onClick = { selectLanguage("ar") }
         )
@@ -140,7 +140,7 @@ fun LanguageSelectionScreen(
         // Language Option: English
         LanguageOptionCard(
             title = "English",
-            flag = "🇬🇧",
+            badge = "EN",
             isSelected = selectedLanguage == "en",
             onClick = { selectLanguage("en") }
         )
@@ -230,7 +230,7 @@ fun LanguageSelectionScreen(
 @Composable
 private fun LanguageOptionCard(
     title: String,
-    flag: String,
+    badge: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -253,7 +253,20 @@ private fun LanguageOptionCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = flag, fontSize = 22.sp)
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (isSelected) LimeAccent.copy(alpha = 0.2f) else CardBorder),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = badge,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isSelected) LimeAccent else TextMuted
+                    )
+                }
                 Spacer(modifier = Modifier.width(14.dp))
                 Text(
                     text = title,

@@ -84,8 +84,6 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     color = TextWhite
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = "👋", fontSize = 20.sp)
             }
             Spacer(modifier = Modifier.height(2.dp))
             Text(
@@ -118,10 +116,7 @@ fun HomeScreen(
                                  else if (minutesToday < dailyGoalMin2) stringResource(R.string.home_streak_keep_going)
                                  else stringResource(R.string.home_streak_goal_reached)
                                  
-                val emoji = if (minutesToday == 0) "💤" 
-                            else if (minutesToday < dailyGoalMin2 / 2) "🔥" 
-                            else if (minutesToday < dailyGoalMin2) "🚀" 
-                            else "👑"
+                val progressPercent = if (dailyGoalMin2 > 0) ((minutesToday.toFloat() / dailyGoalMin2.toFloat()) * 100).toInt().coerceAtMost(100) else 0
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -161,7 +156,12 @@ fun HomeScreen(
                             style = Stroke(width = 12f, cap = StrokeCap.Round)
                         )
                     }
-                    Text(text = emoji, fontSize = 22.sp)
+                    Text(
+                        text = "$progressPercent%",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextWhite
+                    )
                 }
             }
         }

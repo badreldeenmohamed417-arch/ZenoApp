@@ -250,13 +250,13 @@ class UserManager(context: Context) {
 
     fun getSubscriptionPlanTitle(isArabic: Boolean = true): String {
         val stored = preferences.getString("subscription_plan_title", null)
-        if (!stored.isNullOrBlank()) return stored
+        if (!stored.isNullOrBlank()) return stored.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim()
         val planId = getSubscriptionPlanId().lowercase()
         return when {
-            planId.contains("6month") || planId.contains("legend") || planId.contains("الأسطورة") -> if (isArabic) "الأسطورة 👑" else "Legend Scholar 👑"
-            planId.contains("3month") || planId.contains("champ") || planId.contains("المتفوق") -> if (isArabic) "المتفوق ⭐" else "Term Champion ⭐"
-            planId.contains("month") || planId.contains("achieve") || planId.contains("المثابر") -> if (isArabic) "المثابر 🎯" else "Monthly Achiever 🎯"
-            else -> if (isArabic) "طالب مجتهد 🌟" else "Diligent Student 🌟"
+            planId.contains("6month") || planId.contains("legend") || planId.contains("الأسطورة") -> if (isArabic) "الأسطورة" else "Legend Scholar"
+            planId.contains("3month") || planId.contains("champ") || planId.contains("المتفوق") -> if (isArabic) "المتفوق" else "Term Champion"
+            planId.contains("month") || planId.contains("achieve") || planId.contains("المثابر") -> if (isArabic) "المثابر" else "Monthly Achiever"
+            else -> if (isArabic) "طالب مجتهد" else "Diligent Student"
         }
     }
 }

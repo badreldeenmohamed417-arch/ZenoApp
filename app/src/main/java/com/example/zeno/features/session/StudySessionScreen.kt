@@ -222,12 +222,12 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SoundCard("none", "🎧", stringResource(R.string.noSound), selectedSound == "none", { selectedSound = it }, Modifier.weight(1f))
-                SoundCard("nature", "🌿", stringResource(R.string.soundNature), selectedSound == "nature", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("none", Icons.Default.Headphones, stringResource(R.string.noSound), selectedSound == "none", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("nature", Icons.Default.Park, stringResource(R.string.soundNature), selectedSound == "nature", { selectedSound = it }, Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SoundCard("rain", "🌧️", stringResource(R.string.soundRain), selectedSound == "rain", { selectedSound = it }, Modifier.weight(1f))
-                SoundCard("airplane", "✈️", stringResource(R.string.soundAirplane), selectedSound == "airplane", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("rain", Icons.Default.WaterDrop, stringResource(R.string.soundRain), selectedSound == "rain", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("airplane", Icons.Default.AirplanemodeActive, stringResource(R.string.soundAirplane), selectedSound == "airplane", { selectedSound = it }, Modifier.weight(1f))
             }
         }
 
@@ -294,7 +294,7 @@ fun DurationChip(minutes: Int, isSelected: Boolean, onClick: () -> Unit, modifie
 }
 
 @Composable
-fun SoundCard(id: String, icon: String, name: String, isSelected: Boolean, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun SoundCard(id: String, icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, isSelected: Boolean, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -308,7 +308,7 @@ fun SoundCard(id: String, icon: String, name: String, isSelected: Boolean, onCli
             modifier = Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (isSelected) AppColors.Accent else AppColors.SurfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Text(icon, fontSize = 16.sp, color = if (isSelected) AppColors.AccentInk else AppColors.TextPrimary)
+            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = if (isSelected) AppColors.AccentInk else AppColors.TextPrimary)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(text = name, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isSelected) AppColors.Accent else AppColors.TextPrimary)
