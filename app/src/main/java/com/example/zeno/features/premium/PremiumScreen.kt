@@ -101,14 +101,6 @@ fun PremiumScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Current Plan Badge
-        Text(
-            text = stringResource(R.string.premium_current_plan, currentPlanName),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            color = LimeAccent
-        )
-
         Spacer(modifier = Modifier.height(20.dp))
 
         if (isLoading) {
@@ -298,54 +290,68 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(340.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(CardBG)
             .border(BorderStroke(borderWidth, borderColor), RoundedCornerShape(20.dp))
             .padding(18.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (!badgeText.isNullOrBlank()) {
-                Box(
-                    modifier = Modifier
-                        .background(LimeAccent, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = badgeText,
-                        color = Color.Black,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-
-            Text(
-                text = nameText,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite
-            )
-            Text(
-                text = "$priceText $periodText".trim(),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (plan.highlighted || isActive) LimeAccent else TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
-
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Column(
-                horizontalAlignment = Alignment.Start,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                plan.features.forEach { feature ->
-                    val featureText = if (isEnglish) feature.en.ifBlank { feature.ar } else feature.ar.ifBlank { feature.en }
-                    PlanFeatureItem(featureText)
+                Box(
+                    modifier = Modifier.height(22.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!badgeText.isNullOrBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .background(LimeAccent, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = badgeText,
+                                color = Color.Black,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = nameText,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextWhite
+                )
+                Text(
+                    text = "$priceText $periodText".trim(),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (plan.highlighted || isActive) LimeAccent else TextMuted
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    plan.features.forEach { feature ->
+                        val featureText = if (isEnglish) feature.en.ifBlank { feature.ar } else feature.ar.ifBlank { feature.en }
+                        PlanFeatureItem(featureText)
+                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(18.dp))
 
             Box(
                 modifier = Modifier
