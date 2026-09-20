@@ -14,6 +14,12 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
     private val _plans = MutableStateFlow<List<PlanDto>>(emptyList())
     val plans: StateFlow<List<PlanDto>> = _plans.asStateFlow()
 
+    private val _currentPlanId = MutableStateFlow<String>("free")
+    val currentPlanId: StateFlow<String> = _currentPlanId.asStateFlow()
+
+    private val _currentPlanName = MutableStateFlow<String>("مجانية")
+    val currentPlanName: StateFlow<String> = _currentPlanName.asStateFlow()
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -36,6 +42,22 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
             } else {
                 _errorMessage.value = result.exceptionOrNull().getUserFriendlyMessage()
             }
+
+            try {
+                val sub = repository.getMySubscription()
+                val planName = sub.currentPlan?.lowercase() ?: "free"
+                val matchedPlan = _plans.value.find {
+                    it.id.equals(planName, ignoreCase = true) ||
+                    it.name.en.equals(planName, ignoreCase = true) ||
+                    it.name.ar.equals(planName, ignoreCase = true) ||
+                    planName.contains(it.id, ignoreCase = true)
+                }
+                _currentPlanId.value = matchedPlan?.id ?: (if (sub.status == "active" && planName != "free") planName else "free")
+                _currentPlanName.value = matchedPlan?.name?.ar ?: sub.currentPlan ?: "مجانية"
+            } catch (e: Exception) {
+                _currentPlanId.value = "free"
+            }
+
             _isLoading.value = false
         }
     }

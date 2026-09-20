@@ -66,6 +66,8 @@ fun PremiumScreen(
     val context = LocalContext.current
 
     val plansState by viewModel.plans.collectAsState()
+    val currentPlanId by viewModel.currentPlanId.collectAsState()
+    val currentPlanName by viewModel.currentPlanName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val redeemMessage by viewModel.redeemMessage.collectAsState()
@@ -97,11 +99,11 @@ fun PremiumScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Current Plan Badge
         Text(
-            text = stringResource(R.string.premium_current_plan, stringResource(R.string.premium_column_free)),
+            text = stringResource(R.string.premium_current_plan, currentPlanName),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = LimeAccent
@@ -147,13 +149,14 @@ fun PremiumScreen(
                 ) {
                     PlanCard(
                         plan = plan,
-                        isActive = plan.id == "free"
+                        isActive = plan.id.equals(currentPlanId, ignoreCase = true)
                     )
                 }
             }
         }
 
 
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Coupon Code Discount Section
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -283,11 +286,7 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
     val userManager = remember { UserManager(context) }
     val isEnglish = userManager.getLanguage() == "en"
 
-    val badgeText = if (isActive) {
-        stringResource(R.string.premium_column_free)
-    } else {
-        if (isEnglish) plan.badge?.en?.ifBlank { plan.badge.ar } else plan.badge?.ar?.ifBlank { plan.badge.en }
-    }
+    val badgeText = if (isEnglish) plan.badge?.en?.ifBlank { plan.badge.ar } else plan.badge?.ar?.ifBlank { plan.badge.en }
 
     val nameText = if (isEnglish) plan.name.en.ifBlank { plan.name.ar } else plan.name.ar.ifBlank { plan.name.en }
     val priceText = if (isEnglish) plan.price.en.ifBlank { plan.price.ar } else plan.price.ar.ifBlank { plan.price.en }
