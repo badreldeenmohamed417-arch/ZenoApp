@@ -41,9 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.zeno.R
+import android.widget.Toast
 import com.example.zeno.core.ThinkingIndicator
 import com.example.zeno.core.ui.modifiers.bounceClickable
 import com.example.zeno.core.widgets.ChatBubble
+import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.local.db.AppDatabase
 
 import com.example.zeno.features.chat.presentation.ChatActionChipData
@@ -272,22 +274,142 @@ fun ChatDropUp(
                                     launcher.launch("application/pdf")
                                 }
                             )
+                            val userManager = remember { UserManager(context) }
+                            val isPro = userManager.isPro()
+                            val availableTokens = userManager.getAvailableTokens()
+                            val isQuizAllowed = isPro && availableTokens >= 50
+                            val isHandoutAllowed = isPro && availableTokens >= 100
+
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.chat_action_quiz), color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
-                                leadingIcon = { Icon(Icons.Default.Quiz, contentDescription = null, tint = Color(0xFFFB923C), modifier = Modifier.size(18.dp)) },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.chat_action_quiz),
+                                            color = if (isQuizAllowed) TextWhite else TextMuted,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        if (!isPro) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
+                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.chat_action_pro_badge),
+                                                    color = Color(0xFFFDE047),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        } else if (availableTokens < 50) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
+                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                ) {
+                                                Text(
+                                                    text = stringResource(R.string.chat_action_no_tokens_badge),
+                                                    color = Color(0xFFFCA5A5),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Quiz,
+                                        contentDescription = null,
+                                        tint = if (isQuizAllowed) Color(0xFFFB923C) else TextMuted,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                },
+                                enabled = isQuizAllowed,
                                 onClick = {
                                     showActionMenu = false
-                                    selectedActionChip =
-                                        ChatActionChipData(quizTitle, quizPrompt, Icons.Default.Quiz)
+                                    if (!isPro) {
+                                        Toast.makeText(context, context.getString(R.string.chat_action_pro_required_toast), Toast.LENGTH_SHORT).show()
+                                    } else if (availableTokens < 50) {
+                                        Toast.makeText(context, context.getString(R.string.chat_action_insufficient_tokens_toast), Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        selectedActionChip =
+                                            ChatActionChipData(quizTitle, quizPrompt, Icons.Default.Quiz)
+                                    }
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.chat_action_handout), color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
-                                leadingIcon = { Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = LimeAccent, modifier = Modifier.size(18.dp)) },
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.chat_action_handout),
+                                            color = if (isHandoutAllowed) TextWhite else TextMuted,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        if (!isPro) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
+                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.chat_action_pro_badge),
+                                                    color = Color(0xFFFDE047),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        } else if (availableTokens < 100) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
+                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                ) {
+                                                Text(
+                                                    text = stringResource(R.string.chat_action_no_tokens_badge),
+                                                    color = Color(0xFFFCA5A5),
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.AutoAwesome,
+                                        contentDescription = null,
+                                        tint = if (isHandoutAllowed) LimeAccent else TextMuted,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                },
+                                enabled = isHandoutAllowed,
                                 onClick = {
                                     showActionMenu = false
-                                    selectedActionChip =
-                                        ChatActionChipData(handoutTitle, handoutPrompt, Icons.Default.AutoAwesome)
+                                    if (!isPro) {
+                                        Toast.makeText(context, context.getString(R.string.chat_action_pro_required_toast), Toast.LENGTH_SHORT).show()
+                                    } else if (availableTokens < 100) {
+                                        Toast.makeText(context, context.getString(R.string.chat_action_insufficient_tokens_toast), Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        selectedActionChip =
+                                            ChatActionChipData(handoutTitle, handoutPrompt, Icons.Default.AutoAwesome)
+                                    }
                                 }
                             )
                         }

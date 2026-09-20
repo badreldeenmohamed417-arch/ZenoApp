@@ -112,6 +112,10 @@
  <string name="chat_action_pdf">ملف PDF</string>
  <string name="chat_action_quiz">اختبار تفاعلي</string>
  <string name="chat_action_handout">إنشاء ملزمة</string>
+ <string name="chat_action_pro_badge">PRO</string>
+ <string name="chat_action_no_tokens_badge">رصيد غير كافٍ</string>
+ <string name="chat_action_pro_required_toast">هذه الميزة مخصصة لمشتركي الباقات المدفوعة (PRO) فقط</string>
+ <string name="chat_action_insufficient_tokens_toast">رصيدك الحالي من التوكنز غير كافٍ لإنشاء هذا العنصر</string>
  <string name="chat_menu_rename">إعادة تسمية</string>
  <string name="chat_menu_archive">أرشفة المحادثة</string>
  <string name="chat_menu_delete">حذف المحادثة</string>

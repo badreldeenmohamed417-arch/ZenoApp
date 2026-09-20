@@ -112,6 +112,10 @@
  <string name="chat_action_pdf">PDF File</string>
  <string name="chat_action_quiz">Interactive Quiz</string>
  <string name="chat_action_handout">Create Handout</string>
+ <string name="chat_action_pro_badge">PRO</string>
+ <string name="chat_action_no_tokens_badge">Low Credits</string>
+ <string name="chat_action_pro_required_toast">This feature is for PRO subscribers only</string>
+ <string name="chat_action_insufficient_tokens_toast">Insufficient token balance for this action</string>
  <string name="chat_menu_rename">Rename</string>
  <string name="chat_menu_archive">Archive Conversation</string>
  <string name="chat_menu_delete">Delete Conversation</string>

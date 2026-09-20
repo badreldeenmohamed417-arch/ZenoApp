@@ -234,7 +234,24 @@ class UserManager(context: Context) {
     }
 
     fun isPro(): Boolean {
-        return preferences.getBoolean("is_pro", false)
+        val planId = getSubscriptionPlanId().lowercase()
+        return preferences.getBoolean("is_pro", false) || (planId.isNotBlank() && planId != "free")
+    }
+
+    fun saveAvailableTokens(balance: Int) {
+        preferences.edit().putInt("available_tokens", balance).apply()
+    }
+
+    fun getAvailableTokens(): Int {
+        return preferences.getInt("available_tokens", if (isPro()) 10000 else 1000)
+    }
+
+    fun canUseProFeature(): Boolean {
+        return isPro()
+    }
+
+    fun hasEnoughTokens(required: Int = 100): Boolean {
+        return getAvailableTokens() >= required
     }
 
     fun saveSubscriptionPlan(planId: String?, planTitle: String?) {
