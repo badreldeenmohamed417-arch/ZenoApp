@@ -194,27 +194,6 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(stringResource(R.string.whatToStudyToday), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                SubjectChip(
-                    name = stringResource(R.string.unspecified),
-                    isSelected = selectedSubjectName == null,
-                    onClick = { selectedSubjectName = null }
-                )
-            }
-            items(planSubjects) { subject ->
-                SubjectChip(
-                    name = subject,
-                    isSelected = selectedSubjectName == subject,
-                    onClick = { selectedSubjectName = subject }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
         Text(stringResource(R.string.sessionDuration), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
         Spacer(modifier = Modifier.height(10.dp))
         val configRepository = com.example.zeno.core.config.data.repository.ConfigRepository(

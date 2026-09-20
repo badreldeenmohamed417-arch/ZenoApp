@@ -153,51 +153,7 @@ fun PremiumScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
 
-        // Plan Comparison Table Section (RTL Aligned)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(CardBG)
-                .border(BorderStroke(1.dp, CardBorder), RoundedCornerShape(20.dp))
-                .padding(18.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.premium_features_table_title),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Table Column Headers (RTL: Right to Left)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = stringResource(R.string.premium_column_feature), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1.5f), textAlign = TextAlign.Start)
-                Text(text = stringResource(R.string.premium_column_free), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextMuted, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = stringResource(R.string.premium_column_classic), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = stringResource(R.string.premium_column_pro), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                Text(text = stringResource(R.string.premium_column_plus), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = LimeAccent, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), color = CardBorder)
-
-            ComparisonRow(stringResource(R.string.premium_row_credits), "1k", "5k", "15k", "40k")
-            ComparisonRow(stringResource(R.string.premium_row_questions), "✓", "✓", "✓", "✓")
-            ComparisonRow(stringResource(R.string.premium_row_notes_exams), "-", "✓", "✓", "✓")
-            ComparisonRow(stringResource(R.string.premium_row_advanced_ai), "-", "-", "✓", "✓")
-            ComparisonRow(stringResource(R.string.premium_row_all_features), "-", "-", "-", "✓")
-        }
-
-        Spacer(modifier = Modifier.height(28.dp))
 
         // Coupon Code Discount Section
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -447,19 +403,3 @@ fun PlanFeatureItem(text: String) {
     }
 }
 
-@Composable
-fun ComparisonRow(feature: String, free: String, classic: String, pro: String, premium: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = feature, fontSize = 11.sp, color = TextWhite, modifier = Modifier.weight(1.5f), textAlign = TextAlign.Start)
-        Text(text = free, fontSize = 11.sp, color = TextMuted, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        Text(text = classic, fontSize = 11.sp, color = TextWhite, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        Text(text = pro, fontSize = 11.sp, color = TextWhite, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        Text(text = premium, fontSize = 11.sp, color = LimeAccent, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-    }
-}

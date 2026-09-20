@@ -94,44 +94,6 @@ fun SessionsScreen(viewModel: SessionsViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Subject Selection (Only show when IDLE)
-        if (sessionState.phase == SessionPhase.IDLE) {
-            Text(
-                text = stringResource(id = R.string.auto_str_اختر_المادة),
-                fontSize = 14.sp,
-                color = TextWhite,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            // Use a simple Row with horizontal scroll for subjects
-            androidx.compose.foundation.lazy.LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 4.dp)
-            ) {
-                items(subjects.size) { index ->
-                    val subject = subjects[index]
-                    val isSelected = selectedSubject == subject
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) LimeAccent else CardBG)
-                            .border(1.dp, if (isSelected) LimeAccent else CardBorder, RoundedCornerShape(12.dp))
-                            .clickable { selectedSubject = subject }
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = subject,
-                            color = if (isSelected) Color.Black else TextWhite,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
         // Big Circular Countdown Timer
         Box(
             modifier = Modifier.size(220.dp),

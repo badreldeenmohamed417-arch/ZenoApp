@@ -48,7 +48,7 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
                 _redeemMessage.value = result.getOrNull()?.message?.ar ?: "تم التفعيل بنجاح"
                 fetchPlans()
             } else {
-                _redeemMessage.value = "auto_str_فشل_التفعيل"
+                _redeemMessage.value = "فشل التفعيل، يرجى التأكد من صحة الكود والمحاولة مرة أخرى"
             }
         }
     }
