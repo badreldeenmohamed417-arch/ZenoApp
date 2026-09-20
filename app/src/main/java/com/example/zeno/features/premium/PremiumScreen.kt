@@ -97,11 +97,28 @@ fun PremiumScreen(
                 fontSize = 13.sp,
                 color = TextMuted
             )
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(LimeAccent.copy(alpha = 0.08f))
+                    .border(1.dp, LimeAccent.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.premium_equal_features_note),
+                    fontSize = 12.sp,
+                    color = LimeAccent,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Spacer(modifier = Modifier.height(20.dp))
 
         if (isLoading) {
             CircularProgressIndicator(color = LimeAccent)
@@ -117,7 +134,7 @@ fun PremiumScreen(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 48.dp),
+                contentPadding = PaddingValues(horizontal = 40.dp),
                 pageSpacing = 16.dp
             ) { page ->
                 val plan = plansState[page]
@@ -280,6 +297,7 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
 
     val badgeText = if (isEnglish) plan.badge?.en?.ifBlank { plan.badge.ar } else plan.badge?.ar?.ifBlank { plan.badge.en }
     val nameText = if (isEnglish) plan.name.en.ifBlank { plan.name.ar } else plan.name.ar.ifBlank { plan.name.en }
+    val tierTitleText = if (isEnglish) plan.tierTitle?.en?.ifBlank { plan.tierTitle.ar } else plan.tierTitle?.ar?.ifBlank { plan.tierTitle.en }
     val priceText = if (isEnglish) plan.price.en.ifBlank { plan.price.ar } else plan.price.ar.ifBlank { plan.price.en }
     val originalPriceText = if (isEnglish) plan.originalPrice?.en?.ifBlank { plan.originalPrice.ar } else plan.originalPrice?.ar?.ifBlank { plan.originalPrice.en }
     val discountBadgeText = if (isEnglish) plan.discountText?.en?.ifBlank { plan.discountText.ar } else plan.discountText?.ar?.ifBlank { plan.discountText.en }
@@ -291,7 +309,7 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(355.dp)
+            .height(380.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(CardBG)
             .border(BorderStroke(borderWidth, borderColor), RoundedCornerShape(20.dp))
@@ -336,7 +354,24 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                if (!tierTitleText.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(LimeAccent.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                            .border(1.dp, LimeAccent.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.premium_profile_title_label, tierTitleText),
+                            color = LimeAccent,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -386,7 +421,7 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Column(
                     horizontalAlignment = Alignment.Start,

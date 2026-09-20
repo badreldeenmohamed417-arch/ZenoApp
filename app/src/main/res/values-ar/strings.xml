@@ -139,6 +139,8 @@
  <string name="premium_buy_telegram">شراء كود عبر تليجرام</string>
  <string name="premium_select_plan">اختيار الباقة</string>
  <string name="premium_plan_active">مفعلة</string>
+ <string name="premium_equal_features_note">جميع الخطط تشمل نفس المزايا الكاملة بلا استثناء، والفرق فقط في المدة وقيمة التوفير واللقب في ملفك الشخصي</string>
+ <string name="premium_profile_title_label">لقب الحساب: %1$s</string>
  <string name="profile_username_label">اسم المستخدم</string>
  <string name="profile_username_taken">اسم المستخدم مستخدم بالفعل</string>
  <string name="profile_edit_name_title">تعديل الاسم</string>

@@ -139,6 +139,8 @@
  <string name="premium_buy_telegram">Buy coupon via Telegram</string>
  <string name="premium_select_plan">Select Plan</string>
  <string name="premium_plan_active">Active</string>
+ <string name="premium_equal_features_note">All plans include 100% full unlimited features. The only difference is duration, savings, and your profile title.</string>
+ <string name="premium_profile_title_label">Profile Title: %1$s</string>
  <string name="profile_username_label">Username</string>
  <string name="profile_username_taken">Username already taken</string>
  <string name="profile_edit_name_title">Edit Name</string>

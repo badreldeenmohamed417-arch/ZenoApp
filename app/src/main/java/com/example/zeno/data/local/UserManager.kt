@@ -253,9 +253,9 @@ class UserManager(context: Context) {
         if (!stored.isNullOrBlank()) return stored.replace(Regex("[\\p{So}\\p{Sk}\\p{Sm}\\p{Sc}\\u200D\\uFE0F]+"), "").trim()
         val planId = getSubscriptionPlanId().lowercase()
         return when {
-            planId.contains("6month") || planId.contains("legend") || planId.contains("الأسطورة") -> if (isArabic) "الأسطورة" else "Legend Scholar"
-            planId.contains("3month") || planId.contains("champ") || planId.contains("المتفوق") -> if (isArabic) "المتفوق" else "Term Champion"
-            planId.contains("month") || planId.contains("achieve") || planId.contains("المثابر") -> if (isArabic) "المثابر" else "Monthly Achiever"
+            planId.contains("6month") || planId.contains("legend") || planId.contains("الأسطورة") -> if (isArabic) "الأسطورة" else "Legend"
+            planId.contains("3month") || planId.contains("champ") || planId.contains("المتفوق") -> if (isArabic) "المتفوق" else "Champion"
+            planId.contains("month") || planId.contains("achieve") || planId.contains("المثابر") -> if (isArabic) "المثابر" else "Achiever"
             else -> if (isArabic) "طالب مجتهد" else "Diligent Student"
         }
     }
