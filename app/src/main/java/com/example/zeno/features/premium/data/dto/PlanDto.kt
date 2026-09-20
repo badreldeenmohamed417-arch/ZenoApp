@@ -10,7 +10,10 @@ data class LocalizedText(
 data class PlanDto(
     val id: String = "",
     val name: LocalizedText = LocalizedText(),
+    @SerializedName("tier_title") val tierTitle: LocalizedText? = null,
     val price: LocalizedText = LocalizedText(),
+    @SerializedName("original_price") val originalPrice: LocalizedText? = null,
+    @SerializedName("discount_text") val discountText: LocalizedText? = null,
     val period: LocalizedText = LocalizedText(),
     @SerializedName("monthly_credits") val monthly_credits: Int = 0,
     val highlighted: Boolean = false,

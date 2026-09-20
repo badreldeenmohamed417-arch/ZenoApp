@@ -116,7 +116,28 @@ fun ProfileScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
+        val isArabic = userManager.getLanguage() != "en"
+        val planTitle = userManager.getSubscriptionPlanTitle(isArabic)
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(LimeAccent.copy(alpha = 0.15f))
+                .border(1.dp, LimeAccent.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = planTitle,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = LimeAccent
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
 
         // 1. Username Field (At the top of the page - Editable & Unique)
         Column(

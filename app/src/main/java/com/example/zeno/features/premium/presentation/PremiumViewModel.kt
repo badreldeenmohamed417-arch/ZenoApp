@@ -53,9 +53,10 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
                     planName.contains(it.id, ignoreCase = true)
                 }
                 _currentPlanId.value = matchedPlan?.id ?: (if (sub.status == "active" && planName != "free") planName else "free")
-                _currentPlanName.value = matchedPlan?.name?.ar ?: sub.currentPlan ?: "مجانية"
+                _currentPlanName.value = matchedPlan?.tierTitle?.ar ?: matchedPlan?.name?.ar ?: sub.currentPlan ?: "طالب مجتهد"
             } catch (e: Exception) {
                 _currentPlanId.value = "free"
+                _currentPlanName.value = "طالب مجتهد"
             }
 
             _isLoading.value = false

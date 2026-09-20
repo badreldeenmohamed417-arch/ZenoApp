@@ -133,6 +133,11 @@ fun SettingsDashboardScreen(
             }
         }
 
+        val context = androidx.compose.ui.platform.LocalContext.current
+        val userManager = remember { com.example.zeno.data.local.UserManager(context) }
+        val isArabic = userManager.getLanguage() != "en"
+        val planTitle = userManager.getSubscriptionPlanTitle(isArabic)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -177,9 +182,27 @@ fun SettingsDashboardScreen(
                 fontSize = 13.sp,
                 color = TextMuted
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(LimeAccent.copy(alpha = 0.15f))
+                    .border(1.dp, LimeAccent.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = planTitle,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LimeAccent
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Group 1: Profile & Subscription
         Column(
@@ -199,7 +222,7 @@ fun SettingsDashboardScreen(
             HorizontalDivider(color = CardBorder, thickness = 1.dp)
             SettingsRowItem(
                 title = stringResource(id = R.string.nav_upgrade),
-                badge = stringResource(id = R.string.premium_column_free),
+                badge = planTitle,
                 icon = Icons.Default.EmojiEvents,
                 onClick = { onNavigateToUpgrade() }
             )

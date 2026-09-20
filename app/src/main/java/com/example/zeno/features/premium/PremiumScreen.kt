@@ -279,9 +279,10 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
     val isEnglish = userManager.getLanguage() == "en"
 
     val badgeText = if (isEnglish) plan.badge?.en?.ifBlank { plan.badge.ar } else plan.badge?.ar?.ifBlank { plan.badge.en }
-
     val nameText = if (isEnglish) plan.name.en.ifBlank { plan.name.ar } else plan.name.ar.ifBlank { plan.name.en }
     val priceText = if (isEnglish) plan.price.en.ifBlank { plan.price.ar } else plan.price.ar.ifBlank { plan.price.en }
+    val originalPriceText = if (isEnglish) plan.originalPrice?.en?.ifBlank { plan.originalPrice.ar } else plan.originalPrice?.ar?.ifBlank { plan.originalPrice.en }
+    val discountBadgeText = if (isEnglish) plan.discountText?.en?.ifBlank { plan.discountText.ar } else plan.discountText?.ar?.ifBlank { plan.discountText.en }
     val periodText = if (isEnglish) plan.period.en.ifBlank { plan.period.ar } else plan.period.ar.ifBlank { plan.period.en }
 
     val borderColor = if (isActive) LimeAccent else if (plan.highlighted) LimeAccent else CardBorder
@@ -290,7 +291,7 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(340.dp)
+            .height(355.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(CardBG)
             .border(BorderStroke(borderWidth, borderColor), RoundedCornerShape(20.dp))
@@ -331,14 +332,59 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
                     text = nameText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    color = TextWhite,
+                    textAlign = TextAlign.Center
                 )
-                Text(
-                    text = "$priceText $periodText".trim(),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (plan.highlighted || isActive) LimeAccent else TextMuted
-                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = priceText,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (plan.highlighted || isActive) LimeAccent else TextWhite
+                    )
+
+                    if (!originalPriceText.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = originalPriceText,
+                            fontSize = 12.sp,
+                            color = TextMuted,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough
+                        )
+                    }
+
+                    if (!discountBadgeText.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFE53935).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
+                                .border(0.5.dp, Color(0xFFE53935), RoundedCornerShape(4.dp))
+                                .padding(horizontal = 5.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = discountBadgeText,
+                                color = Color(0xFFFF5252),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                if (periodText.isNotBlank()) {
+                    Text(
+                        text = periodText,
+                        fontSize = 11.sp,
+                        color = TextMuted,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
