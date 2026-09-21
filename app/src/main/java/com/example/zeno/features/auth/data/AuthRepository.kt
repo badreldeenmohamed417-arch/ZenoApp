@@ -5,10 +5,15 @@ import com.example.zeno.data.local.UserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+import android.content.Context
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
 class AuthRepository(
     private val authApi: AuthApi,
     private val authStorage: AuthStorage,
-    private val userManager: UserManager
+    private val userManager: UserManager,
+    private val context: Context
 ) {
 
     suspend fun login(request: LoginRequest): Result<TokenResponse> = withContext(Dispatchers.IO) {
@@ -81,6 +86,10 @@ class AuthRepository(
 
     fun logout() {
         authStorage.clearToken()
+        userManager.clearUserData()
+        CoroutineScope(Dispatchers.IO).launch {
+            com.example.zeno.data.local.db.AppDatabase.getDatabase(context).clearAllTables()
+        }
     }
 
     fun isLoggedIn(): Boolean {

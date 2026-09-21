@@ -56,7 +56,7 @@ val appModule = module {
     single<ConfigApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(ConfigApi::class.java) }
 
     // Repositories
-    single { AuthRepository(get(), get(), get()) }
+    single { AuthRepository(get(), get(), get(), androidContext()) }
     single { StudentRepository(get()) }
     single { com.example.zeno.features.home.data.HomeCacheManager(androidContext()) }
     single { ProgressRepository(get(), get()) }
