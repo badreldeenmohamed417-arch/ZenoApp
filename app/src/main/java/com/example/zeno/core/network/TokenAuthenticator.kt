@@ -57,9 +57,14 @@ class TokenAuthenticator(
                         return response.request.newBuilder()
                             .header("Authorization", "Bearer ${refreshResponse.accessToken}")
                             .build()
+                    } catch (e: retrofit2.HttpException) {
+                        if (e.code() == 401 || e.code() == 403) {
+                            authStorage.clearToken()
+                            showSessionExpiredToast()
+                        }
                     } catch (e: Exception) {
-                        authStorage.clearToken()
-                        showSessionExpiredToast()
+                        // Network errors should not log the user out!
+                        e.printStackTrace()
                     }
                 } else {
                     authStorage.clearToken()
@@ -72,7 +77,7 @@ class TokenAuthenticator(
 
     private fun showSessionExpiredToast() {
         android.os.Handler(android.os.Looper.getMainLooper()).post {
-            val message = "Your session has expired. Please log in again."
+            val message = "انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى."
             android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_LONG).show()
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -87,13 +92,16 @@ class TokenAuthenticator(
             val pendingIntent = android.app.PendingIntent.getActivity(context, 0, intent, android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT)
             val builder = androidx.core.app.NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(android.R.drawable.ic_dialog_alert)
-                .setContentTitle("Session Expired")
+                .setContentTitle("انتهت الجلسة")
                 .setContentText(message)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
             
             notificationManager.notify(1001, builder.build())
+            
+            // Navigate immediately to Login and clear backstack
+            context.startActivity(intent)
         }
     }
 }
