@@ -1,6 +1,7 @@
 package com.example.zeno.features.home.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.home.data.dto.ProgressOverviewResponse
 import com.example.zeno.features.home.data.repository.ProgressRepository
@@ -16,7 +17,7 @@ sealed class HomeUiState {
     data class Error(val message: String) : HomeUiState()
 }
 
-class HomeViewModel(private val repository: ProgressRepository) : ViewModel() {
+class HomeViewModel(application: Application, private val repository: ProgressRepository) : BaseViewModel(application) {
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -25,7 +26,7 @@ class HomeViewModel(private val repository: ProgressRepository) : ViewModel() {
     }
 
     fun loadDashboard() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val cached = repository.getCachedProgress()
             if (cached != null) {
                 _uiState.value = HomeUiState.Success(cached)
@@ -50,7 +51,7 @@ class HomeViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(repository) as T
+            return HomeViewModel(getApplication(), repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

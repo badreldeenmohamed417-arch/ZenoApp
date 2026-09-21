@@ -75,11 +75,11 @@ val appModule = module {
     }
     
     // ViewModels
-    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(get()) }
+    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(androidApplication(), get()) }
     viewModel { com.example.zeno.features.assessment.presentation.AssessmentChatViewModel(get(), get(), get()) }
-    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(get()) }
-    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get()) }
-    viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(get(), get()) }
-    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get()) }
-    viewModel { com.example.zeno.features.auth.presentation.EmailVerificationViewModel(get(), get()) }
+    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(androidApplication(), get()) }
+    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(androidApplication(), get(), get()) }
+    viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(androidApplication(), get(), get()) }
+    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(androidApplication(), get()) }
+    viewModel { com.example.zeno.features.auth.presentation.EmailVerificationViewModel(androidApplication(), get(), get()) }
 }

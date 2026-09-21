@@ -1,8 +1,9 @@
 package com.example.zeno.features.chat.presentation
 
+import android.app.Application
 import android.content.ContentResolver
 import android.net.Uri
-import androidx.lifecycle.ViewModel
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.data.dto.ConversationResponse
@@ -19,7 +20,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.util.UUID
 
-class ChatViewModel(private val repository: ChatRepository, private val userManager: UserManager) : ViewModel() {
+class ChatViewModel(application: Application, private val repository: ChatRepository, private val userManager: UserManager) : BaseViewModel(application) {
     private fun getHomeCacheManager(): com.example.zeno.features.home.data.HomeCacheManager {
         return org.koin.java.KoinJavaComponent.getKoin().get()
     }
@@ -49,7 +50,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun fetchConversations() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.getConversations()
             if (result.isSuccess) {
                 _conversations.value = result.getOrNull()?.items ?: emptyList()
@@ -67,7 +68,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         if (userManager.getCurrentChatId() == id) {
             clearChat()
         }
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.deleteConversation(id)
             fetchConversations()
         }
@@ -84,7 +85,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         _messages.value = emptyList()
         _isLoadingChat.value = true
 
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.getConversationDetails(id)
             _isLoadingChat.value = false
             if (result.isSuccess) {
@@ -104,7 +105,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun renameConversation(id: String, newTitle: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.updateConversationTitle(id, newTitle)
             if (result.isSuccess) {
                 if (userManager.getCurrentChatId() == id) {
@@ -119,7 +120,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         val currentId = userManager.getCurrentChatId()
         if (currentId != null) {
             _isLoadingChat.value = true
-            viewModelScope.launch {
+            viewModelScope.launch(exceptionHandler) {
                 val result = repository.getConversationDetails(currentId)
                 _isLoadingChat.value = false
                 if (result.isSuccess) {
@@ -168,7 +169,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         _isTyping.value = true
         _errorMessage.value = null
 
-        currentChatJob = viewModelScope.launch {
+        currentChatJob = viewModelScope.launch(exceptionHandler) {
             var activeId = userManager.getCurrentChatId()
             if (activeId == null) {
                 val title = if (text.length > 20) text.take(20) + "..." else text
@@ -267,7 +268,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         _isTyping.value = true
         _errorMessage.value = null
 
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             try {
                 val inputStream = contentResolver.openInputStream(uri)
                 if (inputStream != null) {
@@ -319,7 +320,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun reportMessage(id: String, reason: String, onResult: (Boolean, String?) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.reportMessage(id, reason)
             if (result.isSuccess) {
                 onResult(true, null)

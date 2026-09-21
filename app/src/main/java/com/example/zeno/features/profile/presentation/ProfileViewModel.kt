@@ -1,6 +1,7 @@
 package com.example.zeno.features.profile.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.student.data.dto.DeleteAccountRequest
 import com.example.zeno.features.student.data.dto.ProfileResponse
@@ -25,7 +26,7 @@ fun getErrorMessage(e: Throwable?): String {
     return msg
 }
 
-class ProfileViewModel(private val repository: StudentRepository) : ViewModel() {
+class ProfileViewModel(application: Application, private val repository: StudentRepository) : BaseViewModel(application) {
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 

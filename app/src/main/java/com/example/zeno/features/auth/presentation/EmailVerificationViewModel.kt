@@ -1,6 +1,7 @@
 package com.example.zeno.features.auth.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.auth.data.ResendVerificationRequest
@@ -11,10 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class EmailVerificationViewModel(
+class EmailVerificationViewModel(application: Application,
     private val authRepository: AuthRepository,
     private val studentRepository: StudentRepository
-) : ViewModel() {
+) : BaseViewModel(application) {
 
     private val _isChecking = MutableStateFlow(false)
     val isChecking: StateFlow<Boolean> = _isChecking.asStateFlow()
@@ -35,7 +36,7 @@ class EmailVerificationViewModel(
     }
 
     private fun fetchEmail() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = studentRepository.getProfile()
             if (result.isSuccess) {
                 userEmail = result.getOrNull()?.email
@@ -46,7 +47,7 @@ class EmailVerificationViewModel(
     fun checkVerificationStatus() {
         _isChecking.value = true
         _errorMessage.value = null
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = studentRepository.getProfile()
             _isChecking.value = false
             if (result.isSuccess) {
@@ -72,7 +73,7 @@ class EmailVerificationViewModel(
         }
 
         _errorMessage.value = null
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = authRepository.resendVerification(ResendVerificationRequest(email))
             if (result.isSuccess) {
                 startCooldownTimer(120) // 2 minutes
@@ -91,7 +92,7 @@ class EmailVerificationViewModel(
 
     private fun startCooldownTimer(seconds: Int) {
         _resendCooldownTimer.value = seconds
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             while (_resendCooldownTimer.value > 0) {
                 delay(1000)
                 _resendCooldownTimer.value -= 1

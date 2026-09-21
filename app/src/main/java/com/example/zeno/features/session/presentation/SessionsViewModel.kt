@@ -1,6 +1,7 @@
 package com.example.zeno.features.session.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.session.data.dto.StudyPlanSchema
 import com.example.zeno.features.session.data.repository.SessionRepository
@@ -17,10 +18,10 @@ sealed class SessionsUiState {
     data class Error(val message: String) : SessionsUiState()
 }
 
-class SessionsViewModel(
+class SessionsViewModel(application: Application,
     private val planRepository: StudyPlanRepository,
     private val sessionRepository: SessionRepository
-) : ViewModel() {
+) : BaseViewModel(application) {
     private val _uiState = MutableStateFlow<SessionsUiState>(SessionsUiState.Loading)
     val uiState: StateFlow<SessionsUiState> = _uiState.asStateFlow()
 
@@ -31,7 +32,7 @@ class SessionsViewModel(
 
 
     fun startSession(subjectId: String, onStarted: (String) -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = sessionRepository.startSession(subjectId)
             if (result.isSuccess) {
                 result.getOrNull()?.sessionId?.let { onStarted(it) }
@@ -40,7 +41,7 @@ class SessionsViewModel(
     }
 
     fun completeSession(sessionId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             sessionRepository.completeSession(sessionId)
         }
     }

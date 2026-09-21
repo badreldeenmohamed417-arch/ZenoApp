@@ -1,6 +1,7 @@
 package com.example.zeno.features.premium.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.premium.data.dto.PlanDto
 import com.example.zeno.features.premium.data.repository.SubscriptionRepository
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.zeno.core.util.getUserFriendlyMessage
 
-class PremiumViewModel(private val repository: SubscriptionRepository) : ViewModel() {
+class PremiumViewModel(application: Application, private val repository: SubscriptionRepository) : BaseViewModel(application) {
     private val _plans = MutableStateFlow<List<PlanDto>>(emptyList())
     val plans: StateFlow<List<PlanDto>> = _plans.asStateFlow()
 
@@ -34,7 +35,7 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
     }
 
     private fun fetchPlans() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             _isLoading.value = true
             val result = repository.getPlans()
             if (result.isSuccess) {
@@ -65,7 +66,7 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
 
     fun redeemCode(code: String) {
         if (code.isBlank()) return
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             val result = repository.redeemCode(code)
             if (result.isSuccess) {
                 _redeemMessage.value = result.getOrNull()?.message?.ar ?: "تم التفعيل بنجاح"
