@@ -63,7 +63,7 @@ data class UserResponse(
 )
 
 data class RefreshTokenRequest(
-    val refreshToken: String
+    @SerializedName("refresh_token") val refreshToken: String
 )
 
 data class VerifyEmailRequest(

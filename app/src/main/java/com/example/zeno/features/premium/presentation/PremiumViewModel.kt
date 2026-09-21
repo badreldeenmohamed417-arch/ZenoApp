@@ -79,4 +79,38 @@ class PremiumViewModel(private val repository: SubscriptionRepository) : ViewMod
     fun clearRedeemMessage() {
         _redeemMessage.value = null
     }
+
+    fun purchasePlan(activity: android.app.Activity, planId: String) {
+        _isLoading.value = true
+        com.revenuecat.purchases.Purchases.sharedInstance.getOfferings(object : com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback {
+            override fun onReceived(offerings: com.revenuecat.purchases.Offerings) {
+                val packageToBuy = offerings.current?.availablePackages?.find { it.identifier.equals(planId, ignoreCase = true) }
+                if (packageToBuy != null) {
+                    com.revenuecat.purchases.Purchases.sharedInstance.purchase(
+                        com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy).build(),
+                        object : com.revenuecat.purchases.interfaces.PurchaseCallback {
+                            override fun onCompleted(storeTransaction: com.revenuecat.purchases.models.StoreTransaction, customerInfo: com.revenuecat.purchases.CustomerInfo) {
+                                _isLoading.value = false
+                                fetchPlans()
+                            }
+                            override fun onError(error: com.revenuecat.purchases.PurchasesError, userCancelled: Boolean) {
+                                _isLoading.value = false
+                                if (!userCancelled) {
+                                    _errorMessage.value = error.message
+                                }
+                            }
+                        }
+                    )
+                } else {
+                    _isLoading.value = false
+                    _errorMessage.value = "Plan not available for purchase"
+                }
+            }
+            
+            override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+                _isLoading.value = false
+                _errorMessage.value = error.message
+            }
+        })
+    }
 }

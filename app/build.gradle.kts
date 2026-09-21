@@ -42,11 +42,25 @@ android {
         )
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("KEYSTORE_FILE") ?: "keystore.jks")
+            storePassword = localProperties.getProperty("KEYSTORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = localProperties.getProperty("KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
+            keyPassword = localProperties.getProperty("KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Uncomment the line below after you create the keystore file and add details to local.properties
+            // signingConfig = signingConfigs.getByName("release")
         }
     }
 

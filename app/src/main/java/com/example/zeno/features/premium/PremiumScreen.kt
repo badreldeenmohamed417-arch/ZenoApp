@@ -158,129 +158,139 @@ fun PremiumScreen(
                 ) {
                     PlanCard(
                         plan = plan,
-                        isActive = plan.id.equals(currentPlanId, ignoreCase = true)
+                        isActive = plan.id.equals(currentPlanId, ignoreCase = true),
+                        onPurchaseClick = {
+                            val activity = context as? android.app.Activity
+                            if (activity != null) {
+                                viewModel.purchasePlan(activity, plan.id)
+                            }
+                        }
                     )
                 }
             }
         }
 
 
+        val isEnglish = UserManager(context).getLanguage() == "en"
+
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Coupon Code Discount Section
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(R.string.premium_have_coupon),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = couponCode,
-                    onValueChange = { couponCode = it },
-                    placeholder = {
-                        Text(
-                            text = "ZENO-XXXX-XXXX",
-                            fontSize = 13.sp,
-                            color = TextMuted
-                        )
-                    },
-                    singleLine = true,
-                    textStyle = TextStyle(
-                        fontSize = 14.sp,
-                        color = TextWhite,
-                        fontWeight = FontWeight.Medium
-                    ),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = LimeAccent,
-                        unfocusedBorderColor = CardBorder,
-                        focusedContainerColor = CardBG,
-                        unfocusedContainerColor = CardBG,
-                        cursorColor = LimeAccent
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
+        if (!isEnglish) {
+            // Coupon Code Discount Section
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.premium_have_coupon),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextWhite,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start
                 )
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Box(
+                Row(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(LimeAccent)
-                        .bounceClickable {
-                            viewModel.redeemCode(couponCode)
-                        }
-                        .padding(horizontal = 20.dp),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    OutlinedTextField(
+                        value = couponCode,
+                        onValueChange = { couponCode = it },
+                        placeholder = {
+                            Text(
+                                text = "ZENO-XXXX-XXXX",
+                                fontSize = 13.sp,
+                                color = TextMuted
+                            )
+                        },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            color = TextWhite,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = LimeAccent,
+                            unfocusedBorderColor = CardBorder,
+                            focusedContainerColor = CardBG,
+                            unfocusedContainerColor = CardBG,
+                            cursorColor = LimeAccent
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(LimeAccent)
+                            .bounceClickable {
+                                viewModel.redeemCode(couponCode)
+                            }
+                            .padding(horizontal = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.premium_redeem_button),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                if (redeemMessage != null) {
                     Text(
-                        text = stringResource(R.string.premium_redeem_button),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        text = redeemMessage ?: "",
+                        color = LimeAccent,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
-            }
 
-            if (redeemMessage != null) {
-                Text(
-                    text = redeemMessage ?: "",
-                    color = LimeAccent,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Telegram Bot Code Purchase Button
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF0088CC))
-                    .bounceClickable {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://t.me/zeno_eg_bot")
-                        )
-                        context.startActivity(intent)
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                // Telegram Bot Code Purchase Button
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF0088CC))
+                        .bounceClickable {
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://t.me/zeno_eg_bot")
+                            )
+                            context.startActivity(intent)
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_telegram),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        text = stringResource(R.string.premium_buy_telegram),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_telegram),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.premium_buy_telegram),
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -290,7 +300,7 @@ fun PremiumScreen(
 }
 
 @Composable
-fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
+fun PlanCard(plan: PlanDto, isActive: Boolean = false, onPurchaseClick: () -> Unit = {}) {
     val context = LocalContext.current
     val userManager = remember { UserManager(context) }
     val isEnglish = userManager.getLanguage() == "en"
@@ -440,7 +450,11 @@ fun PlanCard(plan: PlanDto, isActive: Boolean = false) {
                     .height(42.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(if (isActive || plan.highlighted) LimeAccent else CardBorder)
-                    .bounceClickable { },
+                    .bounceClickable {
+                        if (!isActive) {
+                            onPurchaseClick()
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Row(

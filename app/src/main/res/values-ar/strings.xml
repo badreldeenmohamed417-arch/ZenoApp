@@ -119,6 +119,9 @@
  <string name="chat_menu_rename">إعادة تسمية</string>
  <string name="chat_menu_archive">أرشفة المحادثة</string>
  <string name="chat_menu_delete">حذف المحادثة</string>
+ <string name="chat_delete_dialog_title">حذف المحادثة</string>
+ <string name="chat_delete_dialog_message">هل أنت متأكد من رغبتك في حذف هذه المحادثة؟ لا يمكن التراجع عن هذا الإجراء.</string>
+ <string name="chat_delete_confirm_button">حذف</string>
  <string name="chat_rename_dialog_title">تعديل اسم المحادثة</string>
  <string name="chat_copy">نسخ</string>
  <string name="chat_copied_toast">تم النسخ</string>
@@ -247,7 +250,7 @@
  <string name="test_exit_dialog_title">تنبيه خروج</string>
  <string name="test_exit_dialog_message">هل أنت متأكد من الخروج قبل إكمال وتصحيح الاختبار؟</string>
  <string name="chat_error_upgrade_required">وصلت للحد الأقصى للرسائل اليومية في خطتك الحالية. يرجى الترقية للاستمرار!</string>
- <string name="chat_error_generic">حدث خطأ أثناء معالجة الطلب: %1$s</string>
+ <string name="chat_error_generic">حدث خطأ أثناء معالجة الطلب</string>
  <string name="chat_retry_button">إعادة المحاولة</string>
  <string name="chat_upgrade_button">ترقية الحساب الآن</string>
  <string name="setup_username_label">اسم المستخدم *</string>
