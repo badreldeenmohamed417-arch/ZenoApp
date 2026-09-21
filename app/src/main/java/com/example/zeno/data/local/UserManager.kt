@@ -178,6 +178,14 @@ class UserManager(context: Context) {
         return preferences.getBoolean("is_assessment_completed", false)
     }
 
+    fun saveRequiresUsername(requires: Boolean) {
+        preferences.edit().putBoolean("requires_username", requires).apply()
+    }
+
+    fun getRequiresUsername(): Boolean {
+        return preferences.getBoolean("requires_username", true)
+    }
+
     fun saveOnboardingStatus(isOnboarded: Boolean) {
         preferences.edit()
             .putBoolean("is_onboarded", isOnboarded)
@@ -218,7 +226,24 @@ class UserManager(context: Context) {
     }
 
     fun clearUserData() {
-        preferences.edit().clear().apply()
+        val editor = preferences.edit()
+        
+        // Backup App Settings
+        val lang = preferences.getString("app_language", null)
+        val initialLangSelected = preferences.getBoolean("is_initial_language_selected", false)
+        val themeStr = preferences.getString("theme_mode_str", null)
+        val themeBool = preferences.getBoolean("theme_mode", true)
+        
+        // Clear all
+        editor.clear().apply()
+        
+        // Restore App Settings
+        val restoreEditor = preferences.edit()
+        if (lang != null) restoreEditor.putString("app_language", lang)
+        restoreEditor.putBoolean("is_initial_language_selected", initialLangSelected)
+        if (themeStr != null) restoreEditor.putString("theme_mode_str", themeStr)
+        restoreEditor.putBoolean("theme_mode", themeBool)
+        restoreEditor.apply()
     }
 
     fun saveCurrentChatId(id: String?) {
