@@ -889,19 +889,22 @@ fun ChatScreen(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         // Circular Send Button
-                        val hasInput = inputText.trim().isNotBlank() || selectedActionChip != null
+                        val hasInput = inputText.trim().isNotBlank()
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
                                 .background(if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
                                 .bounceClickable(enabled = hasInput) {
-                                    val fullMessage = listOfNotNull(selectedActionChip?.prompt, inputText.trim().ifBlank { null }).joinToString(" ")
-                                    if (fullMessage.isNotBlank() && !isTyping) {
+                                    if (inputText.trim().isNotBlank() && !isTyping) {
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
+                                        
+                                        val intentStr = if (selectedActionChip?.title == "اختبار قصير") "[intent: CREATE_TEST]" else if (selectedActionChip?.title?.contains("ملخص") == true) "[intent: CREATE_HANDOUT]" else null
+                                        val textToSend = inputText.trim()
+                                        
                                         selectedActionChip = null
-                                        viewModel.sendMessage(fullMessage)
+                                        viewModel.sendMessage(textToSend, intentStr)
                                         inputText = ""
                                     }
                                 },

@@ -153,7 +153,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         userManager.saveCurrentChatId(null)
     }
 
-    fun sendMessage(text: String) {
+    fun sendMessage(text: String, hiddenPrefix: String? = null) {
         if (text.isBlank()) return
         getHomeCacheManager().addLocalQuestions(1)
 
@@ -196,7 +196,8 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 return@launch
             }
 
-            val result = repository.sendConversationMessage(activeId, text)
+            val fullText = if (hiddenPrefix != null) "$hiddenPrefix $text" else text
+            val result = repository.sendConversationMessage(activeId, fullText)
 
             if (result.isSuccess) {
                 val replyDto = result.getOrNull()
