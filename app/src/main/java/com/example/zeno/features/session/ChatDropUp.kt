@@ -78,6 +78,7 @@ fun ChatDropUp(
     var isSending by remember { mutableStateOf(false) }
     var showActionMenu by remember { mutableStateOf(false) }
     var selectedActionChip by remember { mutableStateOf<ChatActionChipData?>(null) }
+    var currentChatJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -163,7 +164,7 @@ fun ChatDropUp(
                 }
             } else {
                 items(localMessages, key = { it.id }) { msg ->
-                    ChatBubble(msg)
+                    AnimatedChatBubble(msg, isLatest = (msg.id == localMessages.lastOrNull()?.id))
                 }
 
                 if (isSending) {
@@ -249,9 +250,11 @@ fun ChatDropUp(
                             expanded = showActionMenu,
                             onDismissRequest = { showActionMenu = false },
                             modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
+                                .widthIn(min = 260.dp)
+                                .clip(RoundedCornerShape(20.dp))
                                 .background(CardBG)
-                                .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+                                .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+                                .padding(vertical = 4.dp)
                         ) {
                             val quizTitle = stringResource(R.string.chat_action_quiz_title)
                             val quizPrompt = stringResource(R.string.auto_str_أنشئ_اختبار_تفاعلي)
@@ -259,16 +262,46 @@ fun ChatDropUp(
                             val handoutPrompt = stringResource(R.string.auto_str_قم_بعمل_ملزمة)
 
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.chat_action_image_doc), color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
-                                leadingIcon = { Icon(Icons.Default.Image, contentDescription = null, tint = LimeAccent, modifier = Modifier.size(18.dp)) },
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.chat_action_image_doc),
+                                        color = TextWhite,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Image,
+                                        contentDescription = null,
+                                        tint = Color(0xFF38BDF8),
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                 onClick = {
                                     showActionMenu = false
                                     launcher.launch("image/*")
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.chat_action_pdf), color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
-                                leadingIcon = { Icon(Icons.Default.PictureAsPdf, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(18.dp)) },
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.chat_action_pdf),
+                                        color = TextWhite,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.PictureAsPdf,
+                                        contentDescription = null,
+                                        tint = Color(0xFF60A5FA),
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                 onClick = {
                                     showActionMenu = false
                                     launcher.launch("application/pdf")
@@ -290,35 +323,35 @@ fun ChatDropUp(
                                         Text(
                                             text = stringResource(R.string.chat_action_quiz),
                                             color = if (isQuizAllowed) TextWhite else TextMuted,
-                                            fontSize = 13.sp,
+                                            fontSize = 15.sp,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         if (!isPro) {
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
-                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(6.dp))
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
                                             ) {
                                                 Text(
                                                     text = stringResource(R.string.chat_action_pro_badge),
                                                     color = Color(0xFFFDE047),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
                                         } else if (availableTokens < 50) {
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
-                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
-                                                ) {
+                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(6.dp))
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                                            ) {
                                                 Text(
                                                     text = stringResource(R.string.chat_action_no_tokens_badge),
                                                     color = Color(0xFFFCA5A5),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
@@ -330,9 +363,10 @@ fun ChatDropUp(
                                         Icons.Default.Quiz,
                                         contentDescription = null,
                                         tint = if (isQuizAllowed) Color(0xFFFB923C) else TextMuted,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                 enabled = isQuizAllowed,
                                 onClick = {
                                     showActionMenu = false
@@ -356,35 +390,35 @@ fun ChatDropUp(
                                         Text(
                                             text = stringResource(R.string.chat_action_handout),
                                             color = if (isHandoutAllowed) TextWhite else TextMuted,
-                                            fontSize = 13.sp,
+                                            fontSize = 15.sp,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         if (!isPro) {
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
-                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                    .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                    .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(6.dp))
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
                                             ) {
                                                 Text(
                                                     text = stringResource(R.string.chat_action_pro_badge),
                                                     color = Color(0xFFFDE047),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
                                         } else if (availableTokens < 100) {
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
-                                                    .padding(horizontal = 5.dp, vertical = 1.dp)
-                                                ) {
+                                                    .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                    .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(6.dp))
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                                            ) {
                                                 Text(
                                                     text = stringResource(R.string.chat_action_no_tokens_badge),
                                                     color = Color(0xFFFCA5A5),
-                                                    fontSize = 9.sp,
+                                                    fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                             }
@@ -396,9 +430,10 @@ fun ChatDropUp(
                                         Icons.Default.AutoAwesome,
                                         contentDescription = null,
                                         tint = if (isHandoutAllowed) LimeAccent else TextMuted,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                 enabled = isHandoutAllowed,
                                 onClick = {
                                     showActionMenu = false
@@ -530,4 +565,36 @@ fun EmptyChatState() {
             lineHeight = 20.sp
         )
     }
+}
+
+@Composable
+fun AnimatedChatBubble(
+    msg: com.example.zeno.data.local.db.MessageEntity,
+    isLatest: Boolean
+) {
+    var displayedText by remember { mutableStateOf(if (msg.role == "user" || !isLatest) msg.content else "") }
+
+    LaunchedEffect(msg.id, msg.content) {
+        if (msg.role != "user" && isLatest && displayedText.isEmpty()) {
+            val words = msg.content.split(" ")
+            var currentText = ""
+            for (i in words.indices) {
+                currentText += words[i] + if (i < words.size - 1) " " else ""
+                displayedText = currentText
+                kotlinx.coroutines.delay(50)
+            }
+            displayedText = msg.content
+        } else {
+            displayedText = msg.content
+        }
+    }
+
+    val uiMsg = com.example.zeno.data.model.server.MessageResponse(
+        id = msg.id,
+        conversationId = msg.conversationId,
+        role = msg.role,
+        content = displayedText,
+        createdAt = msg.createdAt
+    )
+    com.example.zeno.core.widgets.ChatBubble(uiMsg)
 }
