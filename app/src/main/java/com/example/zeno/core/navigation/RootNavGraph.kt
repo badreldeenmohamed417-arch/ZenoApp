@@ -121,15 +121,16 @@ fun RootNavGraph(
                                 popUpTo("splash") { inclusive = true }
                             }
                         } else {
-                            val nextDest = if (!userManager.isOnboarded()) {
-                                "setup"
-                            } else if (!userManager.isAssessmentCompleted()) {
-                                "assessment"
+                            // No internet or timeout
+                            if (userManager.isOnboarded() && userManager.isAssessmentCompleted()) {
+                                navController.navigate("main") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
                             } else {
-                                "main"
-                            }
-                            navController.navigate(nextDest) {
-                                popUpTo("splash") { inclusive = true }
+                                authRepository.logout()
+                                navController.navigate("auth") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
                             }
                         }
                     }
@@ -140,15 +141,16 @@ fun RootNavGraph(
                             popUpTo("splash") { inclusive = true }
                         }
                     } else {
-                        val nextDest = if (!userManager.isOnboarded()) {
-                            "setup"
-                        } else if (!userManager.isAssessmentCompleted()) {
-                            "assessment"
+                        // No internet or timeout
+                        if (userManager.isOnboarded() && userManager.isAssessmentCompleted()) {
+                            navController.navigate("main") {
+                                popUpTo("splash") { inclusive = true }
+                            }
                         } else {
-                            "main"
-                        }
-                        navController.navigate(nextDest) {
-                            popUpTo("splash") { inclusive = true }
+                            authRepository.logout()
+                            navController.navigate("auth") {
+                                popUpTo("splash") { inclusive = true }
+                            }
                         }
                     }
                 }
