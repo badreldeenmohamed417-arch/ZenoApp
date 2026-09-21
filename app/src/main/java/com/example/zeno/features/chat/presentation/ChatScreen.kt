@@ -200,12 +200,14 @@ fun ChatScreen(
                     var selectedForAction by remember { mutableStateOf<String?>(null) }
                     var renameDialogVisible by remember { mutableStateOf(false) }
                     var renameText by remember { mutableStateOf("") }
+                    var deleteConfirmDialogVisible by remember { mutableStateOf(false) }
 
                     if (renameDialogVisible && selectedForAction != null) {
                         AlertDialog(
                             onDismissRequest = { renameDialogVisible = false },
                             containerColor = CardBG,
-                            title = { Text(stringResource(R.string.chat_rename_dialog_title), color = TextWhite) },
+                            shape = RoundedCornerShape(20.dp),
+                            title = { Text(stringResource(R.string.chat_rename_dialog_title), color = TextWhite, fontWeight = FontWeight.Bold) },
                             text = {
                                 OutlinedTextField(
                                     value = renameText,
@@ -229,6 +231,49 @@ fun ChatScreen(
                             dismissButton = {
                                 TextButton(onClick = { renameDialogVisible = false }) {
                                     Text(stringResource(R.string.cancel_button), color = TextMuted)
+                                }
+                            }
+                        )
+                    }
+
+                    if (deleteConfirmDialogVisible && selectedForAction != null) {
+                        AlertDialog(
+                            onDismissRequest = { deleteConfirmDialogVisible = false },
+                            containerColor = CardBG,
+                            shape = RoundedCornerShape(20.dp),
+                            title = {
+                                Text(
+                                    text = stringResource(R.string.chat_delete_dialog_title),
+                                    color = TextWhite,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            text = {
+                                Text(
+                                    text = stringResource(R.string.chat_delete_dialog_message),
+                                    color = TextMuted,
+                                    fontSize = 14.sp
+                                )
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    val idToDelete = selectedForAction!!
+                                    deleteConfirmDialogVisible = false
+                                    viewModel.deleteConversation(idToDelete)
+                                }) {
+                                    Text(
+                                        text = stringResource(R.string.chat_delete_confirm_button),
+                                        color = Color(0xFFEF4444),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { deleteConfirmDialogVisible = false }) {
+                                    Text(
+                                        text = stringResource(R.string.cancel_button),
+                                        color = TextMuted
+                                    )
                                 }
                             }
                         )
@@ -308,7 +353,10 @@ fun ChatScreen(
                                     DropdownMenu(
                                         expanded = showMenu,
                                         onDismissRequest = { showMenu = false },
-                                        modifier = Modifier.background(CardBG)
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(14.dp))
+                                            .background(CardBG)
+                                            .border(1.dp, CardBorder, RoundedCornerShape(14.dp))
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.chat_menu_rename), color = TextWhite, fontSize = 13.sp) },
@@ -325,15 +373,17 @@ fun ChatScreen(
                                             leadingIcon = { Icon(Icons.Default.Archive, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(18.dp)) },
                                             onClick = {
                                                 showMenu = false
-                                                viewModel.archiveConversation(conv.id)
+                                                selectedForAction = conv.id
+                                                deleteConfirmDialogVisible = true
                                             }
                                         )
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.chat_menu_delete), color = Color.Red, fontSize = 13.sp) },
-                                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red, modifier = Modifier.size(18.dp)) },
+                                            text = { Text(stringResource(R.string.chat_menu_delete), color = Color(0xFFEF4444), fontSize = 13.sp) },
+                                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(18.dp)) },
                                             onClick = {
                                                 showMenu = false
-                                                viewModel.deleteConversation(conv.id)
+                                                selectedForAction = conv.id
+                                                deleteConfirmDialogVisible = true
                                             }
                                         )
                                     }
@@ -588,9 +638,11 @@ fun ChatScreen(
                                 expanded = showActionMenu,
                                 onDismissRequest = { showActionMenu = false },
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .widthIn(min = 260.dp)
+                                    .clip(RoundedCornerShape(20.dp))
                                     .background(CardBG)
-                                    .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+                                    .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+                                    .padding(vertical = 4.dp)
                             ) {
                                 val userManager = remember { UserManager(context) }
                                 val isPro = userManager.isPro()
@@ -605,6 +657,54 @@ fun ChatScreen(
 
                                 DropdownMenuItem(
                                     text = {
+                                        Text(
+                                            text = stringResource(R.string.chat_action_image_doc),
+                                            color = TextWhite,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Image,
+                                            contentDescription = null,
+                                            tint = Color(0xFF38BDF8),
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                                    onClick = {
+                                        showActionMenu = false
+                                        launcher.launch("image/*")
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.chat_action_pdf),
+                                            color = TextWhite,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.PictureAsPdf,
+                                            contentDescription = null,
+                                            tint = Color(0xFF60A5FA),
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                                    onClick = {
+                                        showActionMenu = false
+                                        launcher.launch("application/pdf")
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -613,35 +713,35 @@ fun ChatScreen(
                                             Text(
                                                 text = stringResource(R.string.chat_action_quiz),
                                                 color = if (isQuizAllowed) TextWhite else TextMuted,
-                                                fontSize = 13.sp,
+                                                fontSize = 15.sp,
                                                 fontWeight = FontWeight.SemiBold
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             if (!isPro) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                        .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
-                                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                        .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(6.dp))
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                                 ) {
                                                     Text(
                                                         text = stringResource(R.string.chat_action_pro_badge),
                                                         color = Color(0xFFFDE047),
-                                                        fontSize = 9.sp,
+                                                        fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                 }
                                             } else if (availableTokens < 50) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                        .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
-                                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                        .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(6.dp))
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                                 ) {
                                                     Text(
                                                         text = stringResource(R.string.chat_action_no_tokens_badge),
                                                         color = Color(0xFFFCA5A5),
-                                                        fontSize = 9.sp,
+                                                        fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                 }
@@ -653,9 +753,10 @@ fun ChatScreen(
                                             Icons.Default.Quiz,
                                             contentDescription = null,
                                             tint = if (isQuizAllowed) Color(0xFFFB923C) else TextMuted,
-                                            modifier = Modifier.size(18.dp)
+                                            modifier = Modifier.size(22.dp)
                                         )
                                     },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                     enabled = isQuizAllowed,
                                     onClick = {
                                         showActionMenu = false
@@ -678,35 +779,35 @@ fun ChatScreen(
                                             Text(
                                                 text = stringResource(R.string.chat_action_handout),
                                                 color = if (isHandoutAllowed) TextWhite else TextMuted,
-                                                fontSize = 13.sp,
+                                                fontSize = 15.sp,
                                                 fontWeight = FontWeight.SemiBold
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             if (!isPro) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                        .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(4.dp))
-                                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        .background(Color(0xFFEAB308).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                        .border(0.5.dp, Color(0xFFEAB308), RoundedCornerShape(6.dp))
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                                 ) {
                                                     Text(
                                                         text = stringResource(R.string.chat_action_pro_badge),
                                                         color = Color(0xFFFDE047),
-                                                        fontSize = 9.sp,
+                                                        fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                 }
                                             } else if (availableTokens < 100) {
                                                 Box(
                                                     modifier = Modifier
-                                                        .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                                                        .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(4.dp))
-                                                        .padding(horizontal = 5.dp, vertical = 1.dp)
+                                                        .background(Color(0xFFEF4444).copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                                                        .border(0.5.dp, Color(0xFFEF4444), RoundedCornerShape(6.dp))
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
                                                 ) {
                                                     Text(
                                                         text = stringResource(R.string.chat_action_no_tokens_badge),
                                                         color = Color(0xFFFCA5A5),
-                                                        fontSize = 9.sp,
+                                                        fontSize = 10.sp,
                                                         fontWeight = FontWeight.Bold
                                                     )
                                                 }
@@ -718,9 +819,10 @@ fun ChatScreen(
                                             Icons.Default.AutoAwesome,
                                             contentDescription = null,
                                             tint = if (isHandoutAllowed) LimeAccent else TextMuted,
-                                            modifier = Modifier.size(18.dp)
+                                            modifier = Modifier.size(22.dp)
                                         )
                                     },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                                     enabled = isHandoutAllowed,
                                     onClick = {
                                         showActionMenu = false
@@ -771,7 +873,7 @@ fun ChatScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (hasInput) LimeAccent else Color(0xFF333333))
+                                .background(if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
                                 .bounceClickable(enabled = hasInput) {
                                     val fullMessage = listOfNotNull(selectedActionChip?.prompt, inputText.trim().ifBlank { null }).joinToString(" ")
                                     if (fullMessage.isNotBlank() && !isTyping) {
@@ -787,7 +889,7 @@ fun ChatScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = null,
-                                tint = Color.Black,
+                                tint = if (hasInput) AppColors.AccentInk else AppColors.TextMuted,
                                 modifier = Modifier.size(20.dp)
                             )
                         }

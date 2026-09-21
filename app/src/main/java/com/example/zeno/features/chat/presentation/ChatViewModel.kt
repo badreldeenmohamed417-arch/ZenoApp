@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -39,6 +41,8 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     private val _activeTitle = MutableStateFlow("")
     val activeTitle: StateFlow<String> = _activeTitle.asStateFlow()
 
+    private var currentChatJob: Job? = null
+
     init {
         fetchConversations()
         loadHistoryIfNeeded()
@@ -59,14 +63,13 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun deleteConversation(id: String) {
+        _conversations.value = _conversations.value.filter { it.id != id }
+        if (userManager.getCurrentChatId() == id) {
+            clearChat()
+        }
         viewModelScope.launch {
             val result = repository.deleteConversation(id)
-            if (result.isSuccess) {
-                if (userManager.getCurrentChatId() == id) {
-                    clearChat()
-                }
-                fetchConversations()
-            }
+            fetchConversations()
         }
     }
 
@@ -136,6 +139,12 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         }
     }
 
+    
+    fun stopGeneration() {
+        currentChatJob?.cancel()
+        _isTyping.value = false
+    }
+
     fun clearChat() {
         _messages.value = emptyList()
         _errorMessage.value = null
@@ -159,7 +168,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         _isTyping.value = true
         _errorMessage.value = null
 
-        viewModelScope.launch {
+        currentChatJob = viewModelScope.launch {
             var activeId = userManager.getCurrentChatId()
             if (activeId == null) {
                 val title = if (text.length > 20) text.take(20) + "..." else text
@@ -188,18 +197,30 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
             }
 
             val result = repository.sendConversationMessage(activeId, text)
-            _isTyping.value = false
 
             if (result.isSuccess) {
                 val replyDto = result.getOrNull()
                 val replyText = replyDto?.content ?: ""
+                val botMessageId = replyDto?.id ?: UUID.randomUUID().toString()
                 val botMessage = ChatMessage(
-                    id = replyDto?.id ?: UUID.randomUUID().toString(),
-                    text = replyText,
+                    id = botMessageId,
+                    text = "",
                     isUser = false,
                     timestamp = System.currentTimeMillis()
                 )
                 _messages.value = _messages.value + botMessage
+                
+                // Simulate typewriter animation
+                val words = replyText.split(" ")
+                var currentText = ""
+                for (i in words.indices) {
+                    currentText += words[i] + if (i < words.size - 1) " " else ""
+                    _messages.value = _messages.value.map { 
+                        if (it.id == botMessageId) it.copy(text = currentText) else it 
+                    }
+                    delay(50) // 50ms per word
+                }
+                _isTyping.value = false
             } else {
                 val exception = result.exceptionOrNull()
                 val errReason = exception?.message ?: ""
@@ -216,6 +237,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 )
                 _messages.value = _messages.value + errorBotMessage
             }
+            _isTyping.value = false
         }
     }
 
