@@ -1,3 +1,5 @@
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 package com.example.zeno.core.navigation
 
 import org.koin.compose.koinInject
@@ -21,6 +23,9 @@ import com.example.zeno.features.main.presentation.MainAppScreen
 import com.example.zeno.features.session.data.repository.SessionRepository
 import com.example.zeno.features.session.data.repository.StudyPlanRepository
 import com.example.zeno.features.setup.presentation.SetupProfileScreen
+import com.example.zeno.features.auth.presentation.EmailVerificationScreen
+import com.example.zeno.features.auth.presentation.EmailVerificationViewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.zeno.features.student.data.repository.StudentRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
@@ -91,8 +96,13 @@ fun RootNavGraph(
                         } else {
                             userManager.saveOnboardingStatus(true)
                         }
+                        
+                        // Save whether the user needs to provide a username
+                        userManager.saveRequiresUsername(isUsernameMissing)
 
-                        val nextDest = if (isSetupIncomplete || !userManager.isOnboarded()) {
+                        val nextDest = if (profile?.isVerified == false && profile.authProvider != "google") {
+                            "email_verification"
+                        } else if (isSetupIncomplete || !userManager.isOnboarded()) {
                             "setup"
                         } else if (!userManager.isAssessmentCompleted()) {
                             "assessment"
@@ -156,6 +166,35 @@ fun RootNavGraph(
             )
         }
         
+        composable("email_verification") {
+            val viewModel: EmailVerificationViewModel = koinViewModel()
+            val isChecking by viewModel.isChecking.collectAsState()
+            val resendCooldownTimer by viewModel.resendCooldownTimer.collectAsState()
+            val errorMessage by viewModel.errorMessage.collectAsState()
+            val isVerified by viewModel.isVerified.collectAsState()
+
+            LaunchedEffect(isVerified) {
+                if (isVerified) {
+                    navController.navigate("splash") {
+                        popUpTo("email_verification") { inclusive = true }
+                    }
+                }
+            }
+
+            EmailVerificationScreen(
+                onVerified = {
+                    navController.navigate("splash") {
+                        popUpTo("email_verification") { inclusive = true }
+                    }
+                },
+                onResendEmail = { viewModel.resendEmail() },
+                onCheckStatus = { viewModel.checkVerificationStatus() },
+                isChecking = isChecking,
+                resendCooldownTimer = resendCooldownTimer,
+                errorMessage = errorMessage
+            )
+        }
+
         composable("setup") {
             SetupProfileScreen(
                 authRepository = authRepository,

@@ -81,4 +81,5 @@ val appModule = module {
     viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get()) }
     viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(get(), get()) }
     viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get()) }
+    viewModel { com.example.zeno.features.auth.presentation.EmailVerificationViewModel(get(), get()) }
 }
