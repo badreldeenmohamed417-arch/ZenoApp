@@ -50,12 +50,19 @@ fun ChatBubble(message: MessageResponse) {
                     .background(if (isUser) AppColors.Accent else AppColors.SurfaceVariant)
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                Text(
-                    text = message.content,
-                    color = if (isUser) AppColors.AccentInk else AppColors.TextPrimary,
-                    fontSize = 15.sp,
-                    lineHeight = 20.sp
-                )
+                if (isUser) {
+                    Text(
+                        text = message.content,
+                        color = AppColors.AccentInk,
+                        fontSize = 15.sp,
+                        lineHeight = 20.sp
+                    )
+                } else {
+                    MarkdownMathView(
+                        text = message.content,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

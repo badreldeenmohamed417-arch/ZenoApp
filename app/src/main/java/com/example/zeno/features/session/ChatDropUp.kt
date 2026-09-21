@@ -569,7 +569,7 @@ fun EmptyChatState() {
 
 @Composable
 fun AnimatedChatBubble(
-    msg: com.example.zeno.data.local.db.MessageEntity,
+    msg: com.example.zeno.data.model.server.MessageResponse,
     isLatest: Boolean
 ) {
     var displayedText by remember { mutableStateOf(if (msg.role == "user" || !isLatest) msg.content else "") }

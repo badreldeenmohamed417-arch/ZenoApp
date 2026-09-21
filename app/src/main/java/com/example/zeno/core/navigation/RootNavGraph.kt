@@ -1,6 +1,6 @@
+package com.example.zeno.core.navigation
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-package com.example.zeno.core.navigation
 
 import org.koin.compose.koinInject
 

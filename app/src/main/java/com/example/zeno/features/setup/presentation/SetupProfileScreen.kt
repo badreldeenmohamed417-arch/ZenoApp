@@ -39,6 +39,7 @@ fun SetupProfileScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var usernameInput by remember { mutableStateOf(userManager.getDisplayName() ?: "") }
+    val requiresUsername = userManager.getRequiresUsername()
 
     val requiredUsernameError = stringResource(R.string.setup_username_required_error)
     val usernameTakenError = stringResource(R.string.setup_username_taken_error)
@@ -80,39 +81,40 @@ fun SetupProfileScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Compulsory Username Input
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(R.string.setup_username_label),
-                style = MaterialTheme.typography.labelLarge,
-                color = AppColors.TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            OutlinedTextField(
-                value = usernameInput,
-                onValueChange = {
-                    usernameInput = it
-                    errorMessage = null
-                },
-                placeholder = { Text(stringResource(R.string.setup_username_hint), color = AppColors.TextMuted) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AppColors.Accent,
-                    unfocusedBorderColor = AppColors.UnfocusedBorder,
-                    focusedContainerColor = AppColors.Surface,
-                    unfocusedContainerColor = AppColors.Surface,
-                    focusedTextColor = AppColors.TextPrimary,
-                    unfocusedTextColor = AppColors.TextPrimary
+        if (requiresUsername) {
+            // Compulsory Username Input
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.setup_username_label),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = AppColors.TextPrimary,
+                    fontWeight = FontWeight.Bold
                 )
-            )
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = usernameInput,
+                    onValueChange = {
+                        usernameInput = it
+                        errorMessage = null
+                    },
+                    placeholder = { Text(stringResource(R.string.setup_username_hint), color = AppColors.TextMuted) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = AppColors.Accent,
+                        unfocusedBorderColor = AppColors.UnfocusedBorder,
+                        focusedContainerColor = AppColors.Surface,
+                        unfocusedContainerColor = AppColors.Surface,
+                        focusedTextColor = AppColors.TextPrimary,
+                        unfocusedTextColor = AppColors.TextPrimary
+                    )
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         if (errorMessage != null) {
             Text(
@@ -125,32 +127,35 @@ fun SetupProfileScreen(
 
         GradeMiddleSection(
             continueButton = { selectedGrade, selectedSystem, selectedTrack ->
-                if (usernameInput.trim().isBlank()) {
-                    errorMessage = requiredUsernameError
-                    return@GradeMiddleSection
-                }
-                if (usernameInput.trim().length < 2 || usernameInput.trim().length > 15) {
-                    errorMessage = "اسم المستخدم يجب أن يكون بين 2 و 15 حرفاً"
-                    return@GradeMiddleSection
+                if (requiresUsername) {
+                    if (usernameInput.trim().isBlank()) {
+                        errorMessage = requiredUsernameError
+                        return@GradeMiddleSection
+                    }
+                    if (usernameInput.trim().length < 2 || usernameInput.trim().length > 15) {
+                        errorMessage = "اسم المستخدم يجب أن يكون بين 2 و 15 حرفاً"
+                        return@GradeMiddleSection
+                    }
                 }
 
                 isLoading = true
                 errorMessage = null
 
                 val cleanUsername = usernameInput.trim()
+                val updateData = mutableMapOf<String, String?>(
+                    "grade" to selectedGrade,
+                    "school_system" to selectedSystem,
+                    "country" to (userManager.getCountry() ?: "EG")
+                )
+                
+                if (requiresUsername) {
+                    updateData["username"] = cleanUsername
+                }
 
                 coroutineScope.launch {
                     val userRepo = org.koin.core.context.GlobalContext.get().get<com.example.zeno.features.student.data.repository.StudentRepository>()
                     val updateMeRes = runCatching {
-                        userRepo.updateProfile(
-                            mapOf(
-                                "display_name" to cleanUsername,
-                                "username" to cleanUsername,
-                                "grade" to selectedGrade,
-                                "school_system" to selectedSystem,
-                                "country" to (userManager.getCountry() ?: "EG")
-                            )
-                        ).getOrThrow()
+                        userRepo.updateProfile(updateData).getOrThrow()
                     }
 
                     if (updateMeRes.isFailure) {
