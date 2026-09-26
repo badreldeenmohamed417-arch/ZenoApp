@@ -8,6 +8,7 @@ import org.koin.core.context.startKoin
 import com.google.firebase.FirebaseApp
 import org.koin.android.ext.android.inject
 import com.example.zeno.core.billing.BillingManager
+import com.example.zeno.data.server.ApiClient
 
 class ZenoApplication : Application() {
     private val billingManager: BillingManager by inject()
@@ -15,6 +16,9 @@ class ZenoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Initialize ApiClient
+        ApiClient.initialize(this)
+
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
         

@@ -60,7 +60,18 @@ class UserManager(context: Context) {
     }
 
     fun getThemeModeString(): String {
-        return preferences.getString("theme_mode", "system") ?: "system"
+        return try {
+            preferences.getString("theme_mode", "system") ?: "system"
+        } catch (e: ClassCastException) {
+            val isDark = try {
+                preferences.getBoolean("theme_mode", true)
+            } catch (_: Exception) {
+                true
+            }
+            val modeStr = if (isDark) "dark" else "light"
+            saveThemeModeString(modeStr)
+            modeStr
+        }
     }
 
     fun saveThemeMode(isDark: Boolean) {
@@ -231,8 +242,7 @@ class UserManager(context: Context) {
         // Backup App Settings
         val lang = preferences.getString("app_language", null)
         val initialLangSelected = preferences.getBoolean("is_initial_language_selected", false)
-        val themeStr = preferences.getString("theme_mode_str", null)
-        val themeBool = preferences.getBoolean("theme_mode", true)
+        val themeStr = getThemeModeString()
         
         // Clear all
         editor.clear().apply()
@@ -241,8 +251,7 @@ class UserManager(context: Context) {
         val restoreEditor = preferences.edit()
         if (lang != null) restoreEditor.putString("app_language", lang)
         restoreEditor.putBoolean("is_initial_language_selected", initialLangSelected)
-        if (themeStr != null) restoreEditor.putString("theme_mode_str", themeStr)
-        restoreEditor.putBoolean("theme_mode", themeBool)
+        restoreEditor.putString("theme_mode", themeStr)
         restoreEditor.apply()
     }
 

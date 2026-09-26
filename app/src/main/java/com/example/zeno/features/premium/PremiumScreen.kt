@@ -2,6 +2,7 @@ package com.example.zeno.features.premium
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +46,8 @@ import kotlin.math.absoluteValue
 
 import com.example.zeno.data.AppColors
 
+import org.koin.androidx.compose.koinViewModel
+
 private val DarkBG: Color @Composable get() = AppColors.BG
 private val LimeAccent: Color @Composable get() = AppColors.LimeAccent
 private val CardBG: Color @Composable get() = AppColors.CardBG
@@ -54,11 +57,7 @@ private val TextMuted: Color @Composable get() = AppColors.TextMuted
 
 @Composable
 fun PremiumScreen(
-    viewModel: PremiumViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PremiumViewModel(org.koin.core.context.GlobalContext.get().get<com.example.zeno.features.premium.data.repository.SubscriptionRepository>()) as T
-    }),
+    viewModel: PremiumViewModel = koinViewModel(),
     onBack: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
@@ -71,6 +70,19 @@ fun PremiumScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val redeemMessage by viewModel.redeemMessage.collectAsState()
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            viewModel.clearErrorMessage()
+        }
+    }
+
+    LaunchedEffect(redeemMessage) {
+        redeemMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier

@@ -1,5 +1,6 @@
 package com.example.zeno.features.premium.presentation
 
+import android.app.Activity
 import android.app.Application
 import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.zeno.core.util.getUserFriendlyMessage
+import com.revenuecat.purchases.CustomerInfo
+import com.revenuecat.purchases.Offerings
+import com.revenuecat.purchases.PurchaseParams
+import com.revenuecat.purchases.Purchases
+import com.revenuecat.purchases.PurchasesError
+import com.revenuecat.purchases.interfaces.PurchaseCallback
+import com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback
+import com.revenuecat.purchases.models.StoreTransaction
 
 class PremiumViewModel(application: Application, private val repository: SubscriptionRepository) : BaseViewModel(application) {
     private val _plans = MutableStateFlow<List<PlanDto>>(emptyList())
@@ -81,36 +90,68 @@ class PremiumViewModel(application: Application, private val repository: Subscri
         _redeemMessage.value = null
     }
 
-    fun purchasePlan(activity: android.app.Activity, planId: String) {
+    fun clearErrorMessage() {
+        _errorMessage.value = null
+    }
+
+    fun purchasePlan(activity: Activity, planId: String) {
         _isLoading.value = true
-        com.revenuecat.purchases.Purchases.sharedInstance.getOfferings(object : com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback {
-            override fun onReceived(offerings: com.revenuecat.purchases.Offerings) {
-                val packageToBuy = offerings.current?.availablePackages?.find { it.identifier.equals(planId, ignoreCase = true) }
+        _errorMessage.value = null
+
+        Purchases.sharedInstance.getOfferings(object : ReceiveOfferingsCallback {
+            override fun onReceived(offerings: Offerings) {
+                val allPackages = offerings.all.values.flatMap { it.availablePackages }
+                val currentPackages = offerings.current?.availablePackages ?: emptyList()
+
+                // Smart package lookup: by identifier, product id, offering, or package type
+                val packageToBuy = 
+                    currentPackages.find { it.identifier.equals(planId, ignoreCase = true) }
+                    ?: currentPackages.find { it.product.id.equals(planId, ignoreCase = true) }
+                    ?: allPackages.find { it.identifier.equals(planId, ignoreCase = true) }
+                    ?: allPackages.find { it.product.id.equals(planId, ignoreCase = true) }
+                    ?: offerings[planId]?.availablePackages?.firstOrNull()
+                    ?: allPackages.find { it.packageType.name.equals(planId, ignoreCase = true) }
+                    ?: currentPackages.find { 
+                        it.identifier.contains(planId, ignoreCase = true) || 
+                        it.product.id.contains(planId, ignoreCase = true) ||
+                        planId.contains(it.identifier, ignoreCase = true)
+                    }
+                    ?: currentPackages.firstOrNull()
+                    ?: allPackages.firstOrNull()
+
                 if (packageToBuy != null) {
-                    com.revenuecat.purchases.Purchases.sharedInstance.purchase(
-                        com.revenuecat.purchases.PurchaseParams.Builder(activity, packageToBuy).build(),
-                        object : com.revenuecat.purchases.interfaces.PurchaseCallback {
-                            override fun onCompleted(storeTransaction: com.revenuecat.purchases.models.StoreTransaction, customerInfo: com.revenuecat.purchases.CustomerInfo) {
+                    Purchases.sharedInstance.purchase(
+                        PurchaseParams.Builder(activity, packageToBuy).build(),
+                        object : PurchaseCallback {
+                            override fun onCompleted(
+                                storeTransaction: StoreTransaction,
+                                customerInfo: CustomerInfo
+                            ) {
                                 _isLoading.value = false
+                                _redeemMessage.value = "تم تفعيل الاشتراك بنجاح!"
                                 fetchPlans()
                             }
-                            override fun onError(error: com.revenuecat.purchases.PurchasesError, userCancelled: Boolean) {
+
+                            override fun onError(
+                                error: PurchasesError,
+                                userCancelled: Boolean
+                            ) {
                                 _isLoading.value = false
                                 if (!userCancelled) {
-                                    _errorMessage.value = error.message
+                                    _errorMessage.value = "خطأ أثناء الشراء: ${error.message}"
                                 }
                             }
                         }
                     )
                 } else {
                     _isLoading.value = false
-                    _errorMessage.value = "Plan not available for purchase"
+                    _errorMessage.value = "الباقة غير متاحة حالياً للشراء عبر متجر التطبيقات"
                 }
             }
-            
-            override fun onError(error: com.revenuecat.purchases.PurchasesError) {
+
+            override fun onError(error: PurchasesError) {
                 _isLoading.value = false
-                _errorMessage.value = error.message
+                _errorMessage.value = "تعذر الاتصال بمتجر التطبيقات: ${error.message}"
             }
         })
     }

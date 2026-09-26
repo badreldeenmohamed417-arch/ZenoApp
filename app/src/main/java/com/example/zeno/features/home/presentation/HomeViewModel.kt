@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.zeno.core.util.getUserFriendlyMessage
 
+import androidx.lifecycle.ViewModel
+
 sealed class HomeUiState {
     object Loading : HomeUiState()
     data class Success(val data: ProgressOverviewResponse) : HomeUiState()
@@ -46,12 +48,13 @@ class HomeViewModel(application: Application, private val repository: ProgressRe
 }
 
 class HomeViewModelFactory(
+    private val application: Application,
     private val repository: ProgressRepository
 ) : androidx.lifecycle.ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(getApplication(), repository) as T
+            return HomeViewModel(application, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
