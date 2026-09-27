@@ -907,21 +907,21 @@ fun ChatScreen(
 
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        // Circular Send / Stop Button
+                        // Circular Send Button
                         val hasInput = inputText.trim().isNotBlank()
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (isTyping) AppColors.SurfaceVariant2 else if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
-                                .bounceClickable(enabled = isTyping || hasInput) {
-                                    if (isTyping) {
-                                        viewModel.stopGeneration()
-                                    } else if (inputText.trim().isNotBlank()) {
+                                .background(if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
+                                .bounceClickable(enabled = hasInput) {
+                                    if (inputText.trim().isNotBlank() && !isTyping) {
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
+                                        
                                         val intentStr = if (selectedActionChip?.title == stringResource(R.string.chat_action_quiz_title)) "[intent: CREATE_TEST]" else if (selectedActionChip?.title == stringResource(R.string.chat_action_handout_title)) "[intent: CREATE_HANDOUT]" else null
                                         val textToSend = inputText.trim()
+                                        
                                         selectedActionChip = null
                                         viewModel.sendMessage(textToSend, intentStr)
                                         inputText = ""
@@ -930,13 +930,39 @@ fun ChatScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = if (isTyping) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send,
+                                imageVector = Icons.AutoMirrored.Filled.Send,
                                 contentDescription = null,
-                                tint = if (isTyping) TextWhite else if (hasInput) AppColors.AccentInk else AppColors.TextMuted,
+                                tint = if (hasInput) AppColors.AccentInk else AppColors.TextMuted,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+            }
+        }
+        
+        messageToReport?.let { msg ->
+            AlertDialog(
+                onDismissRequest = { messageToReport = null },
+                title = { Text(stringResource(R.string.chat_report_title), color = TextWhite) },
+                text = {
+                    Column {
+                        Text(stringResource(R.string.chat_report_reason_hint), color = TextMuted)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        reportReasons.forEach { reason ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedReportReason = reason }
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = selectedReportReason == reason,
+                                    onClick = { selectedReportReason = reason },
+                                    colors = RadioButtonDefaults.colors(selectedColor = LimeAccent)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(reason, color = TextWhite)
                             }
                         }
