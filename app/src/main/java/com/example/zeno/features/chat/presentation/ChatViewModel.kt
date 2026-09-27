@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -114,30 +113,6 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                     _activeTitle.value = newTitle
                 }
                 fetchConversations()
-            }
-        }
-    }
-
-    private fun loadHistoryIfNeeded() {
-        val currentId = userManager.getCurrentChatId()
-        if (currentId != null) {
-            _isLoadingChat.value = true
-            viewModelScope.launch(exceptionHandler) {
-                val result = repository.getConversationDetails(currentId)
-                _isLoadingChat.value = false
-                if (result.isSuccess) {
-                    val history = result.getOrNull()?.messages?.map { dto ->
-                        ChatMessage(
-                            id = dto.id,
-                            text = dto.content,
-                            isUser = dto.role == "user",
-                            timestamp = System.currentTimeMillis()
-                        )
-                    } ?: emptyList()
-                    _messages.value = history
-                } else {
-                    _errorMessage.value = "Failed to load chat history"
-                }
             }
         }
     }
