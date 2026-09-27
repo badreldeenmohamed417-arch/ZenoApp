@@ -8,7 +8,6 @@ import com.example.zeno.data.model.server.MessageResponse
 import com.example.zeno.data.model.server.SendMessageRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
-import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
