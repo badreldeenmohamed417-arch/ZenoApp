@@ -68,8 +68,7 @@ fun ChatDropUp(
     conversationId: String?,
     onConversationCreated: (String) -> Unit,
     timeLeftStr: String,
-    onDismiss: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onDismiss: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -101,7 +100,7 @@ fun ChatDropUp(
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxHeight(0.85f)
             .fillMaxWidth()
             .background(DarkBG)
@@ -185,7 +184,7 @@ fun ChatDropUp(
                 }
             } else {
                 items(localMessages, key = { it.id }) { msg ->
-                    AnimatedChatBubble(msg, isLatest = (msg.id == localMessages.lastOrNull()?.id), chatRepository = chatRepository)
+                    AnimatedChatBubble(msg, isLatest = (msg.id == localMessages.lastOrNull()?.id))
                 }
 
                 if (isSending) {
@@ -601,10 +600,8 @@ fun EmptyChatState() {
 @Composable
 fun AnimatedChatBubble(
     msg: com.example.zeno.data.model.server.MessageResponse,
-    isLatest: Boolean,
-    chatRepository: com.example.zeno.data.repository.ChatRepository
+    isLatest: Boolean
 ) {
-    val feedbackScope = rememberCoroutineScope()
     var displayedText by remember { mutableStateOf(if (msg.role == "user" || !isLatest) msg.content else "") }
 
     LaunchedEffect(msg.id, msg.content) {
@@ -629,6 +626,5 @@ fun AnimatedChatBubble(
         content = displayedText,
         createdAt = msg.createdAt
     )
-    com.example.zeno.core.widgets.ChatBubble(
-        message = uiMsg)
+    com.example.zeno.core.widgets.ChatBubble(uiMsg)
 }
