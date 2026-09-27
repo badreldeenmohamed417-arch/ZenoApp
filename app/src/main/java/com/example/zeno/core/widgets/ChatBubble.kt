@@ -3,6 +3,7 @@ package com.example.zeno.core.widgets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,11 +21,11 @@ fun ChatBubble(message: MessageResponse) {
     val isUser = message.role == "user"
     val layoutDirection = LocalLayoutDirection.current
     val alignment = if (isUser) {
-        if (layoutDirection == LayoutDirection.Rtl) Alignment.Start else Alignment.End
+        if (layoutDirection == LayoutDirection.Rtl) Alignment.End else Alignment.End
     } else {
-        if (layoutDirection == LayoutDirection.Rtl) Alignment.End else Alignment.Start
+        Alignment.Start
     }
-    
+
     val userTailOnStart = layoutDirection == LayoutDirection.Rtl
     val bottomStart = if (isUser == userTailOnStart) 4.dp else 18.dp
     val bottomEnd = if (isUser != userTailOnStart) 4.dp else 18.dp
@@ -35,10 +36,10 @@ fun ChatBubble(message: MessageResponse) {
     ) {
         if (!isUser && (message.content.contains(".pdf", ignoreCase = true) || message.content.contains("notebook_", ignoreCase = true))) {
             PdfHandoutCard(messageText = message.content)
-        } else {
+        } else if (isUser) {
             Box(
                 modifier = Modifier
-                    .widthIn(max = 300.dp)
+                    .widthIn(max = 330.dp)
                     .clip(
                         RoundedCornerShape(
                             topStart = 18.dp,
@@ -47,23 +48,34 @@ fun ChatBubble(message: MessageResponse) {
                             bottomEnd = bottomEnd
                         )
                     )
-                    .background(if (isUser) AppColors.Accent else AppColors.SurfaceVariant)
+                    .background(AppColors.Accent)
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                if (isUser) {
+                SelectionContainer {
                     Text(
                         text = message.content,
                         color = AppColors.AccentInk,
                         fontSize = 15.sp,
-                        lineHeight = 20.sp
-                    )
-                } else {
-                    MarkdownMathView(
-                        text = message.content,
-                        modifier = Modifier.fillMaxWidth()
+                        lineHeight = 21.sp,
+                        fontFamily = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontFamily
                     )
                 }
             }
+        } else {
+            SelectionContainer {
+                MarkdownMathView(
+                    text = message.content,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        if (!isUser) {
+            Spacer(modifier = Modifier.height(4.dp))
+            ZenoMessageActions(
+                text = message.content,
+                modifier = Modifier.align(Alignment.Start)
+            )
         }
     }
 }
