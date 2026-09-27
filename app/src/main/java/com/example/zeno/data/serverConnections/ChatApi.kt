@@ -8,6 +8,7 @@ import com.example.zeno.data.model.server.MessageResponse
 import com.example.zeno.data.model.server.SendMessageRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -32,6 +33,12 @@ interface ChatApi {
         @Path("conversationId") conversationId: String,
         @Body request: SendMessageRequest
     ): MessageResponse
+
+    @POST("main/chat/messages/{messageId}/feedback")
+    suspend fun feedbackMessage(
+        @Path("messageId") messageId: String,
+        @Body request: FeedbackRequest
+    ): FeedbackResponse
 
     @DELETE("main/chat/conversations/{conversationId}")
     suspend fun deleteConversation(
