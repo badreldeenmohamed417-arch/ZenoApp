@@ -72,7 +72,7 @@ fun ChatDropUp(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = null)) }
+            items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = "")) }
             if (sending) item { Text(stringResource(R.string.chat_status_thinking), color = AppColors.TextMuted) }
         }
         Row(
