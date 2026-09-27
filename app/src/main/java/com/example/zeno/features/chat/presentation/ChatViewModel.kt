@@ -48,11 +48,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
             val result = repository.getConversations()
             if (result.isSuccess) {
                 _conversations.value = result.getOrNull()?.items ?: emptyList()
-                val currentId = userManager.getCurrentChatId()
-                if (currentId != null) {
-                    val conv = _conversations.value.find { it.id == currentId }
-                    _activeTitle.value = conv?.title ?: ""
-                }
+                _activeTitle.value = ""
             }
         }
     }
