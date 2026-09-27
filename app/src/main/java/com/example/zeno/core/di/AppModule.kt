@@ -9,6 +9,7 @@ import com.example.zeno.core.network.AuthInterceptor
 import com.example.zeno.core.network.RetrofitClient
 import com.example.zeno.core.network.TokenAuthenticator
 import com.example.zeno.data.local.UserManager
+import com.example.zeno.data.local.db.AppDatabase
 import com.example.zeno.features.auth.data.AuthApi
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.chat.data.ChatApi
@@ -32,6 +33,7 @@ val appModule = module {
     // Core & Storage
     single<AuthStorage> { EncryptedAuthStorageImpl(get()) }
     single { UserManager(get()) }
+    single { AppDatabase.getDatabase(get()).chatDao() }
     single { BillingManager(get(), get()) }
 
     // Network (Interceptors & Retrofit)
@@ -60,7 +62,7 @@ val appModule = module {
     single { StudentRepository(get()) }
     single { com.example.zeno.features.home.data.HomeCacheManager(androidContext()) }
     single { ProgressRepository(get(), get()) }
-    single { ChatRepository(get()) }
+    single { ChatRepository(get(), get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }
     single { SubscriptionRepository(get()) }
