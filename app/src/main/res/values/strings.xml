@@ -440,4 +440,24 @@
  <string name="home_practice">Practice now</string>
  <string name="home_practice_subtitle">Start a focused study session</string>
 
+
+ <string name="chat_status_searching_books">Searching your books...</string>
+ <string name="chat_status_understanding">Understanding your question...</string>
+ <string name="chat_status_building_answer">Building your answer...</string>
+ <string name="chat_solve_title">Solve accurately</string>
+ <string name="chat_solve_prompt">Solve this question step by step using the relevant physics or mathematics laws and LaTeX for equations:</string>
+ <string name="chat_solve_label">Physics / Math</string>
+ <string name="chat_deep_badge">Deep</string>
+ <string name="chat_report_title">Report message</string>
+ <string name="chat_report_reason_hint">Please choose a reason:</string>
+ <string name="chat_report_success">Reported successfully</string>
+ <string name="chat_report_send">Send</string>
+ <string name="chat_report_cancel">Cancel</string>
+ <string name="chat_report_reason_inappropriate">Inappropriate content</string>
+ <string name="chat_report_reason_wrong">Incorrect information</string>
+ <string name="chat_report_reason_spam">Spam</string>
+ <string name="chat_report_reason_other">Other</string>
+ <string name="chat_error_fallback">Something went wrong</string>
+ <string name="chat_time_now">Now</string>
+
 </resources>
