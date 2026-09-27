@@ -3,7 +3,6 @@ package com.example.zeno.core.widgets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,15 +16,15 @@ import com.example.zeno.data.AppColors
 import com.example.zeno.data.model.server.MessageResponse
 
 @Composable
-fun ChatBubble(message: MessageResponse, onFeedback: ((String) -> Unit)? = null, onLike: (() -> Unit)? = null, onDislike: (() -> Unit)? = null) {
+fun ChatBubble(message: MessageResponse) {
     val isUser = message.role == "user"
     val layoutDirection = LocalLayoutDirection.current
     val alignment = if (isUser) {
-        if (layoutDirection == LayoutDirection.Rtl) Alignment.End else Alignment.End
+        if (layoutDirection == LayoutDirection.Rtl) Alignment.Start else Alignment.End
     } else {
-        Alignment.Start
+        if (layoutDirection == LayoutDirection.Rtl) Alignment.End else Alignment.Start
     }
-
+    
     val userTailOnStart = layoutDirection == LayoutDirection.Rtl
     val bottomStart = if (isUser == userTailOnStart) 4.dp else 18.dp
     val bottomEnd = if (isUser != userTailOnStart) 4.dp else 18.dp
@@ -36,10 +35,10 @@ fun ChatBubble(message: MessageResponse, onFeedback: ((String) -> Unit)? = null,
     ) {
         if (!isUser && (message.content.contains(".pdf", ignoreCase = true) || message.content.contains("notebook_", ignoreCase = true))) {
             PdfHandoutCard(messageText = message.content)
-        } else if (isUser) {
+        } else {
             Box(
                 modifier = Modifier
-                    .widthIn(max = 330.dp)
+                    .widthIn(max = 300.dp)
                     .clip(
                         RoundedCornerShape(
                             topStart = 18.dp,
@@ -48,37 +47,16 @@ fun ChatBubble(message: MessageResponse, onFeedback: ((String) -> Unit)? = null,
                             bottomEnd = bottomEnd
                         )
                     )
-                    .background(AppColors.Accent)
+                    .background(if (isUser) AppColors.Accent else AppColors.SurfaceVariant)
                     .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
-                SelectionContainer {
-                    Text(
-                        text = message.content,
-                        color = AppColors.AccentInk,
-                        fontSize = 15.sp,
-                        lineHeight = 21.sp,
-                        fontFamily = androidx.compose.material3.MaterialTheme.typography.bodyLarge.fontFamily
-                    )
-                }
-            }
-        } else {
-            SelectionContainer {
-                MarkdownMathView(
+                Text(
                     text = message.content,
-                    modifier = Modifier.fillMaxWidth()
+                    color = if (isUser) AppColors.AccentInk else AppColors.TextPrimary,
+                    fontSize = 15.sp,
+                    lineHeight = 20.sp
                 )
             }
-        }
-
-        if (!isUser) {
-            Spacer(modifier = Modifier.height(4.dp))
-            ZenoMessageActions(
-                text = message.content,
-                onFeedback = onFeedback,
-                modifier = Modifier.align(Alignment.Start),
-                onLike = onLike,
-                onDislike = onDislike
-            )
         }
     }
 }
