@@ -142,9 +142,9 @@ class ChatRepository(
                         "progress" -> onProgress(json.get("stage")?.asString ?: "thinking")
                         "completed" -> {
                             val msg = gson.fromJson(json.getAsJsonObject("message"), MessageResponse::class.java)
-                            dao.insertMessage(
-                                MessageEntity(msg.id, msg.conversationId, msg.role, msg.content, msg.createdAt)
-                            )
+                            ioScope.launch {
+                                dao.insertMessage(MessageEntity(msg.id, msg.conversationId, msg.role, msg.content, msg.createdAt))
+                            }
                             onCompleted(msg)
                         }
                         "error" -> onError(RuntimeException(json.get("message")?.asString ?: "request_failed"))
