@@ -138,13 +138,6 @@ class ChatRepository(
         }
     }
 
-    suspend fun feedbackMessage(
-        messageId: String,
-        feedback: String
-    ): FeedbackResponse = api.feedbackMessage(
-        messageId,
-        FeedbackRequest(feedback)
-    )
 
     suspend fun deleteConversation(
         conversationId: String
