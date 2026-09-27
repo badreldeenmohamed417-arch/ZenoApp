@@ -90,7 +90,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 } ?: emptyList()
                 _messages.value = history
             } else {
-                _errorMessage.value = getApplication<Application>().getString(R.string.chat_error_load_history)
+                _errorMessage.value = "Failed to load chat history"
             }
         }
     }
