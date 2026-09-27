@@ -10,6 +10,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import okhttp3.*
 import retrofit2.HttpException
 
@@ -22,7 +23,7 @@ class ChatRepository(
     private val gson = Gson()
     private val httpClient = OkHttpClient()
 
-    private fun saveConversationLocal(item: ConversationResponse) {
+    private suspend fun saveConversationLocal(item: ConversationResponse) {
         dao.insertConversations(
             listOf(
                 ConversationEntity(
@@ -62,7 +63,7 @@ class ChatRepository(
             })
             Result.success(response)
         } catch (e: Exception) {
-            val local = dao.getConversations().kotlinx.coroutines.flow.first()
+            val local = dao.getConversations().first()
             Result.success(
                 ConversationListResponse(
                     local.map {
@@ -88,7 +89,7 @@ class ChatRepository(
                 dao.deleteConversation(id)
                 return@withContext Result.failure(e)
             }
-            val local = dao.getMessages(id).kotlinx.coroutines.flow.first()
+            val local = dao.getMessages(id).first()
             if (local.isNotEmpty()) {
                 val messages = local.map {
                     MessageResponse(it.id, id, it.role, it.content, it.createdAt)
