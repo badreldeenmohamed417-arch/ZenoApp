@@ -37,7 +37,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -937,34 +936,7 @@ fun ChatScreen(
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                        }
-                    }
-                }
-            }
-        }
-        
-        messageToReport?.let { msg ->
-            AlertDialog(
-                onDismissRequest = { messageToReport = null },
-                title = { Text(stringResource(R.string.chat_report_title), color = TextWhite) },
-                text = {
-                    Column {
-                        Text(stringResource(R.string.chat_report_reason_hint), color = TextMuted)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        reportReasons.forEach { reason ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedReportReason = reason }
-                                    .padding(vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = selectedReportReason == reason,
-                                    onClick = { selectedReportReason = reason },
-                                    colors = RadioButtonDefaults.colors(selectedColor = LimeAccent)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                                 Text(reason, color = TextWhite)
                             }
                         }
