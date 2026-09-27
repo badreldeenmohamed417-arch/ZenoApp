@@ -33,15 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.zeno.R
-import com.example.zeno.core.data.EncryptedAuthStorageImpl
-import com.example.zeno.core.network.AuthInterceptor
-import com.example.zeno.core.network.RetrofitClient
-import com.example.zeno.core.network.TokenAuthenticator
 import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.features.student.data.StudentApi
-import com.example.zeno.features.student.data.repository.StudentRepository
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -124,34 +118,6 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
     var selectedSubjectName by remember { mutableStateOf<String?>(null) }
     var selectedDuration by remember { mutableIntStateOf(25) }
     var selectedSound by remember { mutableStateOf("none") }
-
-    val currentLang = remember { userManager.getLanguage() }
-    var subjects by remember { mutableStateOf<List<String>>(emptyList()) }
-    var isFetchingSubjects by remember { mutableStateOf(true) }
-
-    val studentRepo = remember {
-        val authStorage = EncryptedAuthStorageImpl(context)
-        val authInterceptor = AuthInterceptor(authStorage)
-        val tokenAuth = TokenAuthenticator(authStorage, context, RetrofitClient.MAIN_SERVER_BASE_URL)
-        val retrofit = RetrofitClient.createMainServerRetrofit(authInterceptor, tokenAuth)
-        StudentRepository(retrofit.create(StudentApi::class.java))
-    }
-
-    LaunchedEffect(Unit) {
-        try {
-            val result = studentRepo.getProfile()
-            if (result.isSuccess) {
-                subjects = result.getOrNull()?.subjects.orEmpty()
-                    .map { it.name }
-                    .filter { it.isNotBlank() }
-                    .distinct()
-            }
-        } catch (_: Exception) {
-            subjects = emptyList()
-        } finally {
-            isFetchingSubjects = false
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -238,20 +204,6 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
         )
-    }
-}
-
-@Composable
-fun SubjectChip(name: String, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (isSelected) AppColors.AccentSoft else AppColors.Surface)
-            .border(1.5.dp, if (isSelected) AppColors.Accent else AppColors.UnfocusedBorder, RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 9.dp)
-    ) {
-        Text(text = name, color = if (isSelected) AppColors.Accent else AppColors.TextPrimary, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
