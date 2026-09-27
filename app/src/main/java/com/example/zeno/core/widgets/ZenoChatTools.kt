@@ -56,7 +56,9 @@ fun shareFromZeno(context: Context, text: String) {
 fun ZenoMessageActions(
     text: String,
     modifier: Modifier = Modifier,
-    onMore: (() -> Unit)? = null
+    onMore: (() -> Unit)? = null,
+    onLike: (() -> Unit)? = null,
+    onDislike: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -75,10 +77,14 @@ fun ZenoMessageActions(
             shareFromZeno(context, text)
         }
         EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = "Like", reaction = reaction == LIKE) {
-            reaction = if (reaction == LIKE) NO_REACTION else LIKE
+            val next = if (reaction == LIKE) NO_REACTION else LIKE
+            reaction = next
+            onLike?.invoke()
         }
         EmojiActionButton(icon = Icons.Outlined.ThumbDown, contentDescription = "Dislike", reaction = reaction == DISLIKE) {
-            reaction = if (reaction == DISLIKE) NO_REACTION else DISLIKE
+            val next = if (reaction == DISLIKE) NO_REACTION else DISLIKE
+            reaction = next
+            onDislike?.invoke()
         }
         if (onMore != null) {
             EmojiActionButton(icon = Icons.Outlined.MoreHoriz, contentDescription = "More", reaction = false, onClick = onMore)
