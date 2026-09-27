@@ -1,12 +1,12 @@
-package com.example.zeno.features.session
+package com.example.zeno.futures.session
 
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
@@ -16,22 +16,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.zeno.R
-import com.example.zeno.MainActivity
-import com.example.zeno.core.data.EncryptedAuthStorageImpl
-import com.example.zeno.core.network.AuthInterceptor
-import com.example.zeno.core.network.RetrofitClient
-import com.example.zeno.core.network.TokenAuthenticator
-import com.example.zeno.data.local.UserManager
-import com.example.zeno.features.session.data.SessionApi
-import com.example.zeno.features.session.data.repository.SessionRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 enum class SessionPhase {
@@ -45,9 +31,7 @@ data class SessionState(
     val isPaused: Boolean = false,
     val subjectName: String = "",
     val soundId: String = "none",
-    val conversationId: String? = null,
-    val sessionId: String? = null,
-    val loopCount: Int = 1
+    val conversationId: String? = null
 )
 
 @OptIn(UnstableApi::class)
@@ -69,26 +53,15 @@ class StudySessionService : Service() {
         const val EXTRA_SOUND_ID = "SOUND_ID"
         const val EXTRA_IS_BREAK = "IS_BREAK"
         const val EXTRA_CONVERSATION_ID = "CONVERSATION_ID"
-        const val EXTRA_SESSION_ID = "SESSION_ID"
         
         private const val CHANNEL_ID = "zeno_study_session"
         private const val NOTIFICATION_ID = 101
     }
 
-    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
-    private var isServiceActive = false
+    private var timer: CountDownTimer? = null
     private var player: ExoPlayer? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
-
-    private fun getSessionRepository(): SessionRepository {
-        val authStorage = EncryptedAuthStorageImpl(this)
-        val authInterceptor = AuthInterceptor(authStorage)
-        val tokenAuthenticator = TokenAuthenticator(authStorage, this, RetrofitClient.MAIN_SERVER_BASE_URL)
-        val retrofit = RetrofitClient.createMainServerRetrofit(authInterceptor, tokenAuthenticator)
-        val api = retrofit.create(SessionApi::class.java)
-        return SessionRepository(api, this)
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -98,8 +71,7 @@ class StudySessionService : Service() {
                 val soundId = intent.getStringExtra(EXTRA_SOUND_ID) ?: "none"
                 val isBreak = intent.getBooleanExtra(EXTRA_IS_BREAK, false)
                 val conversationId = intent.getStringExtra(EXTRA_CONVERSATION_ID)
-                val sessionId = intent.getStringExtra(EXTRA_SESSION_ID)
-                startSession(duration, subject, soundId, isBreak, conversationId, sessionId)
+                startSession(duration, subject, soundId, isBreak, conversationId)
             }
             ACTION_PAUSE -> pauseSession()
             ACTION_RESUME -> resumeSession()
@@ -110,13 +82,10 @@ class StudySessionService : Service() {
                 _sessionState.value = _sessionState.value.copy(conversationId = conversationId)
             }
         }
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
-    private fun startSession(minutes: Int, subject: String, soundId: String, isBreak: Boolean, conversationId: String?, sessionId: String?) {
-        if (isServiceActive) return
-        
-        isServiceActive = true
+    private fun startSession(minutes: Int, subject: String, soundId: String, isBreak: Boolean, conversationId: String?) {
         val millis = minutes * 60 * 1000L
         val phase = if (isBreak) SessionPhase.BREAK else SessionPhase.STUDYING
         
@@ -127,27 +96,11 @@ class StudySessionService : Service() {
             isPaused = false,
             subjectName = subject,
             soundId = soundId,
-            conversationId = conversationId,
-            sessionId = sessionId,
-            loopCount = 1
+            conversationId = conversationId
         )
         
         startForeground(NOTIFICATION_ID, createNotification())
-        
-        serviceScope.launch {
-            val repo = getSessionRepository()
-            repo.syncPendingSessions()
-            if (sessionId.isNullOrBlank() && phase == SessionPhase.STUDYING) {
-                val res = repo.startSession(subject)
-                if (res.isSuccess) {
-                    val createdId = res.getOrNull()?.sessionId
-                    if (createdId != null) {
-                        _sessionState.value = _sessionState.value.copy(sessionId = createdId)
-                    }
-                }
-            }
-            startTimerLoop()
-        }
+        startTimer(millis)
         
         if (phase == SessionPhase.STUDYING) {
             playTransitionSound(R.raw.work_start) {
@@ -160,67 +113,33 @@ class StudySessionService : Service() {
         }
     }
 
-    private suspend fun startTimerLoop() {
-        while (isServiceActive) {
-            delay(1000)
-            val currentState = _sessionState.value
-            if (currentState.isPaused) continue
-
-            val newTime = currentState.timeLeftMillis - 1000
-            
-            if (newTime <= 0) {
-                handlePhaseSwitch()
-            } else {
-                _sessionState.value = currentState.copy(timeLeftMillis = newTime)
+    private fun startTimer(millis: Long) {
+        timer?.cancel()
+        timer = object : CountDownTimer(millis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                _sessionState.value = _sessionState.value.copy(timeLeftMillis = millisUntilFinished)
                 updateNotification()
             }
-        }
+
+            override fun onFinish() {
+                _sessionState.value = _sessionState.value.copy(timeLeftMillis = 0)
+                handleSessionFinish()
+            }
+        }.start()
     }
 
-    private fun handlePhaseSwitch() {
+    private fun handleSessionFinish() {
         val currentState = _sessionState.value
         if (currentState.phase == SessionPhase.STUDYING) {
-            val sid = currentState.sessionId
-            val elapsedMillis = currentState.totalTimeMillis - currentState.timeLeftMillis
-            val minutesSpent = (elapsedMillis / 60000L).coerceAtLeast(1).toInt()
-            if (!sid.isNullOrBlank()) {
-                serviceScope.launch {
-                    val repo = getSessionRepository()
-                    repo.completeSession(sid, minutesSpent)
-                    repo.syncPendingSessions()
-                }
-            }
-
-            // Switch to Break
-            val isLongBreak = currentState.loopCount % 3 == 0 && currentState.loopCount != 1
-            val breakMinutes = if (isLongBreak) 30 else 5
-            val millis = breakMinutes * 60 * 1000L
-            
-            _sessionState.value = currentState.copy(
-                phase = SessionPhase.BREAK,
-                timeLeftMillis = millis,
-                totalTimeMillis = millis
-            )
+            // Auto switch to break? For now just stop and play sound
             playTransitionSound(R.raw.free_start)
-        } else {
-            // Switch to Study
-            val millis = 25 * 60 * 1000L
-            _sessionState.value = currentState.copy(
-                phase = SessionPhase.STUDYING,
-                timeLeftMillis = millis,
-                totalTimeMillis = millis,
-                loopCount = currentState.loopCount + 1
-            )
-            playTransitionSound(R.raw.work_start) {
-                if (currentState.soundId != "none") {
-                    startFocusMusic(currentState.soundId)
-                }
-            }
         }
-        updateNotification()
+        stopForeground(true)
+        stopSelf()
     }
 
     private fun pauseSession() {
+        timer?.cancel()
         player?.pause()
         _sessionState.value = _sessionState.value.copy(isPaused = true)
         updateNotification()
@@ -229,23 +148,11 @@ class StudySessionService : Service() {
     private fun resumeSession() {
         _sessionState.value = _sessionState.value.copy(isPaused = false)
         player?.play()
+        startTimer(_sessionState.value.timeLeftMillis)
     }
 
     private fun stopSession() {
-        val currentState = _sessionState.value
-        val sid = currentState.sessionId
-        val elapsedMillis = currentState.totalTimeMillis - currentState.timeLeftMillis
-        val minutesSpent = (elapsedMillis / 60000L).coerceAtLeast(1).toInt()
-
-        if (!sid.isNullOrBlank() && currentState.phase == SessionPhase.STUDYING) {
-            val repo = getSessionRepository()
-            serviceScope.launch {
-                repo.completeSession(sid, minutesSpent)
-                repo.syncPendingSessions()
-            }
-        }
-
-        isServiceActive = false
+        timer?.cancel()
         player?.stop()
         player?.release()
         player = null
@@ -255,14 +162,14 @@ class StudySessionService : Service() {
     }
 
     private fun skipSession() {
-        handlePhaseSwitch()
+        timer?.onFinish()
     }
 
     private fun startFocusMusic(soundId: String) {
         val resId = when (soundId) {
-            "nature", "forest", "white_noise" -> R.raw.forest
             "rain" -> R.raw.rain_sound
-            "airplane", "cafe" -> R.raw.air_plane_captain
+            "cafe" -> R.raw.air_plane_captain
+            "white_noise" -> R.raw.forest
             else -> return
         }
 
@@ -322,28 +229,20 @@ class StudySessionService : Service() {
         val state = _sessionState.value
         val timeStr = formatTime(state.timeLeftMillis)
         
+        val userManager = com.example.zeno.data.local.UserManager(this)
+        val guestUser = getString(R.string.guestUser)
+        val userName = userManager.getDisplayName() ?: guestUser
+        
         val title = if (state.phase == SessionPhase.BREAK) {
-            "Break Time"
+            getString(R.string.notification_break_title, userName)
         } else {
-            "Focus Session: ${state.subjectName}"
+            getString(R.string.notification_focus_title, state.subjectName)
         }
-
-        val openAppIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-
-        val openAppPendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            openAppIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(timeStr)
-            .setContentIntent(openAppPendingIntent)
-            .setSmallIcon(R.drawable.ic_zeno_logo)
+            .setSmallIcon(R.drawable.zeno_logo)
             .setOngoing(true)
             .build()
     }
@@ -356,12 +255,11 @@ class StudySessionService : Service() {
     private fun formatTime(millis: Long): String {
         val seconds = (millis / 1000) % 60
         val minutes = (millis / (1000 * 60)) % 60
-        return String.format(Locale.US, "%02d:%02d", minutes, seconds)
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 
     override fun onDestroy() {
-        isServiceActive = false
-        serviceScope.cancel()
+        timer?.cancel()
         player?.release()
         player = null
         super.onDestroy()
