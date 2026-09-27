@@ -332,6 +332,13 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
         }
     }
 
+    fun feedbackMessage(messageId: String, feedback: String, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch(exceptionHandler) {
+            val result = repository.feedbackMessage(messageId, feedback)
+            onResult(result.isSuccess)
+        }
+    }
+
     fun reportMessage(id: String, reason: String, onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch(exceptionHandler) {
             val result = repository.reportMessage(id, reason)
