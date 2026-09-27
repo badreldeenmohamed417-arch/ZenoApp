@@ -94,7 +94,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 } ?: emptyList()
                 _messages.value = history
             } else {
-                _errorMessage.value = "Failed to load chat history"
+                _errorMessage.value = getApplication<Application>().getString(R.string.chat_error_load_history)
             }
         }
     }
@@ -135,7 +135,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
-            var activeId = userManager.getCurrentChatId()
+            var activeId: String? = null
             if (activeId == null) {
                 val title = if (text.length > 20) text.take(20) + "..." else text
                 val result = repository.createConversation(title)
@@ -182,6 +182,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 val errReason = exception?.message ?: ""
                 val isUpgrade = errReason.contains("402") || errReason.contains("502") || errReason.contains("Payment", ignoreCase = true) || errReason.contains("Limit", ignoreCase = true) || errReason.contains("Upgrade", ignoreCase = true)
 
+                repository.deleteLocalMessage(userMessage.id)
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
                     text = errReason,
