@@ -604,6 +604,7 @@ fun AnimatedChatBubble(
     isLatest: Boolean,
     chatRepository: com.example.zeno.data.repository.ChatRepository
 ) {
+    val feedbackScope = rememberCoroutineScope()
     var displayedText by remember { mutableStateOf(if (msg.role == "user" || !isLatest) msg.content else "") }
 
     LaunchedEffect(msg.id, msg.content) {
@@ -632,7 +633,7 @@ fun AnimatedChatBubble(
         message = uiMsg,
         onFeedback = { feedback ->
             if (msg.role == "assistant") {
-                chatRepository.feedbackMessage(msg.id, feedback)
+                feedbackScope.launch { chatRepository.feedbackMessage(msg.id, feedback) }
             }
         }
     )
