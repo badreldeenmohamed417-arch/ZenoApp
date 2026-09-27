@@ -20,6 +20,18 @@ interface ChatDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: MessageEntity)
 
+    @Query("DELETE FROM messages WHERE conversationId = :conversationId")
+    suspend fun deleteMessages(conversationId: String)
+
+    @Query("DELETE FROM conversations WHERE id = :conversationId")
+    suspend fun deleteConversation(conversationId: String)
+
+    @Query("DELETE FROM messages WHERE id = :messageId")
+    suspend fun deleteMessage(messageId: String)
+
+    @Query("SELECT id FROM conversations")
+    suspend fun getConversationIds(): List<String>
+
     @Query("DELETE FROM conversations")
     suspend fun clearConversations()
 
