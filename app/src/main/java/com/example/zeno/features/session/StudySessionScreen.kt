@@ -1,6 +1,5 @@
 package com.example.zeno.features.session
 
-import com.example.zeno.core.txtStr
 
 import android.content.Context
 import android.content.Intent
@@ -41,9 +40,8 @@ import com.example.zeno.core.network.TokenAuthenticator
 import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.model.server.Subject
-import com.example.zeno.features.session.data.StudyPlanApi
-import com.example.zeno.features.session.data.repository.StudyPlanRepository
+import com.example.zeno.features.student.data.StudentApi
+import com.example.zeno.features.student.data.repository.StudentRepository
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -128,49 +126,31 @@ fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> U
     var selectedSound by remember { mutableStateOf("none") }
 
     val currentLang = remember { userManager.getLanguage() }
-    var planSubjects by remember { mutableStateOf<List<String>>(emptyList()) }
-    var isFetchingPlan by remember { mutableStateOf(false) }
+    var subjects by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isFetchingSubjects by remember { mutableStateOf(true) }
 
-    val studyPlanRepo = remember {
+    val studentRepo = remember {
         val authStorage = EncryptedAuthStorageImpl(context)
         val authInterceptor = AuthInterceptor(authStorage)
         val tokenAuth = TokenAuthenticator(authStorage, context, RetrofitClient.MAIN_SERVER_BASE_URL)
         val retrofit = RetrofitClient.createMainServerRetrofit(authInterceptor, tokenAuth)
-        val api = retrofit.create(StudyPlanApi::class.java)
-        StudyPlanRepository(api)
+        StudentRepository(retrofit.create(StudentApi::class.java))
     }
 
     LaunchedEffect(Unit) {
-        var retries = 0
-        while (retries < 3 && planSubjects.isEmpty()) {
-            isFetchingPlan = true
-            val result = studyPlanRepo.getCurrentStudyPlan()
+        try {
+            val result = studentRepo.getProfile()
             if (result.isSuccess) {
-                val items = result.getOrNull()?.items
-                if (!items.isNullOrEmpty()) {
-                    val extracted = items.map { it.getLocalizedSubject(currentLang) }
-                        .filter { it.isNotBlank() }
-                        .distinct()
-                    if (extracted.isNotEmpty()) {
-                        planSubjects = extracted
-                        break
-                    }
-                }
+                subjects = result.getOrNull()?.subjects.orEmpty()
+                    .map { it.name }
+                    .filter { it.isNotBlank() }
+                    .distinct()
             }
-            retries++
-            if (planSubjects.isEmpty()) {
-                delay(1000)
-            }
+        } catch (_: Exception) {
+            subjects = emptyList()
+        } finally {
+            isFetchingSubjects = false
         }
-        if (planSubjects.isEmpty()) {
-            val defaultList = if (currentLang == "ar") {
-                listOf("الرياضيات", context.txtStr("auto_str_الفيزياء"), "اللغة الإنجليزية", "اللغة العربية", "الكيمياء")
-            } else {
-                listOf("Math", "Physics", "English", "Arabic", "Chemistry")
-            }
-            planSubjects = defaultList
-        }
-        isFetchingPlan = false
     }
 
     Column(
