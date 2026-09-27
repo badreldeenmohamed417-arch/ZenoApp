@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -1147,22 +1148,37 @@ fun StyledChatBubble(
 
 @Composable
 fun TypingIndicator() {
+    val transition = rememberInfiniteTransition(label = "zenoResearch")
+    val offset by transition.animateFloat(
+        initialValue = -220f,
+        targetValue = 220f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1100, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer"
+    )
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterEnd
     ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.Transparent)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.zeno_typing_indicator),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextMuted
-            )
-        }
+        Text(
+            text = stringResource(R.string.chat_status_searching_books),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            style = androidx.compose.ui.text.TextStyle(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        TextMuted,
+                        Color.Black,
+                        TextMuted
+                    ),
+                    start = androidx.compose.ui.geometry.Offset(offset, 0f),
+                    end = androidx.compose.ui.geometry.Offset(offset + 90f, 0f)
+                )
+            ),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+        )
     }
 }
