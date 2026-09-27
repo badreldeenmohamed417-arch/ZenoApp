@@ -45,6 +45,8 @@ import android.widget.Toast
 import com.example.zeno.core.ThinkingIndicator
 import com.example.zeno.core.ui.modifiers.bounceClickable
 import com.example.zeno.core.widgets.ChatBubble
+import com.example.zeno.core.widgets.ZenoFormattingToolbar
+import com.example.zeno.core.widgets.ZenoMessageActions
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.local.db.AppDatabase
 
@@ -65,7 +67,8 @@ private val TextMuted: Color @Composable get() = AppColors.TextMuted
 fun ChatDropUp(
     conversationId: String?,
     onConversationCreated: (String) -> Unit,
-    timeLeftStr: String
+    timeLeftStr: String,
+    onDismiss: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -131,19 +134,36 @@ fun ChatDropUp(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(LimeAccent.copy(alpha = 0.15f))
-                    .border(1.dp, LimeAccent.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
-                    .padding(horizontal = 12.dp, vertical = 5.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(
-                    text = timeLeftStr,
-                    fontSize = 12.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LimeAccent
-                )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(LimeAccent.copy(alpha = 0.15f))
+                        .border(1.dp, LimeAccent.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = timeLeftStr,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LimeAccent
+                    )
+                }
+
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.size(34.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        tint = TextMuted,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
 
@@ -216,6 +236,15 @@ fun ChatDropUp(
                     )
                 }
             }
+
+            ZenoFormattingToolbar(
+                text = messageText,
+                onTextChange = { messageText = it },
+                onMore = { showActionMenu = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp)
+            )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -461,7 +490,8 @@ fun ChatDropUp(
                         enabled = !isSending,
                         textStyle = TextStyle(
                             color = TextWhite,
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            fontFamily = MaterialTheme.typography.bodyLarge.fontFamily
                         ),
                         maxLines = 4,
                         cursorBrush = SolidColor(LimeAccent),
