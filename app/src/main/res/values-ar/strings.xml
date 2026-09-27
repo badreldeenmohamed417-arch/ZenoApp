@@ -440,4 +440,24 @@
  <string name="home_practice">اتدرّب دلوقتي</string>
  <string name="home_practice_subtitle">ابدأ جلسة مذاكرة مركزة</string>
 
+
+ <string name="chat_status_searching_books">جاري البحث في كتبك...</string>
+ <string name="chat_status_understanding">جاري فهم سؤالك...</string>
+ <string name="chat_status_building_answer">جاري تجهيز إجابتك...</string>
+ <string name="chat_solve_title">حل بدقة</string>
+ <string name="chat_solve_prompt">حل السؤال خطوة بخطوة باستخدام القوانين المناسبة في الفيزياء أو الرياضيات، واستخدم LaTeX للمعادلات:</string>
+ <string name="chat_solve_label">فيزياء / رياضيات</string>
+ <string name="chat_deep_badge">عميق</string>
+ <string name="chat_report_title">الإبلاغ عن رسالة</string>
+ <string name="chat_report_reason_hint">يرجى اختيار سبب البلاغ:</string>
+ <string name="chat_report_success">تم الإبلاغ بنجاح</string>
+ <string name="chat_report_send">إرسال</string>
+ <string name="chat_report_cancel">إلغاء</string>
+ <string name="chat_report_reason_inappropriate">محتوى غير لائق</string>
+ <string name="chat_report_reason_wrong">معلومات خاطئة</string>
+ <string name="chat_report_reason_spam">محتوى مزعج</string>
+ <string name="chat_report_reason_other">أخرى</string>
+ <string name="chat_error_fallback">حدث خطأ</string>
+ <string name="chat_time_now">الآن</string>
+
 </resources>
