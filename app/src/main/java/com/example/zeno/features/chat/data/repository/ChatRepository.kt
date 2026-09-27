@@ -88,6 +88,14 @@ class ChatRepository(private val chatApi: ChatApi) {
         }
     }
 
+    suspend fun feedbackMessage(id: String, feedback: String): Result<FeedbackResponse> = withContext(Dispatchers.IO) {
+        try {
+            Result.success(chatApi.feedbackMessage(id, MessageFeedbackRequest(feedback)))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun reportMessage(id: String, reason: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             chatApi.reportMessage(id, ReportRequest(reason = reason))
