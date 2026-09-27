@@ -60,8 +60,7 @@ val appModule = module {
     // Repositories
     single { AuthRepository(get(), get(), get(), androidContext()) }
     single { StudentRepository(get()) }
-    single { com.example.zeno.features.home.data.HomeCacheManager(androidContext()) }
-    single { ProgressRepository(get(), get()) }
+    single { ProgressRepository(get()) }
     single { ChatRepository(get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }
