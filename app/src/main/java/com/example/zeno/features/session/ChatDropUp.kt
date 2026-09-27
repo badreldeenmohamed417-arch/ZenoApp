@@ -630,11 +630,5 @@ fun AnimatedChatBubble(
         createdAt = msg.createdAt
     )
     com.example.zeno.core.widgets.ChatBubble(
-        message = uiMsg,
-        onFeedback = { feedback ->
-            if (msg.role == "assistant") {
-                feedbackScope.launch { chatRepository.feedbackMessage(msg.id, feedback) }
-            }
-        }
-    )
+        message = uiMsg)
 }
