@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentResolver
 import android.net.Uri
 import com.example.zeno.core.base.BaseViewModel
+import com.example.zeno.R
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.data.dto.ConversationResponse
@@ -99,7 +100,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                 } ?: emptyList()
                 _messages.value = history
             } else {
-                _errorMessage.value = "Failed to load chat history"
+                _errorMessage.value = getApplication<Application>().getString(R.string.chat_error_load_history)
             }
         }
     }
@@ -188,7 +189,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                 _isTyping.value = false
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
-                    text = "حدث خطأ أثناء إنشاء المحادثة.",
+                    text = getApplication<Application>().getString(R.string.chat_error_create_conversation),
                     isUser = false,
                     timestamp = System.currentTimeMillis(),
                     isError = true
@@ -284,10 +285,10 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                         val text = result.getOrNull()?.text ?: ""
                         onTextExtracted(text)
                     } else {
-                        val errText = result.exceptionOrNull()?.message ?: "auto_str_فشل_معالجة_الملف"
+                        val errText = result.exceptionOrNull()?.message ?: getApplication<Application>().getString(R.string.chat_error_process_file)
                         val errorBotMessage = ChatMessage(
                             id = UUID.randomUUID().toString(),
-                            text = "حدث خطأ أثناء رفع المستند: $errText",
+                            text = getApplication<Application>().getString(R.string.chat_error_upload_file, errText),
                             isUser = false,
                             timestamp = System.currentTimeMillis(),
                             isError = true
@@ -298,7 +299,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                     _isTyping.value = false
                     val errorBotMessage = ChatMessage(
                         id = UUID.randomUUID().toString(),
-                        text = "auto_str_عذرا_تعذر_قراءة",
+                        text = getApplication<Application>().getString(R.string.chat_error_read_file),
                         isUser = false,
                         timestamp = System.currentTimeMillis(),
                         isError = true
@@ -309,7 +310,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                 _isTyping.value = false
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
-                    text = "حدث خطأ أثناء قراءة المستند: ${e.message}",
+                    text = getApplication<Application>().getString(R.string.chat_error_read_file),
                     isUser = false,
                     timestamp = System.currentTimeMillis(),
                     isError = true
@@ -326,7 +327,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
                 onResult(true, result.getOrNull()?.feedback)
             } else {
                 val errorMsg = result.exceptionOrNull()?.let { com.example.zeno.core.NetworkUtils.getErrorMessage(it) }
-                    ?: "Failed to save feedback"
+                    ?: getApplication<Application>().getString(R.string.chat_error_save_feedback)
                 onResult(false, errorMsg)
             }
         }
@@ -345,7 +346,7 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
             if (result.isSuccess) {
                 onResult(true, null)
             } else {
-                val errorMsg = result.exceptionOrNull()?.let { com.example.zeno.core.NetworkUtils.getErrorMessage(it) } ?: "Failed to report message"
+                val errorMsg = result.exceptionOrNull()?.let { com.example.zeno.core.NetworkUtils.getErrorMessage(it) } ?: getApplication<Application>().getString(R.string.chat_error_report_message)
                 onResult(false, errorMsg)
             }
         }
