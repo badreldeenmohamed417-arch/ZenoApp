@@ -30,6 +30,13 @@ import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material3.Icon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
@@ -93,17 +100,16 @@ fun ZenoMessageActions(
 }
 
 @Composable
-private fun EmojiActionButton(
+private fun IconActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
     reaction: Boolean,
     onClick: () -> Unit
 ) {
     val background = if (reaction) AppColors.Accent.copy(alpha = 0.18f) else Color.Transparent
     Icon(
         imageVector = icon,
-        contentDescription = contentDescription,
-        tint = AppColors.TextPrimary,
+        contentDescription = null,
+        tint = AppColors.TextMuted,
         modifier = Modifier
             .size(34.dp)
             .background(background, CircleShape)
