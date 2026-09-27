@@ -105,13 +105,14 @@ fun ZenoMessageActions(
 @Composable
 private fun IconActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String? = null,
     reaction: Boolean,
     onClick: () -> Unit
 ) {
     val background = if (reaction) AppColors.Accent.copy(alpha = 0.18f) else Color.Transparent
     Icon(
         imageVector = icon,
-        contentDescription = null,
+        contentDescription = contentDescription,
         tint = AppColors.TextMuted,
         modifier = Modifier
             .size(34.dp)
