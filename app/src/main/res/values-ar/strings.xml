@@ -460,4 +460,13 @@
  <string name="chat_error_fallback">حدث خطأ</string>
  <string name="chat_time_now">الآن</string>
 
+
+ <string name="chat_error_load_history">تعذر تحميل المحادثة.</string>
+ <string name="chat_error_create_conversation">تعذر بدء المحادثة.</string>
+ <string name="chat_error_process_file">تعذر معالجة الملف.</string>
+ <string name="chat_error_upload_file">تعذر رفع الملف: %1$s</string>
+ <string name="chat_error_read_file">تعذر قراءة الملف.</string>
+ <string name="chat_error_save_feedback">تعذر حفظ التقييم.</string>
+ <string name="chat_error_report_message">تعذر الإبلاغ عن الرسالة.</string>
+
 </resources>
