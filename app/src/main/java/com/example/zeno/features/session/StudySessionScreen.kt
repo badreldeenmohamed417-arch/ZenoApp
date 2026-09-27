@@ -35,7 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.zeno.R
 import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
-import com.example.zeno.data.local.UserManager
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -45,7 +44,6 @@ fun StudySessionScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val userManager = remember { UserManager(context) }
     val sessionState by StudySessionService.sessionState.collectAsStateWithLifecycle()
     var showExitDialog by remember { mutableStateOf(false) }
     var showChatSheet by remember { mutableStateOf(false) }
@@ -105,7 +103,7 @@ fun StudySessionScreen(
 
     Box(modifier = Modifier.fillMaxSize().background(AppColors.BG)) {
         when (sessionState.phase) {
-            SessionPhase.IDLE -> SessionSetupView(context, userManager, handleBack)
+            SessionPhase.IDLE -> SessionSetupView(context, handleBack)
             SessionPhase.STUDYING -> SessionActiveView(context, sessionState, handleBack, onAskZeno = { showChatSheet = true })
             SessionPhase.BREAK -> SessionBreakView(context, sessionState)
             // Summary will be another state or just a different view here
@@ -114,7 +112,7 @@ fun StudySessionScreen(
 }
 
 @Composable
-fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> Unit) {
+fun SessionSetupView(context: Context, onBack: () -> Unit) {
     var selectedSubjectName by remember { mutableStateOf<String?>(null) }
     var selectedDuration by remember { mutableIntStateOf(25) }
     var selectedSound by remember { mutableStateOf("none") }
