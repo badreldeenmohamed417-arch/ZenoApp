@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -907,21 +908,21 @@ fun ChatScreen(
 
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        // Circular Send Button
+                        // Circular Send / Stop Button
                         val hasInput = inputText.trim().isNotBlank()
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
-                                .bounceClickable(enabled = hasInput) {
-                                    if (inputText.trim().isNotBlank() && !isTyping) {
+                                .background(if (isTyping) AppColors.SurfaceVariant2 else if (hasInput) LimeAccent else AppColors.SurfaceVariant2)
+                                .bounceClickable(enabled = isTyping || hasInput) {
+                                    if (isTyping) {
+                                        viewModel.stopGeneration()
+                                    } else if (inputText.trim().isNotBlank()) {
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
-                                        
                                         val intentStr = if (selectedActionChip?.title == stringResource(R.string.chat_action_quiz_title)) "[intent: CREATE_TEST]" else if (selectedActionChip?.title == stringResource(R.string.chat_action_handout_title)) "[intent: CREATE_HANDOUT]" else null
                                         val textToSend = inputText.trim()
-                                        
                                         selectedActionChip = null
                                         viewModel.sendMessage(textToSend, intentStr)
                                         inputText = ""
@@ -930,11 +931,12 @@ fun ChatScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                imageVector = if (isTyping) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send,
                                 contentDescription = null,
-                                tint = if (hasInput) AppColors.AccentInk else AppColors.TextMuted,
+                                tint = if (isTyping) TextWhite else if (hasInput) AppColors.AccentInk else AppColors.TextMuted,
                                 modifier = Modifier.size(20.dp)
                             )
+                        }
                         }
                     }
                 }
