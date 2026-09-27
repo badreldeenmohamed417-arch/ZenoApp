@@ -668,9 +668,9 @@ fun ChatScreen(
                                 val isQuizAllowed = isPro && availableTokens >= 50
                                 val isHandoutAllowed = isPro && availableTokens >= 100
 
-                                val quizTitle = stringResource(R.string.chat_action_quiz_title)
+                                val quizTitle = context.getString(R.string.chat_action_quiz_title)
                                 val quizPrompt = stringResource(R.string.auto_str_أنشئ_اختبار_تفاعلي)
-                                val handoutTitle = stringResource(R.string.chat_action_handout_title)
+                                val handoutTitle = context.getString(R.string.chat_action_handout_title)
                                 val handoutPrompt = stringResource(R.string.auto_str_قم_بعمل_ملزمة)
                                 val solveTitle = stringResource(R.string.chat_solve_title)
                                 val solvePrompt = stringResource(R.string.chat_solve_prompt) 
@@ -920,7 +920,7 @@ fun ChatScreen(
                                     } else if (inputText.trim().isNotBlank()) {
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
-                                        val intentStr = if (selectedActionChip?.title == stringResource(R.string.chat_action_quiz_title)) "[intent: CREATE_TEST]" else if (selectedActionChip?.title == stringResource(R.string.chat_action_handout_title)) "[intent: CREATE_HANDOUT]" else null
+                                        val intentStr = if (selectedActionChip?.title == context.getString(R.string.chat_action_quiz_title)) "[intent: CREATE_TEST]" else if (selectedActionChip?.title == context.getString(R.string.chat_action_handout_title)) "[intent: CREATE_HANDOUT]" else null
                                         val textToSend = inputText.trim()
                                         selectedActionChip = null
                                         viewModel.sendMessage(textToSend, intentStr)
@@ -947,9 +947,9 @@ fun ChatScreen(
                         if (selectedReportReason.isNotBlank()) {
                             viewModel.reportMessage(msg.id, selectedReportReason) { success, error ->
                                 if (success) {
-                                    Toast.makeText(context, stringResource(R.string.chat_report_success), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.chat_report_success), Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, error ?: stringResource(R.string.chat_error_fallback), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, error ?: context.getString(R.string.chat_error_fallback), Toast.LENGTH_SHORT).show()
                                 }
                             }
                             messageToReport = null
@@ -1034,7 +1034,7 @@ fun StyledChatBubble(
                             text = if (message.isUpgradeRequired) {
                                 stringResource(R.string.chat_error_upgrade_required)
                             } else {
-                                stringResource(R.string.chat_error_generic, message.text.ifBlank { stringResource(R.string.chat_error_fallback) })
+                                stringResource(R.string.chat_error_generic, message.text.ifBlank { context.getString(R.string.chat_error_fallback) })
                             },
                             fontSize = 13.sp,
                             color = Color(0xFFFCA5A5),
