@@ -1,396 +1,248 @@
 package com.example.zeno.features.home.presentation
 
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Whatshot
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.zeno.R
+import com.example.zeno.core.theme.Emerald300
+import com.example.zeno.core.theme.Emerald500
+import com.example.zeno.core.theme.Emerald700
+import com.example.zeno.core.ui.components.ZenoGlassCard
+import com.example.zeno.core.ui.modifiers.animatedGradientBackground
 import com.example.zeno.core.ui.modifiers.bounceClickable
 
-import com.example.zeno.data.AppColors
-
-private val DarkBG: Color @Composable get() = AppColors.BG
-private val CardBG: Color @Composable get() = AppColors.CardBG
-private val CardBorder: Color @Composable get() = AppColors.CardBorder
-private val LimeAccent: Color @Composable get() = AppColors.LimeAccent
-private val TextWhite: Color @Composable get() = AppColors.TextWhite
-private val TextMuted: Color @Composable get() = AppColors.TextMuted
+import com.example.zeno.features.home.presentation.HomeViewModel
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel,
-    onStartSession: () -> Unit = {},
-    onOpenChat: () -> Unit = {},
-    onUpgrade: () -> Unit = {}
-) {
+fun HomeScreen(viewModel: HomeViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadDashboard()
-    }
-    val homeData = (uiState as? HomeUiState.Success)?.data
-
-    val streakDays = homeData?.streak ?: 0
-    val minutesToday = homeData?.minutesToday ?: 0
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBG)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState)
-            .padding(horizontal = 20.dp, vertical = 24.dp)
+            .padding(24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.home_greeting),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextWhite
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = homeData?.date?.takeIf { it.isNotBlank() } ?: stringResource(R.string.home_subtitle),
-            fontSize = 13.sp,
-            color = TextMuted
-        )
-
-        val todayProgress = homeData?.todayProgress
-        val plannedMinutes = todayProgress?.plannedMinutes ?: 0
-        val completedMinutes = todayProgress?.completedMinutes ?: minutesToday
-        val completedSessions = todayProgress?.completedSessions ?: 0
-        val totalSessions = todayProgress?.totalSessions ?: 0
-        val progress = if (plannedMinutes > 0) {
-            (completedMinutes.toFloat() / plannedMinutes.toFloat()).coerceIn(0f, 1f)
-        } else 0f
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(22.dp))
-                .background(CardBG)
-                .border(1.dp, CardBorder, RoundedCornerShape(22.dp))
-                .padding(20.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.home_today_title),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Text(
-                        text = if (plannedMinutes > 0) {
-                            stringResource(R.string.home_today_progress, completedMinutes, plannedMinutes)
-                        } else {
-                            stringResource(R.string.home_today_no_plan)
-                        },
-                        fontSize = 13.sp,
-                        color = TextMuted
-                    )
-                }
-                Text(
-                    text = "${(progress * 100).toInt()}%",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LimeAccent
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth().height(9.dp).clip(CircleShape),
-                color = LimeAccent,
-                trackColor = Color(0xFF2B2E38)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.home_sessions_done, completedSessions, totalSessions),
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-                Text(
-                    text = stringResource(R.string.home_minutes_today, completedMinutes),
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(LimeAccent)
-                    .bounceClickable { onStartSession() },
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.PlayArrow, null, tint = Color.Black, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.home_start_session),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                }
-            }
-        }
-
-        homeData?.nextSession?.let { next ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(CardBG)
-                    .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
-                    .padding(18.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.home_next_session),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LimeAccent
-                )
-                Spacer(modifier = Modifier.height(7.dp))
-                Text(
-                    text = next.title?.takeIf { it.isNotBlank() }
-                        ?: stringResource(R.string.home_next_session_fallback),
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${next.subjectId} • ${next.topicId}",
-                    fontSize = 12.sp,
-                    color = TextMuted
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                TextButton(onClick = onStartSession) {
-                    Icon(Icons.Default.PlayArrow, null, tint = LimeAccent, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = stringResource(R.string.home_continue),
-                        color = LimeAccent,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-
-        val weakTopics = homeData?.weakTopics.orEmpty()
-        if (weakTopics.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = stringResource(R.string.home_weak_topics),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.home_weak_topics_subtitle),
-                fontSize = 12.sp,
-                color = TextMuted
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            weakTopics.take(3).forEach { topic ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 5.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(CardBG)
-                        .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
-                        .padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = topic.topicId,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextWhite
-                        )
-                        Text(
-                            text = stringResource(R.string.home_mastery_percent, (topic.mastery * 100).toInt()),
-                            fontSize = 12.sp,
-                            color = TextMuted
-                        )
-                    }
-                    TextButton(onClick = onOpenChat) {
-                        Text(
-                            text = stringResource(R.string.home_ask_zeno),
-                            color = LimeAccent,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = stringResource(R.string.home_quick_actions),
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextWhite
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-
+        // Top Bar / Welcome Section
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(CardBG)
-                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .clickable { onOpenChat() }
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Icon(Icons.Default.ChatBubbleOutline, null, tint = LimeAccent, modifier = Modifier.size(23.dp))
-                    Spacer(modifier = Modifier.height(9.dp))
-                    Text(
-                        text = stringResource(R.string.home_ask_zeno),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Text(
-                        text = stringResource(R.string.home_ask_zeno_subtitle),
-                        fontSize = 11.sp,
-                        color = TextMuted
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(CardBG)
-                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .clickable { onStartSession() }
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Icon(Icons.Default.AutoAwesome, null, tint = LimeAccent, modifier = Modifier.size(23.dp))
-                    Spacer(modifier = Modifier.height(9.dp))
-                    Text(
-                        text = stringResource(R.string.home_practice),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Text(
-                        text = stringResource(R.string.home_practice_subtitle),
-                        fontSize = 11.sp,
-                        color = TextMuted
-                    )
-                }
-            }
-        }
-
-    
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(CardBG)
-                .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
-                .padding(15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Whatshot, contentDescription = null, tint = LimeAccent, modifier = Modifier.size(22.dp))
-            Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
-                    text = "${streakDays} ${stringResource(R.string.home_streak)}",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    text = stringResource(id = R.string.home_greeting),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = if (completedMinutes > 0) stringResource(R.string.home_streak_goal_reached)
-                    else stringResource(R.string.home_streak_start),
-                    fontSize = 11.sp,
-                    color = TextMuted
+                    text = "Ahmed", // Hardcoded for preview
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
-        }
-
-        if (homeData?.isLimitReached == true) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(LimeAccent)
-                    .bounceClickable { onUpgrade() }
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Friends Icon
+                IconButton(
+                    onClick = { /* TODO: Use navController to navigate to friends */ },
+                    modifier = Modifier.padding(end = 12.dp)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.home_upgrade_pro_title),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Text(
-                            text = stringResource(R.string.home_upgrade_pro_subtitle),
-                            fontSize = 12.sp,
-                            color = Color.Black.copy(alpha = 0.8f)
-                        )
-                    }
-                    Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.Black, modifier = Modifier.size(22.dp))
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Friends",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Streak Badge (Premium Animated Gradient)
+                Box(
+                    modifier = Modifier
+                        .shadow(16.dp, RoundedCornerShape(16.dp), spotColor = Emerald500)
+                        .clip(RoundedCornerShape(16.dp))
+                        .animatedGradientBackground(listOf(Emerald300, Emerald500, Emerald700))
+                        .bounceClickable { /* TODO: Show streak details */ }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.home_streak, 5),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Next Session Card (Zeno Glass Card)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(24.dp, RoundedCornerShape(24.dp), spotColor = Emerald700, ambientColor = Emerald500)
+                .clip(RoundedCornerShape(24.dp))
+                .animatedGradientBackground(listOf(Emerald700, Emerald500))
+        ) {
+            ZenoGlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                cornerRadius = 24.dp
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.home_next_session_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Physics — Newton's Laws",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    // Action Button
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .bounceClickable { /* TODO: Start Session */ },
+                        color = Color.White,
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = Emerald700,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(id = R.string.home_next_session_action),
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                color = Emerald700
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(40.dp))
+        
+        // Daily Progress
+        Text(
+            text = stringResource(id = R.string.home_daily_goal),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Card(
+            modifier = Modifier.fillMaxWidth().bounceClickable {  },
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Daily XP",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = stringResource(id = R.string.home_daily_progress, 150, 300),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                LinearProgressIndicator(
+                    progress = { 0.5f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                        .clip(CircleShape),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        // Recent Topics section
+        Text(
+            text = stringResource(id = R.string.home_recent_topics),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TopicCard(title = "Calculus", subtitle = "Derivatives", modifier = Modifier.weight(1f))
+            TopicCard(title = "Chemistry", subtitle = "Organic", modifier = Modifier.weight(1f))
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
     }
+}
+
+@Composable
+fun TopicCard(title: String, subtitle: String, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.bounceClickable {  },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
