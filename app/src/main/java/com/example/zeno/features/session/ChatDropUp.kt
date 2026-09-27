@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
 import com.example.zeno.core.widgets.ChatBubble
-import com.example.zeno.features.chat.data.dto.MessageResponse
+import com.example.zeno.data.model.server.MessageResponse
 import com.example.zeno.data.AppColors
 import com.example.zeno.features.chat.data.repository.ChatRepository
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ fun ChatDropUp(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = "")) }
+            items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, conversationId = currentId ?: "", role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = "")) }
             if (sending) item { Text(stringResource(R.string.chat_status_thinking), color = AppColors.TextMuted) }
         }
         Row(
