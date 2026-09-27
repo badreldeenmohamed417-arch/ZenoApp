@@ -17,7 +17,8 @@ if (localPropertiesFile.exists()) {
 }
 
 val googleClientId = localProperties.getProperty("GOOGLE_CLIENT_ID")
-    ?: error("GOOGLE_CLIENT_ID is missing from local.properties")
+    ?: System.getenv("GOOGLE_CLIENT_ID")
+    ?: ""
 
 android {
     namespace = "com.example.zeno"
@@ -59,8 +60,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Uncomment the line below after you create the keystore file and add details to local.properties
-            // signingConfig = signingConfigs.getByName("release")
+            if (providers.gradleProperty("testRelease").orNull == "true") {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 
