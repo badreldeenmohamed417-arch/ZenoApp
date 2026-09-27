@@ -30,13 +30,6 @@ import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.outlined.ThumbDown
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material3.Icon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
@@ -76,25 +69,25 @@ fun ZenoMessageActions(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        EmojiActionButton(icon = Icons.Outlined.ContentCopy, contentDescription = "Copy", reaction = false) {
+        IconActionButton(icon = Icons.Outlined.ContentCopy, contentDescription = null, reaction = false) {
             clipboardManager.setText(AnnotatedString(withZenoAttribution(context, text)))
             Toast.makeText(context, context.getString(R.string.chat_copied_toast), Toast.LENGTH_SHORT).show()
         }
-        EmojiActionButton(icon = Icons.Outlined.Share, contentDescription = "Share", reaction = false) {
+        EmojiActionButton(icon = Icons.Outlined.Share, contentDescription = null, reaction = false) {
             shareFromZeno(context, text)
         }
-        EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = "Like", reaction = reaction == LIKE) {
+        EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = null, reaction = reaction == LIKE) {
             val next = if (reaction == LIKE) NO_REACTION else LIKE
             reaction = next
             onLike?.invoke()
         }
-        EmojiActionButton(icon = Icons.Outlined.ThumbDown, contentDescription = "Dislike", reaction = reaction == DISLIKE) {
+        EmojiActionButton(icon = Icons.Outlined.ThumbDown, contentDescription = null, reaction = reaction == DISLIKE) {
             val next = if (reaction == DISLIKE) NO_REACTION else DISLIKE
             reaction = next
             onDislike?.invoke()
         }
         if (onMore != null) {
-            EmojiActionButton(icon = Icons.Outlined.MoreHoriz, contentDescription = "More", reaction = false, onClick = onMore)
+            EmojiActionButton(icon = Icons.Outlined.MoreHoriz, contentDescription = null, reaction = false, onClick = onMore)
         }
     }
 }
