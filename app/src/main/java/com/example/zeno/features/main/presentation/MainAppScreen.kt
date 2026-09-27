@@ -160,6 +160,7 @@ fun MainAppScreen(
                 HomeScreen(
                     viewModel = homeViewModel,
                     onStartSession = { navigateToTab(BottomNavItem.Sessions.route) },
+                    onOpenChat = { navigateToTab(BottomNavItem.Chat.route) },
                     onUpgrade = { navigateToTab(BottomNavItem.Upgrade.route) }
                 )
             }
