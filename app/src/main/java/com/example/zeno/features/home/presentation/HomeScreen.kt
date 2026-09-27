@@ -14,6 +14,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,6 +46,7 @@ private val TextMuted: Color @Composable get() = AppColors.TextMuted
 fun HomeScreen(
     viewModel: HomeViewModel,
     onStartSession: () -> Unit = {},
+    onOpenChat: () -> Unit = {},
     onUpgrade: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -66,6 +70,7 @@ fun HomeScreen(
         mutableStateOf(todayPlan.filter { it.isCompleted }.map { it.id }.toSet())
     }
 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,459 +78,350 @@ fun HomeScreen(
             .verticalScroll(scrollState)
             .padding(horizontal = 20.dp, vertical = 24.dp)
     ) {
-        // Top Header
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val rawGreeting = homeData?.greeting?.trim()
-                val greetingText = stringResource(R.string.home_greeting)
-                Text(
-                    text = greetingText,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.home_subtitle),
-                fontSize = 13.sp,
-                color = TextMuted
-            )
-        }
+        Text(
+            text = stringResource(R.string.home_greeting),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextWhite
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = homeData?.date?.takeIf { it.isNotBlank() } ?: stringResource(R.string.home_subtitle),
+            fontSize = 13.sp,
+            color = TextMuted
+        )
+
+        val todayProgress = homeData?.todayProgress
+        val plannedMinutes = todayProgress?.plannedMinutes ?: 0
+        val completedMinutes = todayProgress?.completedMinutes ?: minutesToday
+        val completedSessions = todayProgress?.completedSessions ?: 0
+        val totalSessions = todayProgress?.totalSessions ?: 0
+        val progress = if (plannedMinutes > 0) {
+            (completedMinutes.toFloat() / plannedMinutes.toFloat()).coerceIn(0f, 1f)
+        } else 0f
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Streak Gauge Card
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(22.dp))
                 .background(CardBG)
-                .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
+                .border(1.dp, CardBorder, RoundedCornerShape(22.dp))
                 .padding(20.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                val dailyGoalStr2 = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
-                val dailyGoalMin2 = dailyGoalStr2.toIntOrNull() ?: 60
-                
-                val streakText = if (minutesToday == 0) stringResource(R.string.home_streak_start)
-                                 else if (minutesToday < dailyGoalMin2) stringResource(R.string.home_streak_keep_going)
-                                 else stringResource(R.string.home_streak_goal_reached)
-                                 
-                val progressPercent = if (dailyGoalMin2 > 0) ((minutesToday.toFloat() / dailyGoalMin2.toFloat()) * 100).toInt().coerceAtMost(100) else 0
-
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "$streakDays ${stringResource(R.string.home_streak)}",
+                        text = stringResource(R.string.home_today_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextWhite
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = streakText,
+                        text = if (plannedMinutes > 0) {
+                            stringResource(R.string.home_today_progress, completedMinutes, plannedMinutes)
+                        } else {
+                            stringResource(R.string.home_today_no_plan)
+                        },
                         fontSize = 13.sp,
                         color = TextMuted
                     )
                 }
-
-                val activeLime = AppColors.Accent
-                // Arc Progress Ring
-                Box(
-                    modifier = Modifier.size(64.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        drawArc(
-                            color = Color(0xFF2C2F38),
-                            startAngle = -90f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            style = Stroke(width = 12f)
-                        )
-                        val sweep = if (minutesToday == 0) 0f else (minutesToday.toFloat() / dailyGoalMin2.toFloat() * 360f).coerceAtMost(360f)
-                        drawArc(
-                            color = activeLime,
-                            startAngle = -90f,
-                            sweepAngle = sweep,
-                            useCenter = false,
-                            style = Stroke(width = 12f, cap = StrokeCap.Round)
-                        )
-                    }
-                    Text(
-                        text = "$progressPercent%",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // Quick Stats Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            // Stats 1
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(CardBG)
-                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$minutesToday",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.focusMinutes),
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
-                }
+                Text(
+                    text = "${(progress * 100).toInt()}%",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LimeAccent
+                )
             }
 
-            // Stats 2
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(CardBG)
-                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$questionsAsked",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.questionsToZeno),
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Weekly Study Time Chart Section
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(CardBG)
-                .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
-                .padding(20.dp)
-        ) {
+            Spacer(modifier = Modifier.height(14.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier.fillMaxWidth().height(9.dp).clip(CircleShape),
+                color = LimeAccent,
+                trackColor = Color(0xFF2B2E38)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.home_weekly_activity),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextWhite
+                    text = stringResource(R.string.home_sessions_done, completedSessions, totalSessions),
+                    fontSize = 12.sp,
+                    color = TextMuted
                 )
                 Text(
-                    text = stringResource(R.string.home_daily_progress),
+                    text = stringResource(R.string.home_minutes_today, completedMinutes),
                     fontSize = 12.sp,
                     color = TextMuted
                 )
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Bar Chart
-            Row(
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(LimeAccent)
+                    .bounceClickable { onStartSession() },
+                contentAlignment = Alignment.Center
             ) {
-
-                val daysOrder = listOf(stringResource(id = R.string.auto_str_س), stringResource(id = R.string.auto_str_ح), stringResource(id = R.string.auto_str_ن), stringResource(id = R.string.auto_str_ث), stringResource(id = R.string.auto_str_ر), stringResource(id = R.string.auto_str_خ), stringResource(id = R.string.auto_str_ج))
-                val maxVal = (weeklyData.values.maxOrNull() ?: 50).coerceAtLeast(1)
-                
-                // Extract daily goal in minutes
-                val dailyGoalStr = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
-                val dailyGoalMin = dailyGoalStr.toIntOrNull() ?: 60
-
-                // Get current day index
-                val calendar = java.util.Calendar.getInstance()
-                val currentDayStr = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
-                    java.util.Calendar.SATURDAY -> stringResource(id = R.string.auto_str_س)
-                    java.util.Calendar.SUNDAY -> stringResource(id = R.string.auto_str_ح)
-                    java.util.Calendar.MONDAY -> stringResource(id = R.string.auto_str_ن)
-                    java.util.Calendar.TUESDAY -> stringResource(id = R.string.auto_str_ث)
-                    java.util.Calendar.WEDNESDAY -> stringResource(id = R.string.auto_str_ر)
-                    java.util.Calendar.THURSDAY -> stringResource(id = R.string.auto_str_خ)
-                    java.util.Calendar.FRIDAY -> stringResource(id = R.string.auto_str_ج)
-                    else -> ""
-                }
-
-                daysOrder.forEach { day ->
-                    val value = weeklyData[day] ?: 0
-                    val heightRatio = if (maxVal > 0) (value.toFloat() / maxVal.toFloat()).coerceIn(0.15f, 1f) else 0.15f
-                    val isToday = day == currentDayStr
-                    
-                    val barColor = if (value == 0) {
-                        if (isToday) Color.Green else Color(0xFF2B2E38)
-                    } else {
-                        if (value < dailyGoalMin / 3) Color.Red
-                        else if (value < dailyGoalMin * 0.8f) Color.Yellow
-                        else if (value <= dailyGoalMin * 1.2f) Color.Blue
-                        else Color(0xFFFFD700) // Golden
-                    }
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        Box(contentAlignment = Alignment.TopCenter) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(top = if (isToday && value > dailyGoalMin * 1.2f) 10.dp else 0.dp)
-                                    .width(28.dp)
-                                    .fillMaxHeight(heightRatio)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(barColor)
-                            )
-                            if (isToday && value > dailyGoalMin * 1.2f) {
-                                Text(text = "⭐", fontSize = 12.sp, modifier = Modifier.offset(y = (-10).dp))
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = day,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextMuted
-                        )
-                    }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.PlayArrow, null, tint = Color.Black, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.home_start_session),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Subject Mastery Level Section
-        if (subjects.isNotEmpty()) {
+        homeData?.nextSession?.let { next ->
+            Spacer(modifier = Modifier.height(16.dp))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))
                     .background(CardBG)
                     .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                    .padding(18.dp)
             ) {
+                Text(
+                    text = stringResource(R.string.home_next_session),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = LimeAccent
+                )
+                Spacer(modifier = Modifier.height(7.dp))
+                Text(
+                    text = next.title?.takeIf { it.isNotBlank() }
+                        ?: stringResource(R.string.home_next_session_fallback),
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextWhite
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${next.subjectId} • ${next.topicId}",
+                    fontSize = 12.sp,
+                    color = TextMuted
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(onClick = onStartSession) {
+                    Icon(Icons.Default.PlayArrow, null, tint = LimeAccent, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = stringResource(R.string.home_continue),
+                        color = LimeAccent,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        val weakTopics = homeData?.weakTopics.orEmpty()
+        if (weakTopics.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = stringResource(R.string.home_weak_topics),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextWhite
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.home_weak_topics_subtitle),
+                fontSize = 12.sp,
+                color = TextMuted
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            weakTopics.take(3).forEach { topic ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(CardBG)
+                        .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+                        .padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = topic.topicId,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
+                        Text(
+                            text = stringResource(R.string.home_mastery_percent, (topic.mastery * 100).toInt()),
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                    TextButton(onClick = onOpenChat) {
+                        Text(
+                            text = stringResource(R.string.home_ask_zeno),
+                            color = LimeAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = stringResource(R.string.home_quick_actions),
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextWhite
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBG)
+                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
+                    .clickable { onOpenChat() }
+                    .padding(16.dp)
+            ) {
+                Column {
+                    Icon(Icons.Default.ChatBubbleOutline, null, tint = LimeAccent, modifier = Modifier.size(23.dp))
+                    Spacer(modifier = Modifier.height(9.dp))
                     Text(
-                        text = stringResource(R.string.home_subject_mastery),
-                        fontSize = 16.sp,
+                        text = stringResource(R.string.home_ask_zeno),
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextWhite
                     )
                     Text(
-                        text = stringResource(R.string.ok_button),
-                        fontSize = 12.sp,
+                        text = stringResource(R.string.home_ask_zeno_subtitle),
+                        fontSize = 11.sp,
                         color = TextMuted
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val colors = listOf(
-                    LimeAccent,
-                    Color(0xFF5CE29A),
-                    Color(0xFF60A5FA),
-                    Color(0xFFFB923C)
-                )
-
-                subjects.forEachIndexed { index, item ->
-                    val barColor = colors[index % colors.size]
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "${item.percentage}%",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextMuted
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = item.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextWhite
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(barColor)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        LinearProgressIndicator(
-                            progress = { item.percentage.toFloat() / 100f },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .clip(CircleShape),
-                            color = barColor,
-                            trackColor = Color(0xFF2B2E38)
-                        )
-                    }
-                    if (index < subjects.size - 1) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                    }
-                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // Today's Plan Checklist Section
-        if (todayPlan.isNotEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(CardBG)
+                    .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
+                    .clickable { onStartSession() }
+                    .padding(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Column {
+                    Icon(Icons.Default.AutoAwesome, null, tint = LimeAccent, modifier = Modifier.size(23.dp))
+                    Spacer(modifier = Modifier.height(9.dp))
                     Text(
-                        text = stringResource(R.string.home_daily_checklist),
-                        fontSize = 16.sp,
+                        text = stringResource(R.string.home_practice),
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextWhite
                     )
                     Text(
-                        text = stringResource(R.string.chat_menu_edit),
-                        fontSize = 12.sp,
-                        color = TextMuted,
-                        modifier = Modifier.clickable { onStartSession() }
+                        text = stringResource(R.string.home_practice_subtitle),
+                        fontSize = 11.sp,
+                        color = TextMuted
                     )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                todayPlan.forEach { planItem ->
-                    val isChecked = completedPlanIds.contains(planItem.id)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(CardBG)
-                            .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
-                            .clickable {
-                                completedPlanIds = if (isChecked) {
-                                    completedPlanIds - planItem.id
-                                } else {
-                                    completedPlanIds + planItem.id
-                                }
-                            }
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (isChecked) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = LimeAccent,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Outlined.Circle,
-                                    contentDescription = null,
-                                    tint = TextMuted,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = planItem.subject,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isChecked) TextMuted else TextWhite
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                text = planItem.time,
-                                fontSize = 12.sp,
-                                color = TextMuted
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
-        // Primary CTA Button
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(LimeAccent)
-                .bounceClickable { onStartSession() },
-            contentAlignment = Alignment.Center
-        ) {
+        if (todayPlan.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(22.dp))
             Text(
-                text = stringResource(R.string.home_start_session),
-                fontSize = 16.sp,
+                text = stringResource(R.string.home_daily_checklist),
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = TextWhite
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            todayPlan.take(4).forEach { planItem ->
+                val isChecked = completedPlanIds.contains(planItem.id)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(CardBG)
+                        .border(1.dp, CardBorder, RoundedCornerShape(15.dp))
+                        .clickable {
+                            completedPlanIds = if (isChecked) completedPlanIds - planItem.id
+                            else completedPlanIds + planItem.id
+                        }
+                        .padding(horizontal = 14.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isChecked) Icons.Default.CheckCircle else Icons.Outlined.Circle,
+                        contentDescription = null,
+                        tint = if (isChecked) LimeAccent else TextMuted,
+                        modifier = Modifier.size(21.dp)
+                    )
+                    Spacer(modifier = Modifier.width(11.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = planItem.subject,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isChecked) TextMuted else TextWhite
+                        )
+                        Text(text = planItem.time, fontSize = 11.sp, color = TextMuted)
+                    }
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(CardBG)
+                .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+                .padding(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "🔥", fontSize = 22.sp)
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(
+                    text = "${streakDays} ${stringResource(R.string.home_streak)}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextWhite
+                )
+                Text(
+                    text = if (completedMinutes > 0) stringResource(R.string.home_streak_goal_reached)
+                    else stringResource(R.string.home_streak_start),
+                    fontSize = 11.sp,
+                    color = TextMuted
+                )
+            }
+        }
 
-        // Upgrade Banner
         if (homeData?.isLimitReached == true) {
+            Spacer(modifier = Modifier.height(16.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -536,35 +432,25 @@ fun HomeScreen(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp)
-                    )
-
-                    Column(
-                        horizontalAlignment = Alignment.Start,
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = stringResource(R.string.home_upgrade_pro_title),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = stringResource(R.string.home_upgrade_pro_subtitle),
                             fontSize = 12.sp,
                             color = Color.Black.copy(alpha = 0.8f)
                         )
                     }
+                    Text(text = "→", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
-}
