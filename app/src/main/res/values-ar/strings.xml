@@ -421,7 +421,8 @@
  <string name="home_streak_start">ابدأ أول جلسة مذاكرة اليوم!</string>
  <string name="home_streak_keep_going">استمر كده متوقفش!</string>
  <string name="home_streak_goal_reached">عاش! لقد حققت هدف اليوم </string>
-    <string name="zeno_attribution">✨ تم إنشاؤه بواسطة Zeno</string>\n    <string name="chat_share">مشاركة</string>
+    <string name="zeno_attribution">تم إنشاؤه بواسطة Zeno</string>
+    <string name="chat_share">مشاركة</string>
 
  <string name="home_today_title">مهمتك النهارده</string>
  <string name="home_today_progress">أنجزت %1$d من %2$d دقيقة</string>
@@ -444,6 +445,7 @@
  <string name="chat_status_searching_books">جاري البحث في كتبك...</string>
  <string name="chat_status_understanding">جاري فهم سؤالك...</string>
  <string name="chat_status_building_answer">جاري تجهيز إجابتك...</string>
+ <string name="chat_status_thinking">جاري التفكير...</string>
  <string name="chat_solve_title">حل بدقة</string>
  <string name="chat_solve_prompt">حل السؤال خطوة بخطوة باستخدام القوانين المناسبة في الفيزياء أو الرياضيات، واستخدم LaTeX للمعادلات:</string>
  <string name="chat_solve_label">فيزياء / رياضيات</string>
