@@ -58,18 +58,7 @@ fun HomeScreen(
     val homeData = (uiState as? HomeUiState.Success)?.data
 
     val streakDays = homeData?.streak ?: 0
-    val questionsAsked = homeData?.questionsAskedToday ?: 0
     val minutesToday = homeData?.minutesToday ?: 0
-    val weeklyData = homeData?.weeklyStudyTime ?: mapOf(
-        stringResource(id = R.string.auto_str_س) to 0, stringResource(id = R.string.auto_str_ح) to 0, stringResource(id = R.string.auto_str_ن) to 0, stringResource(id = R.string.auto_str_ث) to 0, stringResource(id = R.string.auto_str_ر) to 0, stringResource(id = R.string.auto_str_خ) to 0, stringResource(id = R.string.auto_str_ج) to 0
-    )
-    val subjects = homeData?.subjectMastery ?: emptyList()
-    val todayPlan = homeData?.todayPlan ?: emptyList()
-
-    var completedPlanIds by remember(todayPlan) {
-        mutableStateOf(todayPlan.filter { it.isCompleted }.map { it.id }.toSet())
-    }
-
 
     Column(
         modifier = Modifier
@@ -347,51 +336,7 @@ fun HomeScreen(
             }
         }
 
-        if (todayPlan.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(22.dp))
-            Text(
-                text = stringResource(R.string.home_daily_checklist),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextWhite
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            todayPlan.take(4).forEach { planItem ->
-                val isChecked = completedPlanIds.contains(planItem.id)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(CardBG)
-                        .border(1.dp, CardBorder, RoundedCornerShape(15.dp))
-                        .clickable {
-                            completedPlanIds = if (isChecked) completedPlanIds - planItem.id
-                            else completedPlanIds + planItem.id
-                        }
-                        .padding(horizontal = 14.dp, vertical = 13.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = if (isChecked) Icons.Default.CheckCircle else Icons.Outlined.Circle,
-                        contentDescription = null,
-                        tint = if (isChecked) LimeAccent else TextMuted,
-                        modifier = Modifier.size(21.dp)
-                    )
-                    Spacer(modifier = Modifier.width(11.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = planItem.subject,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isChecked) TextMuted else TextWhite
-                        )
-                        Text(text = planItem.time, fontSize = 11.sp, color = TextMuted)
-                    }
-                }
-            }
-        }
-
+    
         Spacer(modifier = Modifier.height(20.dp))
         Row(
             modifier = Modifier
