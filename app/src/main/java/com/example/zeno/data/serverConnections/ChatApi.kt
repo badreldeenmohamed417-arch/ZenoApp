@@ -33,7 +33,6 @@ interface ChatApi {
         @Body request: SendMessageRequest
     ): MessageResponse
 
-
     @DELETE("main/chat/conversations/{conversationId}")
     suspend fun deleteConversation(
         @Path("conversationId") conversationId: String
