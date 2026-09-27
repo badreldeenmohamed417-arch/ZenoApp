@@ -422,4 +422,22 @@
  <string name="home_streak_keep_going">استمر كده متوقفش!</string>
  <string name="home_streak_goal_reached">عاش! لقد حققت هدف اليوم </string>
     <string name="zeno_attribution">✨ تم إنشاؤه بواسطة Zeno</string>\n    <string name="chat_share">مشاركة</string>
+
+ <string name="home_today_title">مهمتك النهارده</string>
+ <string name="home_today_progress">أنجزت %1$d من %2$d دقيقة</string>
+ <string name="home_today_no_plan">مفيش هدف مذاكرة محدد لليوم لسه</string>
+ <string name="home_sessions_done">أنجزت %1$d من %2$d جلسة</string>
+ <string name="home_minutes_today">%1$d دقيقة تركيز</string>
+ <string name="home_next_session">كمّل الجلسة الجاية</string>
+ <string name="home_next_session_fallback">جلسة المذاكرة الجاية</string>
+ <string name="home_continue">كمّل</string>
+ <string name="home_weak_topics">نقاط محتاجة تركيز</string>
+ <string name="home_weak_topics_subtitle">حوّل نقاط ضعفك لخطوتك الجاية في المذاكرة.</string>
+ <string name="home_mastery_percent">إتقان %1$d%%</string>
+ <string name="home_ask_zeno">اسأل Zeno</string>
+ <string name="home_ask_zeno_subtitle">شرح أو حل سؤال</string>
+ <string name="home_quick_actions">اختصارات سريعة</string>
+ <string name="home_practice">اتدرّب دلوقتي</string>
+ <string name="home_practice_subtitle">ابدأ جلسة مذاكرة مركزة</string>
+
 </resources>
