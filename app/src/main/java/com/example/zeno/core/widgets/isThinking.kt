@@ -1,6 +1,7 @@
 package com.example.zeno.core
 
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -44,9 +45,25 @@ fun ThinkingIndicator(
                 // الكرة الصغيرة النابضة (Orb)
                 PulsingOrb()
 
+                val transition = rememberInfiniteTransition(label = "researchShimmer")
+                val offset by transition.animateFloat(
+                    initialValue = -180f,
+                    targetValue = 180f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "researchOffset"
+                )
                 Text(
-                    text = stringResource(id = R.string.zeno_thinking_indicator),
-                    color = AppColors.TextMuted,
+                    text = stringResource(R.string.chat_status_searching_books),
+                    style = androidx.compose.ui.text.TextStyle(
+                        brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                            colors = listOf(AppColors.TextMuted, androidx.compose.ui.graphics.Color.Black, AppColors.TextMuted),
+                            start = androidx.compose.ui.geometry.Offset(offset, 0f),
+                            end = androidx.compose.ui.geometry.Offset(offset + 80f, 0f)
+                        )
+                    ),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
 
