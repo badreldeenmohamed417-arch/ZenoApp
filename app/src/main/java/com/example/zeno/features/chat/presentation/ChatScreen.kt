@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
@@ -55,6 +56,8 @@ import com.example.zeno.R
 import com.example.zeno.core.ui.modifiers.bounceClickable
 import com.example.zeno.core.widgets.PdfHandoutCard
 import com.example.zeno.core.widgets.ZenoMarkdownText
+import com.example.zeno.core.widgets.ZenoFormattingToolbar
+import com.example.zeno.core.widgets.ZenoMessageActions
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.domain.ChatMessage
 import kotlinx.coroutines.launch
@@ -605,6 +608,13 @@ fun ChatScreen(
                     }
                 }
 
+                ZenoFormattingToolbar(
+                    text = inputText,
+                    onTextChange = { inputText = it },
+                    onMore = { showActionMenu = true },
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
@@ -870,7 +880,8 @@ fun ChatScreen(
                                 .padding(vertical = 12.dp),
                             textStyle = TextStyle(
                                 color = TextWhite,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                fontFamily = MaterialTheme.typography.bodyLarge.fontFamily
                             ),
                             maxLines = 4,
                             cursorBrush = SolidColor(LimeAccent),
@@ -1010,12 +1021,14 @@ fun StyledChatBubble(
                         .background(LimeAccent)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Text(
-                        text = message.text,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = message.text,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -1097,48 +1110,29 @@ fun StyledChatBubble(
                         } else if (message.text.contains(".pdf", ignoreCase = true) || message.text.contains("notebook_", ignoreCase = true)) {
                             PdfHandoutCard(messageText = message.text)
                         } else {
-                            ZenoMarkdownText(
-                                text = message.text,
-                                color = TextWhite
-                            )
+                            SelectionContainer {
+                                ZenoMarkdownText(
+                                    text = message.text,
+                                    color = TextWhite
+                                )
+                            }
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                             Text(
                                 text = "10:12",
                                 fontSize = 10.sp,
                                 color = TextMuted
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            val copiedToastMsg = stringResource(R.string.chat_copied_toast)
-                            val okBtnMsg = stringResource(R.string.ok_button)
-
-                            Text(
-                                text = stringResource(R.string.chat_copy),
-                                fontSize = 12.sp,
-                                color = TextMuted,
-                                modifier = Modifier
-                                    .clickable {
-                                        clipboardManager.setText(AnnotatedString(message.text))
-                                        Toast.makeText(context, copiedToastMsg, Toast.LENGTH_SHORT).show()
-                                    }
-                                    .padding(4.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = stringResource(R.string.chat_report_error),
-                                fontSize = 12.sp,
-                                color = TextMuted,
-                                modifier = Modifier
-                                    .clickable {
-                                        onReport?.invoke(message)
-                                    }
-                                    .padding(4.dp)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            ZenoMessageActions(
+                                text = message.text,
+                                onMore = { onReport?.invoke(message) }
                             )
                         }
                     }
