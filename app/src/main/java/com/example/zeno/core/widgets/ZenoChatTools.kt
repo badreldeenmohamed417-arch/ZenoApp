@@ -64,6 +64,7 @@ fun ZenoMessageActions(
     text: String,
     modifier: Modifier = Modifier,
     onMore: (() -> Unit)? = null,
+    onFeedback: ((String) -> Unit)? = null,
     onLike: (() -> Unit)? = null,
     onDislike: (() -> Unit)? = null
 ) {
@@ -76,7 +77,7 @@ fun ZenoMessageActions(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        EmojiActionButton(icon = Icons.Outlined.ContentCopy, contentDescription = "Copy", reaction = false) {
+        IconActionButton(icon = Icons.Outlined.ContentCopy, contentDescription = "Copy", reaction = false) {
             clipboardManager.setText(AnnotatedString(withZenoAttribution(context, text)))
             Toast.makeText(context, context.getString(R.string.chat_copied_toast), Toast.LENGTH_SHORT).show()
         }
