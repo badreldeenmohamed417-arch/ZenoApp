@@ -93,6 +93,8 @@ class ChatRepository(
         }
     }
 
+    suspend fun deleteLocalMessage(messageId: String) = withContext(Dispatchers.IO) { chatDao.deleteMessage(messageId) }
+
     suspend fun cacheUserMessage(id: String, messageId: String, content: String) = withContext(Dispatchers.IO) {
         chatDao.insertMessage(MessageEntity(messageId, id, "user", content, System.currentTimeMillis().toString()))
     }
