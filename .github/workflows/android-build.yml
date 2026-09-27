@@ -1,5 +1,9 @@
 name: Android Release
 
+concurrency:
+  group: zeno-android-release
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
