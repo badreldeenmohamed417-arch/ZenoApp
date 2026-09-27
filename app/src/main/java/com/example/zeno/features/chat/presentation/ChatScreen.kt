@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -566,7 +567,7 @@ fun ChatScreen(
                         }
                         if (isTyping) {
                             item {
-                                TypingIndicator()
+                                TypingIndicator(stage = viewModel.progressStage.collectAsState().value)
                             }
                         }
                     }
@@ -1153,7 +1154,7 @@ fun StyledChatBubble(
 }
 
 @Composable
-fun TypingIndicator() {
+fun TypingIndicator(stage: String = "thinking") {
     val transition = rememberInfiniteTransition(label = "zenoResearch")
     val offset by transition.animateFloat(
         initialValue = -220f,
@@ -1170,7 +1171,12 @@ fun TypingIndicator() {
         contentAlignment = Alignment.CenterEnd
     ) {
         Text(
-            text = stringResource(R.string.chat_status_searching_books),
+            text = stringResource(when (stage) {
+                "searching_books" -> R.string.chat_status_searching_books
+                "reading_source" -> R.string.chat_status_understanding
+                "generating_answer" -> R.string.chat_status_building_answer
+                else -> R.string.chat_status_thinking
+            }),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             style = androidx.compose.ui.text.TextStyle(
