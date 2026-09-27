@@ -16,7 +16,7 @@ import com.example.zeno.data.AppColors
 import com.example.zeno.data.model.server.MessageResponse
 
 @Composable
-fun ChatBubble(message: MessageResponse) {
+fun ChatBubble(message: MessageResponse, onFeedback: ((String) -> Unit)? = null) {
     val isUser = message.role == "user"
     val layoutDirection = LocalLayoutDirection.current
     val alignment = if (isUser) {
