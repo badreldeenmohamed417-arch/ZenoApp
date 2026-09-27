@@ -627,5 +627,9 @@ fun AnimatedChatBubble(
         content = displayedText,
         createdAt = msg.createdAt
     )
-    com.example.zeno.core.widgets.ChatBubble(uiMsg)
+    com.example.zeno.core.widgets.ChatBubble(
+        message = uiMsg,
+        onLike = { if (msg.role == "assistant") chatRepository.feedbackMessage(msg.id, "like") },
+        onDislike = { if (msg.role == "assistant") chatRepository.feedbackMessage(msg.id, "dislike") }
+    )
 }
