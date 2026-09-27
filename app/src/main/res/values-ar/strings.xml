@@ -421,4 +421,5 @@
  <string name="home_streak_start">ابدأ أول جلسة مذاكرة اليوم!</string>
  <string name="home_streak_keep_going">استمر كده متوقفش!</string>
  <string name="home_streak_goal_reached">عاش! لقد حققت هدف اليوم </string>
-    <string name="zeno_attribution">✨ تم إنشاؤه بواسطة Zeno</string>\n</resources>
+    <string name="zeno_attribution">✨ تم إنشاؤه بواسطة Zeno</string>\n    <string name="chat_share">مشاركة</string>
+</resources>
