@@ -11,6 +11,10 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import okhttp3.*
 import retrofit2.HttpException
 
@@ -22,6 +26,7 @@ class ChatRepository(
     private val dao = database.chatDao()
     private val gson = Gson()
     private val httpClient = OkHttpClient()
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private suspend fun saveConversationLocal(item: ConversationResponse) {
         dao.insertConversations(
