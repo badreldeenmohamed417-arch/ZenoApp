@@ -1,5 +1,4 @@
-package com.example.zeno.features.session
-
+package com.example.zeno.futures.session
 
 import android.content.Context
 import android.content.Intent
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,7 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.zeno.R
 import com.example.zeno.core.txt
 import com.example.zeno.data.AppColors
-import kotlinx.coroutines.delay
+import com.example.zeno.data.local.UserManager
+import com.example.zeno.data.model.server.Subject
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +42,7 @@ fun StudySessionScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val userManager = remember { UserManager(context) }
     val sessionState by StudySessionService.sessionState.collectAsStateWithLifecycle()
     var showExitDialog by remember { mutableStateOf(false) }
     var showChatSheet by remember { mutableStateOf(false) }
@@ -60,20 +59,20 @@ fun StudySessionScreen(
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = { showExitDialog = false },
-            title = { Text(stringResource(R.string.exitSessionConfirmTitle), fontWeight = FontWeight.Bold) },
-            text = { Text(stringResource(R.string.exitSessionConfirmMessage)) },
+            title = { Text(txt("exitSessionTitle"), fontWeight = FontWeight.Bold) },
+            text = { Text(txt("exitSessionMessage")) },
             confirmButton = {
                 TextButton(onClick = {
                     showExitDialog = false
                     context.startService(Intent(context, StudySessionService::class.java).apply { action = StudySessionService.ACTION_STOP })
                     onBack()
                 }) {
-                    Text(stringResource(R.string.exitSession), color = AppColors.Danger, fontWeight = FontWeight.Bold)
+                    Text(txt("Continue"), color = AppColors.Danger)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showExitDialog = false }) {
-                    Text(stringResource(R.string.cancel_button))
+                    Text(txt("cancel"))
                 }
             },
             containerColor = AppColors.Surface,
@@ -103,7 +102,7 @@ fun StudySessionScreen(
 
     Box(modifier = Modifier.fillMaxSize().background(AppColors.BG)) {
         when (sessionState.phase) {
-            SessionPhase.IDLE -> SessionSetupView(context, handleBack)
+            SessionPhase.IDLE -> SessionSetupView(context, userManager, handleBack)
             SessionPhase.STUDYING -> SessionActiveView(context, sessionState, handleBack, onAskZeno = { showChatSheet = true })
             SessionPhase.BREAK -> SessionBreakView(context, sessionState)
             // Summary will be another state or just a different view here
@@ -112,10 +111,12 @@ fun StudySessionScreen(
 }
 
 @Composable
-fun SessionSetupView(context: Context, onBack: () -> Unit) {
-    var selectedSubjectName by remember { mutableStateOf<String?>(null) }
+fun SessionSetupView(context: Context, userManager: UserManager, onBack: () -> Unit) {
+    var selectedSubject by remember { mutableStateOf<Subject?>(null) }
     var selectedDuration by remember { mutableIntStateOf(25) }
     var selectedSound by remember { mutableStateOf("none") }
+
+    val subjects = remember { userManager.getSubjects() }
 
     Column(
         modifier = Modifier
@@ -125,32 +126,47 @@ fun SessionSetupView(context: Context, onBack: () -> Unit) {
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.newStudySession),
+                text = txt("newStudySession"),
                 fontSize = 23.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = AppColors.TextPrimary
             )
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.Close, contentDescription = null, tint = AppColors.TextMuted)
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(stringResource(R.string.sessionDuration), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
+        Text(txt("whatToStudyToday"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
         Spacer(modifier = Modifier.height(10.dp))
-        val configRepository = com.example.zeno.core.config.data.repository.ConfigRepository(
-            com.example.zeno.core.network.RetrofitClient.createMainServerRetrofit(
-                com.example.zeno.core.network.AuthInterceptor(com.example.zeno.core.data.EncryptedAuthStorageImpl(context)),
-                com.example.zeno.core.network.TokenAuthenticator(com.example.zeno.core.data.EncryptedAuthStorageImpl(context), context, com.example.zeno.core.network.RetrofitClient.MAIN_SERVER_BASE_URL)
-            ).create(com.example.zeno.core.config.data.ConfigApi::class.java)
-        )
-        val config = remember { configRepository.getConfig() }
-        val durations = config?.studyDurations ?: listOf(15, 25, 50)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item {
+                SubjectChip(
+                    name = txt("unspecified"),
+                    isSelected = selectedSubject == null,
+                    onClick = { selectedSubject = null }
+                )
+            }
+            items(subjects) { subject ->
+                SubjectChip(
+                    name = subject.name,
+                    isSelected = selectedSubject?.id == subject.id,
+                    onClick = { selectedSubject = subject }
+                )
+            }
+        }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(txt("sessionDuration"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
+        Spacer(modifier = Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            durations.forEach { duration ->
+            listOf(15, 25, 50).forEach { duration ->
                 DurationChip(
                     minutes = duration,
                     isSelected = selectedDuration == duration,
@@ -162,16 +178,16 @@ fun SessionSetupView(context: Context, onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(stringResource(R.string.focusSound), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
+        Text(txt("focusSound"), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SoundCard("none", Icons.Default.Headphones, stringResource(R.string.noSound), selectedSound == "none", { selectedSound = it }, Modifier.weight(1f))
-                SoundCard("nature", Icons.Default.Park, stringResource(R.string.soundNature), selectedSound == "nature", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("none", "🎧", txt("noSound"), selectedSound == "none", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("rain", "🌧️", txt("soundRain"), selectedSound == "rain", { selectedSound = it }, Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                SoundCard("rain", Icons.Default.WaterDrop, stringResource(R.string.soundRain), selectedSound == "rain", { selectedSound = it }, Modifier.weight(1f))
-                SoundCard("airplane", Icons.Default.AirplanemodeActive, stringResource(R.string.soundAirplane), selectedSound == "airplane", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("cafe", "☕", txt("soundCafe"), selectedSound == "cafe", { selectedSound = it }, Modifier.weight(1f))
+                SoundCard("white_noise", "🌊", txt("soundWhiteNoise"), selectedSound == "white_noise", { selectedSound = it }, Modifier.weight(1f))
             }
         }
 
@@ -183,7 +199,7 @@ fun SessionSetupView(context: Context, onBack: () -> Unit) {
                 val intent = Intent(context, StudySessionService::class.java).apply {
                     action = StudySessionService.ACTION_START
                     putExtra(StudySessionService.EXTRA_DURATION_MINUTES, selectedDuration)
-                    putExtra(StudySessionService.EXTRA_SUBJECT, selectedSubjectName ?: context.getString(R.string.unspecified))
+                    putExtra(StudySessionService.EXTRA_SUBJECT, selectedSubject?.name ?: context.getString(R.string.unspecified))
                     putExtra(StudySessionService.EXTRA_SOUND_ID, selectedSound)
                 }
                 context.startService(intent)
@@ -192,16 +208,30 @@ fun SessionSetupView(context: Context, onBack: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = AppColors.Accent)
         ) {
-            Text(stringResource(R.string.startSession), color = AppColors.AccentInk, fontWeight = FontWeight.Bold)
+            Text(txt("startSession"), color = AppColors.AccentInk, fontWeight = FontWeight.Bold)
         }
         
         Text(
-            text = stringResource(R.string.sessionHint),
+            text = txt("sessionHint"),
             fontSize = 12.sp,
             color = AppColors.TextFaint,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 12.dp).fillMaxWidth()
         )
+    }
+}
+
+@Composable
+fun SubjectChip(name: String, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (isSelected) AppColors.AccentSoft else AppColors.Surface)
+            .border(1.5.dp, if (isSelected) AppColors.Accent else AppColors.UnfocusedBorder, RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 9.dp)
+    ) {
+        Text(text = name, color = if (isSelected) AppColors.Accent else AppColors.TextPrimary, fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -218,13 +248,13 @@ fun DurationChip(minutes: Int, isSelected: Boolean, onClick: () -> Unit, modifie
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = minutes.toString(), fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = if (isSelected) AppColors.Accent else AppColors.TextPrimary)
-            Text(text = stringResource(R.string.minutes), fontSize = 11.5.sp, color = if (isSelected) AppColors.Accent else AppColors.TextMuted)
+            Text(text = txt("minutes"), fontSize = 11.5.sp, color = if (isSelected) AppColors.Accent else AppColors.TextMuted)
         }
     }
 }
 
 @Composable
-fun SoundCard(id: String, icon: androidx.compose.ui.graphics.vector.ImageVector, name: String, isSelected: Boolean, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun SoundCard(id: String, icon: String, name: String, isSelected: Boolean, onClick: (String) -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -238,7 +268,7 @@ fun SoundCard(id: String, icon: androidx.compose.ui.graphics.vector.ImageVector,
             modifier = Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(if (isSelected) AppColors.Accent else AppColors.SurfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp), tint = if (isSelected) AppColors.AccentInk else AppColors.TextPrimary)
+            Text(icon, fontSize = 16.sp, color = if (isSelected) AppColors.AccentInk else AppColors.TextPrimary)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Text(text = name, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isSelected) AppColors.Accent else AppColors.TextPrimary)
@@ -251,19 +281,22 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
         modifier = Modifier.fillMaxSize().padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Subject Chip (No 'X' button)
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(AppColors.SurfaceVariant)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = if (state.subjectName.isNotBlank()) state.subjectName else stringResource(R.string.unspecified),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppColors.TextMuted
-            )
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(AppColors.SurfaceVariant).padding(horizontal = 14.dp, vertical = 6.dp)
+            ) {
+                Text(state.subjectName, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AppColors.TextMuted)
+            }
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.size(34.dp).border(1.dp, AppColors.UnfocusedBorder, CircleShape).background(AppColors.SurfaceVariant, CircleShape)
+            ) {
+                Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp), tint = AppColors.TextMuted)
+            }
         }
 
         Spacer(modifier = Modifier.height(60.dp))
@@ -292,59 +325,38 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
                     fontWeight = FontWeight.ExtraBold,
                     color = AppColors.TextPrimary
                 )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(R.string.focusTime),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = AppColors.TextMuted
-                )
+                Text(txt("focusTime"), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AppColors.TextMuted)
             }
         }
 
-        Spacer(modifier = Modifier.height(44.dp))
+        Spacer(modifier = Modifier.height(36.dp))
 
-        // Exactly 2 Control Buttons Row: [Pause/Resume Square Button] & [Door Exit Button]
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // 1. Square Pause / Resume Toggle Button
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(AppColors.Accent)
-                    .clickable {
-                        val action = if (state.isPaused) StudySessionService.ACTION_RESUME else StudySessionService.ACTION_PAUSE
-                        context.startService(Intent(context, StudySessionService::class.java).apply { this.action = action })
-                    },
-                contentAlignment = Alignment.Center
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+            IconButton(
+                onClick = { /* Reset logic if needed */ },
+                modifier = Modifier.size(52.dp).border(1.dp, AppColors.UnfocusedBorder, CircleShape).background(AppColors.Surface, CircleShape)
             ) {
-                Icon(
-                    imageVector = if (state.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                    contentDescription = if (state.isPaused) stringResource(R.string.resume) else stringResource(R.string.pause),
-                    tint = AppColors.AccentInk,
-                    modifier = Modifier.size(28.dp)
-                )
+                Icon(Icons.Default.Refresh, contentDescription = null, tint = AppColors.TextPrimary)
+            }
+            
+            FloatingActionButton(
+                onClick = {
+                    val action = if (state.isPaused) StudySessionService.ACTION_RESUME else StudySessionService.ACTION_PAUSE
+                    context.startService(Intent(context, StudySessionService::class.java).apply { this.action = action })
+                },
+                containerColor = AppColors.Accent,
+                contentColor = AppColors.AccentInk,
+                shape = CircleShape,
+                modifier = Modifier.size(64.dp)
+            ) {
+                Icon(if (state.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, contentDescription = null, modifier = Modifier.size(24.dp))
             }
 
-            // 2. Door Exit Button (Stop & Leave)
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(AppColors.Surface)
-                    .border(1.5.dp, AppColors.UnfocusedBorder, RoundedCornerShape(16.dp))
-                    .clickable { onClose() },
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = { context.startService(Intent(context, StudySessionService::class.java).apply { action = StudySessionService.ACTION_SKIP }) },
+                modifier = Modifier.size(52.dp).border(1.dp, AppColors.UnfocusedBorder, CircleShape).background(AppColors.Surface, CircleShape)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                    contentDescription = stringResource(R.string.exitSession),
-                    tint = Color(0xFFEF4444),
-                    modifier = Modifier.size(26.dp)
-                )
+                Icon(Icons.Default.SkipNext, contentDescription = null, tint = AppColors.TextPrimary)
             }
         }
 
@@ -353,12 +365,12 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
         // Sound indicator
         if (state.soundId != "none") {
             val soundType = when (state.soundId) {
-                "nature", "forest" -> stringResource(R.string.soundNature)
-                "rain" -> stringResource(R.string.soundRain)
-                "airplane", "cafe" -> stringResource(R.string.soundAirplane)
+                "rain" -> txt("soundRain")
+                "cafe" -> txt("soundCafe")
+                "white_noise" -> txt("soundWhiteNoise")
                 else -> ""
             }
-            val soundName = stringResource(R.string.soundPlaying, soundType)
+            val soundName = txt("sound_label", soundType)
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
@@ -368,7 +380,7 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = soundName,
+                    text = txt("soundPlaying", soundName),
                     fontSize = 12.5.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.TextMuted
@@ -377,26 +389,19 @@ fun SessionActiveView(context: Context, state: SessionState, onClose: () -> Unit
         }
         
         Spacer(modifier = Modifier.weight(1f))
-
-        // FAB Chat Button
+        
+        // FAB Chat
         Button(
             onClick = onAskZeno,
             shape = RoundedCornerShape(26.dp),
             colors = ButtonDefaults.buttonColors(containerColor = AppColors.Surface),
-            modifier = Modifier
-                .height(52.dp)
-                .border(1.dp, AppColors.UnfocusedBorder, RoundedCornerShape(26.dp)),
+            modifier = Modifier.height(52.dp).border(1.dp, AppColors.UnfocusedBorder, RoundedCornerShape(26.dp)),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Orb(modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.askZeno),
-                    color = AppColors.TextPrimary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.5.sp
-                )
+                Text(txt("askZeno"), color = AppColors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
             }
         }
     }
@@ -437,7 +442,7 @@ fun SessionBreakView(context: Context, state: SessionState) {
 fun Orb(modifier: Modifier = Modifier, isGold: Boolean = false) {
     Image(
         painter = painterResource(id = R.drawable.zeno_ball),
-        contentDescription = null,
+        contentDescription = "Zeno Ball",
         modifier = modifier.clip(CircleShape)
     )
 }
