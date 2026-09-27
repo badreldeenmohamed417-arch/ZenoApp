@@ -185,7 +185,7 @@ fun ChatDropUp(
                 }
             } else {
                 items(localMessages, key = { it.id }) { msg ->
-                    AnimatedChatBubble(msg, isLatest = (msg.id == localMessages.lastOrNull()?.id))
+                    AnimatedChatBubble(msg, isLatest = (msg.id == localMessages.lastOrNull()?.id), chatRepository = chatRepository)
                 }
 
                 if (isSending) {
@@ -601,7 +601,8 @@ fun EmptyChatState() {
 @Composable
 fun AnimatedChatBubble(
     msg: com.example.zeno.data.model.server.MessageResponse,
-    isLatest: Boolean
+    isLatest: Boolean,
+    chatRepository: com.example.zeno.data.repository.ChatRepository
 ) {
     var displayedText by remember { mutableStateOf(if (msg.role == "user" || !isLatest) msg.content else "") }
 
