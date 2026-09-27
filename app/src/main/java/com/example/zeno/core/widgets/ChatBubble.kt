@@ -74,6 +74,7 @@ fun ChatBubble(message: MessageResponse, onLike: (() -> Unit)? = null, onDislike
             Spacer(modifier = Modifier.height(4.dp))
             ZenoMessageActions(
                 text = message.content,
+                onFeedback = onFeedback,
                 modifier = Modifier.align(Alignment.Start),
                 onLike = onLike,
                 onDislike = onDislike
