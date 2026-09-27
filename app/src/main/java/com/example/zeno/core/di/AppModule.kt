@@ -60,8 +60,7 @@ val appModule = module {
     // Repositories
     single { AuthRepository(get(), get(), get()) }
     single { StudentRepository(get()) }
-    single { com.example.zeno.features.home.data.HomeCacheManager(androidContext()) }
-    single { ProgressRepository(get(), get()) }
+    single { ProgressRepository(get()) }
     single { ChatRepository(get(), get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }
@@ -77,10 +76,10 @@ val appModule = module {
     }
     
     // ViewModels
-    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(get()) }
+    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(get(), get()) }
     viewModel { com.example.zeno.features.assessment.presentation.AssessmentChatViewModel(get(), get(), get()) }
-    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(get()) }
-    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get()) }
+    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(get(), get()) }
+    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get(), get()) }
     viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(get(), get()) }
-    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get()) }
+    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get(), get()) }
 }
