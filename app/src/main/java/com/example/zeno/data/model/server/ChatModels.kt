@@ -44,3 +44,7 @@ data class ConversationDetailResponse(
 data class ConversationListResponse(
     val items: List<ConversationResponse>
 )
+
+
+data class FeedbackRequest(val feedback: String)
+data class FeedbackResponse(val status: String, val feedback: String?)
