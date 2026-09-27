@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -21,6 +22,8 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     private fun getHomeCacheManager(): com.example.zeno.features.home.data.HomeCacheManager {
         return org.koin.java.KoinJavaComponent.getKoin().get()
     }
+    private var sendJob: Job? = null
+    private var pendingMessageId: String? = null
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
@@ -134,7 +137,8 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         _isTyping.value = true
         _errorMessage.value = null
 
-        viewModelScope.launch {
+        sendJob?.cancel()
+        sendJob = viewModelScope.launch {
             var activeId = userManager.getCurrentChatId()
             if (activeId == null) {
                 val title = if (text.length > 20) text.take(20) + "..." else text
@@ -162,6 +166,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 return@launch
             }
 
+            pendingMessageId = userMessage.id
             repository.cacheUserMessage(activeId, userMessage.id, text)
             val result = repository.sendConversationMessage(activeId, text)
             _isTyping.value = false
@@ -193,6 +198,18 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 _messages.value = _messages.value + errorBotMessage
             }
         }
+    }
+
+    fun stopGeneration() {
+        val pendingId = pendingMessageId
+        sendJob?.cancel()
+        sendJob = null
+        _isTyping.value = false
+        if (pendingId != null) {
+            _messages.value = _messages.value.filterNot { it.id == pendingId }
+            viewModelScope.launch { repository.deleteLocalMessage(pendingId) }
+        }
+        pendingMessageId = null
     }
 
     fun retryMessage(failedText: String) {
