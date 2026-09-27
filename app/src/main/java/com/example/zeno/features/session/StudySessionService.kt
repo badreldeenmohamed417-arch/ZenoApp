@@ -81,10 +81,6 @@ class StudySessionService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun getHomeCacheManager(): com.example.zeno.features.home.data.HomeCacheManager {
-        return org.koin.java.KoinJavaComponent.getKoin().get()
-    }
-
     private fun getSessionRepository(): SessionRepository {
         val authStorage = EncryptedAuthStorageImpl(this)
         val authInterceptor = AuthInterceptor(authStorage)
@@ -246,7 +242,6 @@ class StudySessionService : Service() {
             serviceScope.launch {
                 repo.completeSession(sid, minutesSpent)
                 repo.syncPendingSessions()
-                getHomeCacheManager().addLocalStudyMinutes(minutesSpent)
             }
         }
 
