@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 fun ChatScreen(viewModel: ChatViewModel) {
     val messages by viewModel.messages.collectAsState()
     val isTyping by viewModel.isTyping.collectAsState()
+    val progressStage by viewModel.progressStage.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     
     var inputText by remember { mutableStateOf("") }
@@ -101,7 +102,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
                     
                     if (isTyping) {
                         item {
-                            TypingIndicator()
+                            TypingIndicator(progressStage)
                         }
                     }
                 }
@@ -136,7 +137,9 @@ fun ChatScreen(viewModel: ChatViewModel) {
                         .clip(RoundedCornerShape(16.dp))
                         .animatedGradientBackground(listOf(Emerald500, Emerald700))
                         .bounceClickable {
-                            if (inputText.isNotBlank() && !isTyping) {
+                            if (isTyping) {
+                                viewModel.stopGeneration()
+                            } else if (inputText.isNotBlank()) {
                                 viewModel.sendMessage(inputText.trim())
                                 inputText = ""
                             }
@@ -144,10 +147,11 @@ fun ChatScreen(viewModel: ChatViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send",
+                        imageVector = if (isTyping) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send,
+                        contentDescription = null,
                         tint = Color.White
                     )
+                }
                 }
             }
         }
@@ -202,7 +206,7 @@ fun ChatBubble(message: ChatMessage) {
 }
 
 @Composable
-fun TypingIndicator() {
+fun TypingIndicator(stage: String) {
     Box(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
         contentAlignment = Alignment.CenterStart
@@ -214,7 +218,12 @@ fun TypingIndicator() {
                 .animatedGradientBackground(listOf(Emerald300.copy(alpha = 0.2f), Emerald500.copy(alpha = 0.2f)))
         ) {
             Text(
-                text = stringResource(id = R.string.chat_typing_indicator),
+                text = stringResource(id = when (stage) {
+                    "searching_books" -> R.string.chat_status_searching_books
+                    "reading_source" -> R.string.chat_status_understanding
+                    "generating_answer" -> R.string.chat_status_building_answer
+                    else -> R.string.chat_status_thinking
+                }),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = Emerald700,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
