@@ -1126,7 +1126,7 @@ fun StyledChatBubble(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = "10:12",
+                                text = stringResource(R.string.chat_time_now),
                                 fontSize = 10.sp,
                                 color = TextMuted
                             )
