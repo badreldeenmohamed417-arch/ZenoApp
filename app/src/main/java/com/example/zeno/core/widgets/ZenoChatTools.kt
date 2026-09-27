@@ -22,6 +22,13 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.ThumbDown
+import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,36 +67,37 @@ fun ZenoMessageActions(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        EmojiActionButton("📋", reaction = false) {
+        EmojiActionButton(icon = Icons.Outlined.ContentCopy, contentDescription = "Copy", reaction = false) {
             clipboardManager.setText(AnnotatedString(withZenoAttribution(context, text)))
             Toast.makeText(context, context.getString(R.string.chat_copied_toast), Toast.LENGTH_SHORT).show()
         }
-        EmojiActionButton("↗️", reaction = false) {
+        EmojiActionButton(icon = Icons.Outlined.Share, contentDescription = "Share", reaction = false) {
             shareFromZeno(context, text)
         }
-        EmojiActionButton("👍", reaction = reaction == LIKE) {
+        EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = "Like", reaction = reaction == LIKE) {
             reaction = if (reaction == LIKE) NO_REACTION else LIKE
         }
-        EmojiActionButton("👎", reaction = reaction == DISLIKE) {
+        EmojiActionButton(icon = Icons.Outlined.ThumbDown, contentDescription = "Dislike", reaction = reaction == DISLIKE) {
             reaction = if (reaction == DISLIKE) NO_REACTION else DISLIKE
         }
         if (onMore != null) {
-            EmojiActionButton("⋯", reaction = false, onClick = onMore)
+            EmojiActionButton(icon = Icons.Outlined.MoreHoriz, contentDescription = "More", reaction = false, onClick = onMore)
         }
     }
 }
 
 @Composable
 private fun EmojiActionButton(
-    emoji: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
     reaction: Boolean,
     onClick: () -> Unit
 ) {
     val background = if (reaction) AppColors.Accent.copy(alpha = 0.18f) else Color.Transparent
-    Text(
-        text = emoji,
-        fontSize = 17.sp,
-        fontWeight = FontWeight.Medium,
+    Icon(
+        imageVector = icon,
+        contentDescription = contentDescription,
+        tint = AppColors.TextPrimary,
         modifier = Modifier
             .size(34.dp)
             .background(background, CircleShape)
