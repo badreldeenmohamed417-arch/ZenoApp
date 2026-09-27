@@ -8,14 +8,14 @@ import com.example.zeno.data.model.server.ConversationResponse
 import com.example.zeno.data.model.server.CreateConversationRequest
 import com.example.zeno.data.model.server.MessageResponse
 import com.example.zeno.data.model.server.SendMessageRequest
-import com.example.zeno.data.serverConnections.ChatApi
+import com.example.zeno.data.server.ApiClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ChatRepository(
-    private val chatDao: ChatDao,
-    private val api: ChatApi
-) {
+class ChatRepository(private val chatDao: ChatDao) {
+
+    private val api
+        get() = ApiClient.chat()
 
     suspend fun createConversation(
         title: String? = null,
@@ -137,7 +137,6 @@ class ChatRepository(
             }
         }
     }
-
 
     suspend fun deleteConversation(
         conversationId: String
