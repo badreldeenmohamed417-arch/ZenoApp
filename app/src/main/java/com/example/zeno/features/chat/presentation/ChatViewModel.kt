@@ -316,19 +316,6 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
         }
     }
 
-    fun feedbackMessage(id: String, feedback: String, onResult: (Boolean, String?) -> Unit = { _, _ -> }) {
-        viewModelScope.launch(exceptionHandler) {
-            val result = repository.feedbackMessage(id, feedback)
-            if (result.isSuccess) {
-                onResult(true, result.getOrNull()?.feedback)
-            } else {
-                val errorMsg = result.exceptionOrNull()?.let { com.example.zeno.core.NetworkUtils.getErrorMessage(it) }
-                    ?: getApplication<Application>().getString(R.string.chat_error_save_feedback)
-                onResult(false, errorMsg)
-            }
-        }
-    }
-
     fun feedbackMessage(messageId: String, feedback: String, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch(exceptionHandler) {
             val result = repository.feedbackMessage(messageId, feedback)
