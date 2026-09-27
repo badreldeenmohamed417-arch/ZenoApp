@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Whatshot
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -347,7 +349,7 @@ fun HomeScreen(
                 .padding(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "🔥", fontSize = 22.sp)
+            Icon(Icons.Default.Whatshot, contentDescription = null, tint = LimeAccent, modifier = Modifier.size(22.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
@@ -392,7 +394,7 @@ fun HomeScreen(
                             color = Color.Black.copy(alpha = 0.8f)
                         )
                     }
-                    Text(text = "→", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.Black, modifier = Modifier.size(22.dp))
                 }
             }
         }
