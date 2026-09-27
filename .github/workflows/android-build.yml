@@ -25,6 +25,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate source tree
+        run: git status --short
+
       - name: Build signed test release APK
         run: ./gradlew :app:assembleRelease -PtestRelease=true --stacktrace
 
