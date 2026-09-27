@@ -71,3 +71,8 @@ data class ConversationListResponse(
 data class ReportRequest(
     val reason: String
 )
+
+
+data class MessageFeedbackRequest(val feedback: String)
+
+data class FeedbackResponse(val status: String, val feedback: String?)
