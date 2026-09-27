@@ -19,11 +19,6 @@ import okhttp3.RequestBody
 import java.util.UUID
 
 class ChatViewModel(private val repository: ChatRepository, private val userManager: UserManager) : ViewModel() {
-    private fun getHomeCacheManager(): com.example.zeno.features.home.data.HomeCacheManager {
-        return org.koin.java.KoinJavaComponent.getKoin().get()
-    }
-    private var sendJob: Job? = null
-    private var pendingMessageId: String? = null
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
@@ -124,7 +119,6 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
     fun sendMessage(text: String) {
         if (text.isBlank()) return
-        getHomeCacheManager().addLocalQuestions(1)
 
         val userMessage = ChatMessage(
             id = UUID.randomUUID().toString(),
