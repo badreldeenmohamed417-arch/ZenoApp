@@ -15,16 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.WebSocket
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.util.UUID
 
 class ChatViewModel(application: Application, private val repository: ChatRepository, private val userManager: UserManager) : BaseViewModel(application) {
-    private fun getHomeCacheManager(): com.example.zeno.features.home.data.HomeCacheManager {
-        return org.koin.java.KoinJavaComponent.getKoin().get()
-    }
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
@@ -44,10 +41,14 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
     val activeTitle: StateFlow<String> = _activeTitle.asStateFlow()
 
     private var currentChatJob: Job? = null
+    private var currentWebSocket: WebSocket? = null
+
+    private val _progressStage = MutableStateFlow("thinking")
+    val progressStage: StateFlow<String> = _progressStage.asStateFlow()
 
     init {
+        userManager.saveCurrentChatId(null)
         fetchConversations()
-        loadHistoryIfNeeded()
     }
 
     fun fetchConversations() {
@@ -143,8 +144,13 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
 
     
     fun stopGeneration() {
+        currentWebSocket?.close(1000, "user_stop")
+        currentWebSocket = null
         currentChatJob?.cancel()
+        currentChatJob = null
         _isTyping.value = false
+        val pendingUser = _messages.value.lastOrNull { it.isUser }
+        if (pendingUser != null) _messages.value = _messages.value.filterNot { it.id == pendingUser.id }
     }
 
     fun clearChat() {
@@ -156,94 +162,55 @@ class ChatViewModel(application: Application, private val repository: ChatReposi
     }
 
     fun sendMessage(text: String, hiddenPrefix: String? = null) {
-        if (text.isBlank()) return
-        getHomeCacheManager().addLocalQuestions(1)
-
-        val userMessage = ChatMessage(
-            id = UUID.randomUUID().toString(),
-            text = text,
-            isUser = true,
-            timestamp = System.currentTimeMillis()
-        )
-
+        if (text.isBlank() || _isTyping.value) return
+        val userMessage = ChatMessage(UUID.randomUUID().toString(), text, true, System.currentTimeMillis())
         _messages.value = _messages.value + userMessage
         _isTyping.value = true
         _errorMessage.value = null
-
+        _progressStage.value = "thinking"
         currentChatJob = viewModelScope.launch(exceptionHandler) {
-            var activeId = userManager.getCurrentChatId()
-            if (activeId == null) {
-                val title = if (text.length > 20) text.take(20) + "..." else text
-                val result = repository.createConversation(title)
-                if (result.isSuccess) {
-                    activeId = result.getOrNull()?.id
-                    if (activeId != null) {
-                        userManager.saveCurrentChatId(activeId)
-                        _activeTitle.value = title
-                        fetchConversations()
+            try {
+                var activeId = userManager.getCurrentChatId()
+                if (activeId == null) {
+                    val title = text.take(40)
+                    val result = repository.createConversation(title)
+                    if (result.isSuccess) {
+                        activeId = result.getOrNull()?.id
+                        if (activeId != null) { userManager.saveCurrentChatId(activeId); _activeTitle.value = title; fetchConversations() }
                     }
                 }
-            }
-
-            if (activeId == null) {
-                _isTyping.value = false
-                val errorBotMessage = ChatMessage(
-                    id = UUID.randomUUID().toString(),
-                    text = getApplication<Application>().getString(R.string.chat_error_create_conversation),
-                    isUser = false,
-                    timestamp = System.currentTimeMillis(),
-                    isError = true
-                )
-                _messages.value = _messages.value + errorBotMessage
-                return@launch
-            }
-
-            val fullText = if (hiddenPrefix != null) "$hiddenPrefix $text" else text
-            val result = repository.sendConversationMessage(activeId, fullText)
-
-            if (result.isSuccess) {
-                val replyDto = result.getOrNull()
-                val replyText = replyDto?.content ?: ""
-                val botMessageId = replyDto?.id ?: UUID.randomUUID().toString()
-                val botMessage = ChatMessage(
-                    id = botMessageId,
-                    text = "",
-                    isUser = false,
-                    timestamp = System.currentTimeMillis()
-                )
-                _messages.value = _messages.value + botMessage
-                
-                // Simulate typewriter animation
-                val words = replyText.split(" ")
-                var currentText = ""
-                for (i in words.indices) {
-                    currentText += words[i] + if (i < words.size - 1) " " else ""
-                    _messages.value = _messages.value.map { 
-                        if (it.id == botMessageId) it.copy(text = currentText) else it 
+                if (activeId == null) throw IllegalStateException(getApplication<Application>().getString(R.string.chat_error_create_conversation))
+                val conversationId = activeId
+                val fullText = hiddenPrefix?.let { it + " " + text } ?: text
+                currentWebSocket = repository.openWebSocket(conversationId, fullText,
+                    onProgress = { stage -> _progressStage.value = stage },
+                    onStarted = { id -> userManager.saveCurrentChatId(id) },
+                    onCompleted = { reply ->
+                        viewModelScope.launch {
+                            val details = repository.getConversationDetails(conversationId)
+                            if (details.isSuccess) {
+                                _messages.value = details.getOrNull()?.messages?.map { dto -> ChatMessage(dto.id, dto.content, dto.role == "user", System.currentTimeMillis()) } ?: emptyList()
+                            } else { _messages.value = _messages.value + ChatMessage(reply.id, reply.content, false, System.currentTimeMillis()) }
+                            _isTyping.value = false
+                            currentWebSocket = null
+                        }
+                    },
+                    onError = { error ->
+                        viewModelScope.launch {
+                            _messages.value = _messages.value.filterNot { it.id == userMessage.id }
+                            _isTyping.value = false
+                            currentWebSocket = null
+                            _errorMessage.value = error.message ?: getApplication<Application>().getString(R.string.chat_error_fallback)
+                        }
                     }
-                    delay(50) // 50ms per word
-                }
-                _isTyping.value = false
-            } else {
-                val exception = result.exceptionOrNull()
-                val errReason = exception?.message ?: ""
-                val isUpgrade = errReason.contains("402") || errReason.contains("502") || errReason.contains("Payment", ignoreCase = true) || errReason.contains("Limit", ignoreCase = true) || errReason.contains("Upgrade", ignoreCase = true)
-
-                val errorBotMessage = ChatMessage(
-                    id = UUID.randomUUID().toString(),
-                    text = errReason,
-                    isUser = false,
-                    timestamp = System.currentTimeMillis(),
-                    isError = true,
-                    isUpgradeRequired = isUpgrade,
-                    failedText = text
                 )
-                _messages.value = _messages.value + errorBotMessage
+            } catch (e: Exception) {
+                _messages.value = _messages.value.filterNot { it.id == userMessage.id }
+                _isTyping.value = false
+                _errorMessage.value = e.message ?: getApplication<Application>().getString(R.string.chat_error_fallback)
             }
-            _isTyping.value = false
         }
     }
-
     fun retryMessage(failedText: String) {
         _messages.value = _messages.value.filterNot { it.isError && it.failedText == failedText }
         sendMessage(failedText)
