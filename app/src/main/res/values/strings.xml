@@ -460,4 +460,13 @@
  <string name="chat_error_fallback">Something went wrong</string>
  <string name="chat_time_now">Now</string>
 
+
+ <string name="chat_error_load_history">Could not load this conversation.</string>
+ <string name="chat_error_create_conversation">Could not start this conversation.</string>
+ <string name="chat_error_process_file">Could not process the file.</string>
+ <string name="chat_error_upload_file">Could not upload the file: %1$s</string>
+ <string name="chat_error_read_file">Could not read the file.</string>
+ <string name="chat_error_save_feedback">Could not save feedback.</string>
+ <string name="chat_error_report_message">Could not report the message.</string>
+
 </resources>
