@@ -33,11 +33,6 @@ interface ChatApi {
         @Body request: SendMessageRequest
     ): MessageResponse
 
-    @POST("main/chat/messages/{messageId}/feedback")
-    suspend fun feedbackMessage(
-        @Path("messageId") messageId: String,
-        @Body request: FeedbackRequest
-    ): FeedbackResponse
 
     @DELETE("main/chat/conversations/{conversationId}")
     suspend fun deleteConversation(
