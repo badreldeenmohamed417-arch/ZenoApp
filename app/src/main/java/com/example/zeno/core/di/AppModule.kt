@@ -9,8 +9,6 @@ import com.example.zeno.core.network.AuthInterceptor
 import com.example.zeno.core.network.RetrofitClient
 import com.example.zeno.core.network.TokenAuthenticator
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.local.db.AppDatabase
-import com.example.zeno.data.server.ApiClient
 import com.example.zeno.features.auth.data.AuthApi
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.chat.data.ChatApi
@@ -28,14 +26,11 @@ import com.example.zeno.features.student.data.repository.StudentRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.koin.android.ext.koin.androidApplication
-import org.koin.android.ext.koin.androidContext
 
 val appModule = module {
     // Core & Storage
     single<AuthStorage> { EncryptedAuthStorageImpl(get()) }
     single { UserManager(get()) }
-    single { AppDatabase.getDatabase(get()) }
     single { BillingManager(get(), get()) }
 
     // Network (Interceptors & Retrofit)
@@ -60,10 +55,10 @@ val appModule = module {
     single<ConfigApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(ConfigApi::class.java) }
 
     // Repositories
-    single { AuthRepository(get(), get(), get(), androidContext()) }
+    single { AuthRepository(get(), get(), get()) }
     single { StudentRepository(get()) }
     single { ProgressRepository(get()) }
-    single { ChatRepository(get(), get(), get()) }
+    single { ChatRepository(get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }
     single { SubscriptionRepository(get()) }
@@ -71,7 +66,6 @@ val appModule = module {
     
     // Legacy Repositories
     single(named("legacyChat")) { 
-        ApiClient.initialize(androidContext())
         com.example.zeno.data.repository.ChatRepository(
             com.example.zeno.data.local.db.AppDatabase.getDatabase(get()).chatDao(), 
             com.example.zeno.data.server.ApiClient.chat()
@@ -79,11 +73,10 @@ val appModule = module {
     }
     
     // ViewModels
-    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(androidApplication(), get()) }
+    viewModel { com.example.zeno.features.profile.presentation.ProfileViewModel(get()) }
     viewModel { com.example.zeno.features.assessment.presentation.AssessmentChatViewModel(get(), get(), get()) }
-    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(androidApplication(), get()) }
-    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(androidApplication(), get(), get()) }
-    viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(androidApplication(), get(), get()) }
-    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(androidApplication(), get()) }
-    viewModel { com.example.zeno.features.auth.presentation.EmailVerificationViewModel(androidApplication(), get(), get()) }
+    viewModel { com.example.zeno.features.premium.presentation.PremiumViewModel(get()) }
+    viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get()) }
+    viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(get(), get()) }
+    viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get()) }
 }
