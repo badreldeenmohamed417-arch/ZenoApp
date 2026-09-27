@@ -1113,7 +1113,12 @@ fun StyledChatBubble(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             ZenoMessageActions(
-                                text = message.text)
+                                text = message.text,
+                                onFeedback = { feedback ->
+                                    viewModel.feedbackMessage(message.id, feedback)
+                                },
+                                onMore = { onReport?.invoke(message) }
+                            )
                         }
                     }
                 }
