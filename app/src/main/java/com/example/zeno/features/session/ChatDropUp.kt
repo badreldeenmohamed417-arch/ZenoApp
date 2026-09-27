@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
 import com.example.zeno.core.widgets.ChatBubble
+import com.example.zeno.features.chat.data.dto.MessageResponse
 import com.example.zeno.data.AppColors
 import com.example.zeno.features.chat.data.repository.ChatRepository
 import kotlinx.coroutines.launch
@@ -61,17 +62,17 @@ fun ChatDropUp(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = stringResource(R.string.chat_title), style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.chat_history_drawer_title), style = MaterialTheme.typography.titleMedium)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(timeLeftStr, color = AppColors.TextMuted, fontSize = 12.sp)
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.chat_close)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.chat_menu_delete)) }
             }
         }
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(messages, key = { it.id }) { ChatBubble(it) }
+            items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = null)) }
             if (sending) item { Text(stringResource(R.string.chat_status_thinking), color = AppColors.TextMuted) }
         }
         Row(
@@ -83,7 +84,7 @@ fun ChatDropUp(
                 onValueChange = { input = it },
                 enabled = !sending,
                 modifier = Modifier.weight(1f),
-                placeholder = { Text(stringResource(R.string.chat_input_placeholder)) }
+                placeholder = { Text(stringResource(R.string.chat_input_hint)) }
             )
             IconButton(
                 onClick = {
