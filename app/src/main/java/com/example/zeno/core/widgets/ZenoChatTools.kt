@@ -87,12 +87,14 @@ fun ZenoMessageActions(
         EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = "Like", reaction = reaction == LIKE) {
             val next = if (reaction == LIKE) NO_REACTION else LIKE
             reaction = next
-            onLike?.invoke()
+            onFeedback?.invoke(if (next == LIKE) "like" else "none")
+            if (onFeedback == null) onLike?.invoke()
         }
         EmojiActionButton(icon = Icons.Outlined.ThumbDown, contentDescription = "Dislike", reaction = reaction == DISLIKE) {
             val next = if (reaction == DISLIKE) NO_REACTION else DISLIKE
             reaction = next
-            onDislike?.invoke()
+            onFeedback?.invoke(if (next == DISLIKE) "dislike" else "none")
+            if (onFeedback == null) onDislike?.invoke()
         }
         if (onMore != null) {
             EmojiActionButton(icon = Icons.Outlined.MoreHoriz, contentDescription = "More", reaction = false, onClick = onMore)
