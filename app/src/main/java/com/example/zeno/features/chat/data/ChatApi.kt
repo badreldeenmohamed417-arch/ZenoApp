@@ -38,12 +38,6 @@ interface ChatApi {
     @DELETE("main/chat/conversations/{id}")
     suspend fun deleteConversation(@Path("id") id: String)
 
-    @POST("main/chat/messages/{id}/feedback")
-    suspend fun feedbackMessage(
-        @Path("id") id: String,
-        @Body request: MessageFeedbackRequest
-    ): FeedbackResponse
-
     @retrofit2.http.PATCH("main/chat/conversations/{id}")
     suspend fun updateConversationTitle(
         @Path("id") id: String,
