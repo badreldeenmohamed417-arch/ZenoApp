@@ -3,10 +3,12 @@ package com.example.zeno.features.student.data.repository
 import com.example.zeno.features.student.data.StudentApi
 import com.example.zeno.features.student.data.dto.ProfileResponse
 import com.example.zeno.features.student.data.dto.StudentDashboardResponse
+import com.example.zeno.data.local.db.AppDatabase
+import retrofit2.HttpException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StudentRepository(private val api: StudentApi) {
+class StudentRepository(private val api: StudentApi, private val database: AppDatabase) {
     suspend fun getDashboard(): Result<StudentDashboardResponse> = withContext(Dispatchers.IO) {
         try {
             val response = api.getDashboard()
@@ -109,7 +111,16 @@ class StudentRepository(private val api: StudentApi) {
     suspend fun deleteConversations(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             api.deleteConversations()
+            database.chatDao().clearMessages()
+            database.chatDao().clearConversations()
             Result.success(Unit)
+        } catch (e: HttpException) {
+            if (e.code() == 404) {
+                database.chatDao().clearMessages()
+                database.chatDao().clearConversations()
+                return@withContext Result.success(Unit)
+            }
+            return@withContext Result.failure(e)
         } catch (e: Exception) {
             Result.failure(e)
         }
