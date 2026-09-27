@@ -41,7 +41,6 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
     init {
         fetchConversations()
-        loadHistoryIfNeeded()
     }
 
     fun fetchConversations() {
@@ -112,30 +111,6 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         }
     }
 
-    private fun loadHistoryIfNeeded() {
-        val currentId = userManager.getCurrentChatId()
-        if (currentId != null) {
-            _isLoadingChat.value = true
-            viewModelScope.launch {
-                val result = repository.getConversationDetails(currentId)
-                _isLoadingChat.value = false
-                if (result.isSuccess) {
-                    val history = result.getOrNull()?.messages?.map { dto ->
-                        ChatMessage(
-                            id = dto.id,
-                            text = dto.content,
-                            isUser = dto.role == "user",
-                            timestamp = System.currentTimeMillis()
-                        )
-                    } ?: emptyList()
-                    _messages.value = history
-                } else {
-                    _errorMessage.value = "Failed to load chat history"
-                }
-            }
-        }
-    }
-
     fun clearChat() {
         _messages.value = emptyList()
         _errorMessage.value = null
@@ -187,6 +162,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 return@launch
             }
 
+            repository.cacheUserMessage(activeId, userMessage.id, text)
             val result = repository.sendConversationMessage(activeId, text)
             _isTyping.value = false
 
