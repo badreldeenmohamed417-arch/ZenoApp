@@ -68,7 +68,8 @@ fun ChatDropUp(
     conversationId: String?,
     onConversationCreated: (String) -> Unit,
     timeLeftStr: String,
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -100,7 +101,7 @@ fun ChatDropUp(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxHeight(0.85f)
             .fillMaxWidth()
             .background(DarkBG)
