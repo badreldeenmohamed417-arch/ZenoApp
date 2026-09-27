@@ -29,19 +29,18 @@ class HomeViewModel(application: Application, private val repository: ProgressRe
 
     fun loadDashboard() {
         viewModelScope.launch(exceptionHandler) {
-            val cached = repository.getCachedProgress()
-            if (cached != null) {
-                _uiState.value = HomeUiState.Success(cached)
-            } else {
-                _uiState.value = HomeUiState.Loading
-            }
-            val result = repository.getProgressOverview()
-            if (result.isSuccess) {
-                // If server returns less minutes than local (due to sync delay), keep local? 
-                // For simplicity, just use server data. Sync will catch up.
-                _uiState.value = HomeUiState.Success(result.getOrThrow())
-            } else if (cached == null) {
-                _uiState.value = HomeUiState.Error(result.exceptionOrNull().getUserFriendlyMessage())
+            _uiState.value = HomeUiState.Loading
+            try {
+                val result = repository.getProgressOverview()
+                if (result.isSuccess) {
+                    _uiState.value = HomeUiState.Success(result.getOrThrow())
+                } else {
+                    _uiState.value = HomeUiState.Error(
+                        result.exceptionOrNull().getUserFriendlyMessage()
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = HomeUiState.Error(e.getUserFriendlyMessage())
             }
         }
     }
