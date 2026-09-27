@@ -29,6 +29,9 @@ interface ChatDao {
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
 
+    @Query("DELETE FROM messages WHERE conversationId = :conversationId AND role = 'user' AND content = :content")
+    suspend fun deleteMessageByConversationAndContent(conversationId: String, content: String)
+
     @Query("SELECT id FROM conversations")
     suspend fun getConversationIds(): List<String>
 
