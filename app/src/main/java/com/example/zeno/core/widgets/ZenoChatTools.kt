@@ -24,14 +24,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material.icons.outlined.ThumbDown
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbDown
@@ -81,7 +73,7 @@ fun ZenoMessageActions(
             clipboardManager.setText(AnnotatedString(withZenoAttribution(context, text)))
             Toast.makeText(context, context.getString(R.string.chat_copied_toast), Toast.LENGTH_SHORT).show()
         }
-        EmojiActionButton(icon = Icons.Outlined.Share, contentDescription = "Share", reaction = false) {
+        IconActionButton(icon = Icons.Outlined.Share, contentDescription = "Share", reaction = false) {
             shareFromZeno(context, text)
         }
         EmojiActionButton(icon = Icons.Outlined.ThumbUp, contentDescription = "Like", reaction = reaction == LIKE) {
@@ -105,6 +97,7 @@ fun ZenoMessageActions(
 @Composable
 private fun IconActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String? = null,
     contentDescription: String? = null,
     reaction: Boolean,
     onClick: () -> Unit
