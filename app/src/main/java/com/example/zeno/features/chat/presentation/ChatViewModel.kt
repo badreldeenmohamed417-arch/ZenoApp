@@ -19,6 +19,8 @@ import okhttp3.RequestBody
 import java.util.UUID
 
 class ChatViewModel(private val repository: ChatRepository, private val userManager: UserManager) : ViewModel() {
+    private var sendJob: Job? = null
+    private var pendingMessageId: String? = null
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
