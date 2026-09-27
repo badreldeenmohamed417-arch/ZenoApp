@@ -98,10 +98,10 @@ fun ChatScreen(
     var selectedReportReason by remember { mutableStateOf("") }
     
     val reportReasons = listOf(
-        "محتوى غير لائق",
-        "معلومات خاطئة",
-        "محتوى مزعج (Spam)",
-        "أخرى"
+        stringResource(R.string.chat_report_reason_inappropriate),
+        stringResource(R.string.chat_report_reason_wrong),
+        stringResource(R.string.chat_report_reason_spam),
+        stringResource(R.string.chat_report_reason_other)
     )
     var showActionMenu by remember { mutableStateOf(false) }
     var selectedActionChip by remember { mutableStateOf<ChatActionChipData?>(null) }
@@ -664,16 +664,16 @@ fun ChatScreen(
                                 val quizPrompt = stringResource(R.string.auto_str_أنشئ_اختبار_تفاعلي)
                                 val handoutTitle = stringResource(R.string.chat_action_handout_title)
                                 val handoutPrompt = stringResource(R.string.auto_str_قم_بعمل_ملزمة)
-                                val solveTitle = "حل مسألة (دقيق)"
-                                val solvePrompt = "قم بحل هذه المسألة بخطوات تفصيلية دقيقة واستخدم قوانين الفيزياء/الرياضيات (استخدم اللاتكس للمعادلات):" 
+                                val solveTitle = stringResource(R.string.chat_solve_title)
+                                val solvePrompt = stringResource(R.string.chat_solve_prompt) 
 
                                 DropdownMenuItem(
                                     text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("حل فيزياء/رياضيات", color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                                            Text(stringResource(R.string.chat_solve_label), color = TextWhite, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Box(modifier = Modifier.background(Color(0xFF8B5CF6).copy(alpha = 0.2f), RoundedCornerShape(6.dp)).border(0.5.dp, Color(0xFF8B5CF6), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
-                                                Text("عميق", color = Color(0xFFC4B5FD), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                                Text(stringResource(R.string.chat_deep_badge), color = Color(0xFFC4B5FD), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     },
@@ -911,7 +911,7 @@ fun ChatScreen(
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
                                         
-                                        val intentStr = if (selectedActionChip?.title == "اختبار قصير") "[intent: CREATE_TEST]" else if (selectedActionChip?.title?.contains("ملخص") == true) "[intent: CREATE_HANDOUT]" else null
+                                        val intentStr = if (selectedActionChip?.title == stringResource(R.string.chat_action_quiz_title)) "[intent: CREATE_TEST]" else if (selectedActionChip?.title == stringResource(R.string.chat_action_handout_title)) "[intent: CREATE_HANDOUT]" else null
                                         val textToSend = inputText.trim()
                                         
                                         selectedActionChip = null
@@ -936,10 +936,10 @@ fun ChatScreen(
         messageToReport?.let { msg ->
             AlertDialog(
                 onDismissRequest = { messageToReport = null },
-                title = { Text("إبلاغ عن رسالة", color = TextWhite) },
+                title = { Text(stringResource(R.string.chat_report_title), color = TextWhite) },
                 text = {
                     Column {
-                        Text("يرجى اختيار سبب البلاغ:", color = TextMuted)
+                        Text(stringResource(R.string.chat_report_reason_hint), color = TextMuted)
                         Spacer(modifier = Modifier.height(8.dp))
                         reportReasons.forEach { reason ->
                             Row(
@@ -965,21 +965,21 @@ fun ChatScreen(
                         if (selectedReportReason.isNotBlank()) {
                             viewModel.reportMessage(msg.id, selectedReportReason) { success, error ->
                                 if (success) {
-                                    Toast.makeText(context, "تم الإبلاغ بنجاح", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, stringResource(R.string.chat_report_success), Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, error ?: stringResource(R.string.chat_error_fallback), Toast.LENGTH_SHORT).show()
                                 }
                             }
                             messageToReport = null
                             selectedReportReason = ""
                         }
                     }) {
-                        Text("إرسال", color = LimeAccent)
+                        Text(stringResource(R.string.chat_report_send), color = LimeAccent)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { messageToReport = null }) {
-                        Text("إلغاء", color = TextMuted)
+                        Text(stringResource(R.string.chat_report_cancel), color = TextMuted)
                     }
                 },
                 containerColor = CardBG
@@ -1032,7 +1032,7 @@ fun StyledChatBubble(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "10:12",
+                    text = stringResource(R.string.chat_time_now),
                     fontSize = 10.sp,
                     color = TextMuted
                 )
@@ -1052,7 +1052,7 @@ fun StyledChatBubble(
                             text = if (message.isUpgradeRequired) {
                                 stringResource(R.string.chat_error_upgrade_required)
                             } else {
-                                stringResource(R.string.chat_error_generic, message.text.ifBlank { "Error" })
+                                stringResource(R.string.chat_error_generic, message.text.ifBlank { stringResource(R.string.chat_error_fallback) })
                             },
                             fontSize = 13.sp,
                             color = Color(0xFFFCA5A5),
