@@ -58,8 +58,8 @@ val appModule = module {
     single<ConfigApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(ConfigApi::class.java) }
 
     // Repositories
-    single { AuthRepository(get(), get(), get()) }
-    single { StudentRepository(get()) }
+    single { AuthRepository(get(), get(), get(), get()) }
+    single { StudentRepository(get(), get()) }
     single { ProgressRepository(get()) }
     single { ChatRepository(get(), get()) }
     single { SessionRepository(get(), get()) }
