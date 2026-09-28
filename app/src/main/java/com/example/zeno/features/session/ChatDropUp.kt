@@ -17,12 +17,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
+import com.example.zeno.core.NetworkUtils
 import com.example.zeno.core.widgets.ChatBubble
 import com.example.zeno.data.model.server.MessageResponse
 import com.example.zeno.data.AppColors
 import com.example.zeno.features.chat.data.repository.ChatRepository
+import com.example.zeno.features.chat.domain.ChatMessage
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.get
+import java.util.UUID
 
 @Composable
 fun ChatDropUp(
@@ -92,6 +95,13 @@ fun ChatDropUp(
                     if (text.isEmpty() || sending) return@IconButton
                     input = ""
                     sending = true
+                    val userMsg = ChatMessage(
+                        id = UUID.randomUUID().toString(),
+                        text = text,
+                        isUser = true,
+                        timestamp = System.currentTimeMillis()
+                    )
+                    messages = messages + userMsg
                     scope.launch {
                         try {
                             var id = currentId
@@ -103,14 +113,64 @@ fun ChatDropUp(
                                 }
                             }
                             if (id != null) {
-                                repository.cacheUserMessage(id, java.util.UUID.randomUUID().toString(), text)
-                                val result = repository.sendConversationMessage(id, text)
+                                repository.cacheUserMessage(id, userMsg.id, text)
+                                var result = repository.sendConversationMessage(id, text)
+                                if (result.isFailure) {
+                                    val errMsg = result.exceptionOrNull()?.message.orEmpty()
+                                    if (errMsg.contains("404") || errMsg.contains("not found", ignoreCase = true)) {
+                                        id = repository.createConversation(text.take(40)).getOrNull()?.id
+                                        if (id != null) {
+                                            currentId = id
+                                            onConversationCreated(id)
+                                            result = repository.sendConversationMessage(id, text)
+                                        }
+                                    }
+                                }
+                                if (result.isFailure) {
+                                    val fallbackResult = repository.sendMessage(text)
+                                    if (fallbackResult.isSuccess) {
+                                        val replyText = fallbackResult.getOrNull()?.reply ?: ""
+                                        if (replyText.isNotBlank()) {
+                                            messages = messages + ChatMessage(
+                                                id = UUID.randomUUID().toString(),
+                                                text = replyText,
+                                                isUser = false,
+                                                timestamp = System.currentTimeMillis()
+                                            )
+                                            return@launch
+                                        }
+                                    }
+                                }
                                 if (result.isSuccess) {
                                     val reply = result.getOrNull()
-                                    if (reply != null) messages = messages + com.example.zeno.features.chat.domain.ChatMessage(
-                                        id = reply.id, text = reply.content, isUser = false, timestamp = System.currentTimeMillis()
+                                    if (reply != null) {
+                                        messages = messages + ChatMessage(
+                                            id = reply.id,
+                                            text = reply.content,
+                                            isUser = false,
+                                            timestamp = System.currentTimeMillis()
+                                        )
+                                    }
+                                } else {
+                                    val errText = result.exceptionOrNull()?.let { NetworkUtils.getErrorMessage(it) } ?: "فشل إرسال الرسالة"
+                                    messages = messages + ChatMessage(
+                                        id = UUID.randomUUID().toString(),
+                                        text = errText,
+                                        isUser = false,
+                                        timestamp = System.currentTimeMillis(),
+                                        isError = true,
+                                        failedText = text
                                     )
                                 }
+                            } else {
+                                messages = messages + ChatMessage(
+                                    id = UUID.randomUUID().toString(),
+                                    text = "حدث خطأ أثناء إنشاء المحادثة.",
+                                    isUser = false,
+                                    timestamp = System.currentTimeMillis(),
+                                    isError = true,
+                                    failedText = text
+                                )
                             }
                         } finally {
                             sending = false

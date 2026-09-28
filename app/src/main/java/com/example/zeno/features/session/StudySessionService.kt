@@ -182,8 +182,8 @@ class StudySessionService : Service() {
         if (currentState.phase == SessionPhase.STUDYING) {
             val sid = currentState.sessionId
             val elapsedMillis = currentState.totalTimeMillis - currentState.timeLeftMillis
-            val minutesSpent = (elapsedMillis / 60000L).coerceAtLeast(1).toInt()
-            if (!sid.isNullOrBlank()) {
+            val minutesSpent = (elapsedMillis / 60000L).toInt()
+            if (minutesSpent > 0 && !sid.isNullOrBlank()) {
                 serviceScope.launch {
                     val repo = getSessionRepository()
                     repo.completeSession(sid, minutesSpent)
@@ -235,9 +235,9 @@ class StudySessionService : Service() {
         val currentState = _sessionState.value
         val sid = currentState.sessionId
         val elapsedMillis = currentState.totalTimeMillis - currentState.timeLeftMillis
-        val minutesSpent = (elapsedMillis / 60000L).coerceAtLeast(1).toInt()
+        val minutesSpent = (elapsedMillis / 60000L).toInt()
 
-        if (!sid.isNullOrBlank() && currentState.phase == SessionPhase.STUDYING) {
+        if (minutesSpent > 0 && !sid.isNullOrBlank() && currentState.phase == SessionPhase.STUDYING) {
             val repo = getSessionRepository()
             serviceScope.launch {
                 repo.completeSession(sid, minutesSpent)

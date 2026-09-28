@@ -13,14 +13,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
@@ -31,6 +35,7 @@ import com.example.zeno.R
 import com.example.zeno.core.ui.modifiers.bounceClickable
 
 import com.example.zeno.data.AppColors
+import java.util.Calendar
 
 private val DarkBG: Color @Composable get() = AppColors.BG
 private val CardBG: Color @Composable get() = AppColors.CardBG
@@ -38,6 +43,48 @@ private val CardBorder: Color @Composable get() = AppColors.CardBorder
 private val LimeAccent: Color @Composable get() = AppColors.LimeAccent
 private val TextWhite: Color @Composable get() = AppColors.TextWhite
 private val TextMuted: Color @Composable get() = AppColors.TextMuted
+
+private fun getWeeklyMinutesForDay(dayIndex: Int, weeklyData: Map<String, Int>?): Int {
+    if (weeklyData.isNullOrEmpty()) return 0
+
+    val satKeys = listOf("sat", "saturday", "س", "سبت", "السبت", "6")
+    val sunKeys = listOf("sun", "sunday", "ح", "أحد", "الأحد", "0", "7")
+    val monKeys = listOf("mon", "monday", "ن", "إثنين", "الإثنين", "1")
+    val tueKeys = listOf("tue", "tuesday", "ث", "ثلاثاء", "الثلاثاء", "2")
+    val wedKeys = listOf("wed", "wednesday", "ر", "أربعاء", "الأربعاء", "3")
+    val thuKeys = listOf("thu", "thursday", "خ", "خميس", "الخميس", "4")
+    val friKeys = listOf("fri", "friday", "ج", "جمعة", "الجمعة", "5")
+
+    val matchingKeys = when (dayIndex) {
+        0 -> satKeys
+        1 -> sunKeys
+        2 -> monKeys
+        3 -> tueKeys
+        4 -> wedKeys
+        5 -> thuKeys
+        6 -> friKeys
+        else -> emptyList()
+    }
+
+    for ((key, value) in weeklyData) {
+        val lowerKey = key.trim().lowercase()
+        if (matchingKeys.any { lowerKey == it || lowerKey.contains(it) }) {
+            return value
+        }
+    }
+
+    return 0
+}
+
+private fun formatMinutesDisplay(minutes: Int): String {
+    return if (minutes >= 60) {
+        val hrs = minutes / 60
+        val mins = minutes % 60
+        if (mins > 0) "${hrs}س ${mins}د" else "${hrs}س"
+    } else {
+        "$minutes د"
+    }
+}
 
 @Composable
 fun HomeScreen(
@@ -173,55 +220,93 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Stats 1
+            // Stats 1 - Focus Minutes
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(18.dp))
                     .background(CardBG)
                     .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$minutesToday",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.focusMinutes),
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = formatMinutesDisplay(minutesToday),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = TextWhite
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.focusMinutes),
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(LimeAccent.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = null,
+                            tint = LimeAccent,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
 
-            // Stats 2
+            // Stats 2 - Questions Asked
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(18.dp))
                     .background(CardBG)
                     .border(1.dp, CardBorder, RoundedCornerShape(18.dp))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(16.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$questionsAsked",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextWhite
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.questionsToZeno),
-                        fontSize = 12.sp,
-                        color = TextMuted
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "$questionsAsked",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = TextWhite
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.questionsToZeno),
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF60A5FA).copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Chat,
+                            contentDescription = null,
+                            tint = Color(0xFF60A5FA),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
@@ -237,6 +322,7 @@ fun HomeScreen(
                 .border(1.dp, CardBorder, RoundedCornerShape(20.dp))
                 .padding(20.dp)
         ) {
+            val totalWeeklyMins = (0..6).sumOf { getWeeklyMinutesForDay(it, weeklyData) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -249,9 +335,10 @@ fun HomeScreen(
                     color = TextWhite
                 )
                 Text(
-                    text = stringResource(R.string.home_daily_progress),
+                    text = "إجمالي: ${formatMinutesDisplay(totalWeeklyMins)}",
                     fontSize = 12.sp,
-                    color = TextMuted
+                    fontWeight = FontWeight.SemiBold,
+                    color = LimeAccent
                 )
             }
 
@@ -261,70 +348,77 @@ fun HomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp),
+                    .height(130.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
+                val daysLabels = listOf("س", "ح", "ن", "ث", "ر", "خ", "ج")
+                val dayValues = (0..6).map { getWeeklyMinutesForDay(it, weeklyData) }
+                val maxVal = dayValues.maxOrNull()?.coerceAtLeast(30) ?: 60
 
-                val daysOrder = listOf(stringResource(id = R.string.auto_str_س), stringResource(id = R.string.auto_str_ح), stringResource(id = R.string.auto_str_ن), stringResource(id = R.string.auto_str_ث), stringResource(id = R.string.auto_str_ر), stringResource(id = R.string.auto_str_خ), stringResource(id = R.string.auto_str_ج))
-                val maxVal = (weeklyData.values.maxOrNull() ?: 50).coerceAtLeast(1)
-                
-                // Extract daily goal in minutes
-                val dailyGoalStr = homeData?.dailyGoal?.replace(Regex("[^0-9]"), "") ?: ""
-                val dailyGoalMin = dailyGoalStr.toIntOrNull() ?: 60
-
-                // Get current day index
-                val calendar = java.util.Calendar.getInstance()
-                val currentDayStr = when (calendar.get(java.util.Calendar.DAY_OF_WEEK)) {
-                    java.util.Calendar.SATURDAY -> stringResource(id = R.string.auto_str_س)
-                    java.util.Calendar.SUNDAY -> stringResource(id = R.string.auto_str_ح)
-                    java.util.Calendar.MONDAY -> stringResource(id = R.string.auto_str_ن)
-                    java.util.Calendar.TUESDAY -> stringResource(id = R.string.auto_str_ث)
-                    java.util.Calendar.WEDNESDAY -> stringResource(id = R.string.auto_str_ر)
-                    java.util.Calendar.THURSDAY -> stringResource(id = R.string.auto_str_خ)
-                    java.util.Calendar.FRIDAY -> stringResource(id = R.string.auto_str_ج)
-                    else -> ""
+                val calendar = Calendar.getInstance()
+                val currentDayIndex = when (calendar.get(Calendar.DAY_OF_WEEK)) {
+                    Calendar.SATURDAY -> 0
+                    Calendar.SUNDAY -> 1
+                    Calendar.MONDAY -> 2
+                    Calendar.TUESDAY -> 3
+                    Calendar.WEDNESDAY -> 4
+                    Calendar.THURSDAY -> 5
+                    Calendar.FRIDAY -> 6
+                    else -> 0
                 }
 
-                daysOrder.forEach { day ->
-                    val value = weeklyData[day] ?: 0
-                    val heightRatio = if (maxVal > 0) (value.toFloat() / maxVal.toFloat()).coerceIn(0.15f, 1f) else 0.15f
-                    val isToday = day == currentDayStr
-                    
-                    val barColor = if (value == 0) {
-                        if (isToday) Color.Green else Color(0xFF2B2E38)
-                    } else {
-                        if (value < dailyGoalMin / 3) Color.Red
-                        else if (value < dailyGoalMin * 0.8f) Color.Yellow
-                        else if (value <= dailyGoalMin * 1.2f) Color.Blue
-                        else Color(0xFFFFD700) // Golden
-                    }
+                daysLabels.forEachIndexed { i, day ->
+                    val value = dayValues[i]
+                    val isToday = i == currentDayIndex
+                    val heightRatio = if (value > 0) (value.toFloat() / maxVal.toFloat()).coerceIn(0.18f, 1f) else 0.08f
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        Box(contentAlignment = Alignment.TopCenter) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(top = if (isToday && value > dailyGoalMin * 1.2f) 10.dp else 0.dp)
-                                    .width(28.dp)
-                                    .fillMaxHeight(heightRatio)
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(barColor)
-                            )
-                            if (isToday && value > dailyGoalMin * 1.2f) {
-                                Text(text = "⭐", fontSize = 12.sp, modifier = Modifier.offset(y = (-10).dp))
-                            }
-                        }
+                        Text(
+                            text = if (value > 0) "${value}د" else "-",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (value > 0) TextWhite else TextMuted.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(28.dp)
+                                .fillMaxHeight(heightRatio)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (value > 0) {
+                                        Brush.verticalGradient(
+                                            listOf(LimeAccent, LimeAccent.copy(alpha = 0.65f))
+                                        )
+                                    } else {
+                                        SolidColor(Color(0xFF2C2F38))
+                                    }
+                                )
+                                .then(
+                                    if (isToday) Modifier.border(1.dp, LimeAccent, RoundedCornerShape(8.dp)) else Modifier
+                                )
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = day,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextMuted
+                            fontWeight = if (isToday) FontWeight.ExtraBold else FontWeight.Bold,
+                            color = if (isToday) LimeAccent else TextMuted
                         )
+                        if (isToday) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = 2.dp)
+                                    .size(4.dp)
+                                    .clip(CircleShape)
+                                    .background(LimeAccent)
+                            )
+                        }
                     }
                 }
             }

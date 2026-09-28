@@ -104,7 +104,7 @@ fun MainAppScreen(
     val currentRoute = currentDestination?.route
 
     val isImeVisible = WindowInsets.ime.asPaddingValues().calculateBottomPadding() > 0.dp
-    val showBottomBar = !isImeVisible && !isSessionActive && currentRoute != BottomNavItem.Sessions.route && (currentRoute != BottomNavItem.Profile.route || !isSettingsSubRouteActive)
+    val showBottomBar = !isImeVisible && !isSessionActive && (currentRoute != BottomNavItem.Profile.route || !isSettingsSubRouteActive)
 
     Scaffold(
         bottomBar = {

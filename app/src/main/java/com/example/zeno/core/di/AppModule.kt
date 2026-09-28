@@ -33,7 +33,8 @@ val appModule = module {
     // Core & Storage
     single<AuthStorage> { EncryptedAuthStorageImpl(get()) }
     single { UserManager(get()) }
-    single { AppDatabase.getDatabase(get()).chatDao() }
+    single { AppDatabase.getDatabase(get()) }
+    single { get<AppDatabase>().chatDao() }
     single { BillingManager(get(), get()) }
 
     // Network (Interceptors & Retrofit)

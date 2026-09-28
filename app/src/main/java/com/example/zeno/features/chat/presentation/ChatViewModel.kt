@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.zeno.core.NetworkUtils
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.data.dto.ConversationResponse
 import com.example.zeno.features.chat.data.repository.ChatRepository
@@ -115,23 +116,33 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         userManager.saveCurrentChatId(null)
     }
 
-    fun sendMessage(text: String) {
+    fun sendMessage(text: String, isRetry: Boolean = false) {
         if (text.isBlank()) return
 
-        val userMessage = ChatMessage(
-            id = UUID.randomUUID().toString(),
-            text = text,
-            isUser = true,
-            timestamp = System.currentTimeMillis()
-        )
+        val userMessage = if (!isRetry) {
+            val msg = ChatMessage(
+                id = UUID.randomUUID().toString(),
+                text = text,
+                isUser = true,
+                timestamp = System.currentTimeMillis()
+            )
+            _messages.value = _messages.value + msg
+            msg
+        } else {
+            _messages.value.lastOrNull { it.isUser && it.text == text } ?: ChatMessage(
+                id = UUID.randomUUID().toString(),
+                text = text,
+                isUser = true,
+                timestamp = System.currentTimeMillis()
+            ).also { _messages.value = _messages.value + it }
+        }
 
-        _messages.value = _messages.value + userMessage
         _isTyping.value = true
         _errorMessage.value = null
 
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
-            var activeId: String? = null
+            var activeId: String? = userManager.getCurrentChatId()
             if (activeId == null) {
                 val title = if (text.length > 20) text.take(20) + "..." else text
                 val result = repository.createConversation(title)
@@ -152,7 +163,8 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                     text = "حدث خطأ أثناء إنشاء المحادثة.",
                     isUser = false,
                     timestamp = System.currentTimeMillis(),
-                    isError = true
+                    isError = true,
+                    failedText = text
                 )
                 _messages.value = _messages.value + errorBotMessage
                 return@launch
@@ -160,7 +172,44 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
             pendingMessageId = userMessage.id
             repository.cacheUserMessage(activeId, userMessage.id, text)
-            val result = repository.sendConversationMessage(activeId, text)
+            var result = repository.sendConversationMessage(activeId, text)
+
+            if (result.isFailure) {
+                val errMsg = result.exceptionOrNull()?.message.orEmpty()
+                if (errMsg.contains("404") || errMsg.contains("not found", ignoreCase = true)) {
+                    userManager.saveCurrentChatId(null)
+                    val title = if (text.length > 20) text.take(20) + "..." else text
+                    val newConvResult = repository.createConversation(title)
+                    if (newConvResult.isSuccess) {
+                        val newActiveId = newConvResult.getOrNull()?.id
+                        if (newActiveId != null) {
+                            userManager.saveCurrentChatId(newActiveId)
+                            _activeTitle.value = title
+                            activeId = newActiveId
+                            result = repository.sendConversationMessage(activeId, text)
+                        }
+                    }
+                }
+            }
+
+            if (result.isFailure) {
+                val fallbackResult = repository.sendMessage(text)
+                if (fallbackResult.isSuccess) {
+                    val replyText = fallbackResult.getOrNull()?.reply ?: ""
+                    if (replyText.isNotBlank()) {
+                        _isTyping.value = false
+                        val botMessage = ChatMessage(
+                            id = UUID.randomUUID().toString(),
+                            text = replyText,
+                            isUser = false,
+                            timestamp = System.currentTimeMillis()
+                        )
+                        _messages.value = _messages.value + botMessage
+                        return@launch
+                    }
+                }
+            }
+
             _isTyping.value = false
 
             if (result.isSuccess) {
@@ -175,10 +224,10 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 _messages.value = _messages.value + botMessage
             } else {
                 val exception = result.exceptionOrNull()
-                val errReason = exception?.message ?: ""
-                val isUpgrade = errReason.contains("402") || errReason.contains("502") || errReason.contains("Payment", ignoreCase = true) || errReason.contains("Limit", ignoreCase = true) || errReason.contains("Upgrade", ignoreCase = true)
+                val rawReason = exception?.message ?: "فشل في إرسال الرسالة"
+                val errReason = exception?.let { NetworkUtils.getErrorMessage(it) } ?: rawReason
+                val isUpgrade = rawReason.contains("402") || rawReason.contains("502") || rawReason.contains("Payment", ignoreCase = true) || rawReason.contains("Limit", ignoreCase = true) || rawReason.contains("Upgrade", ignoreCase = true)
 
-                repository.deleteLocalMessage(userMessage.id)
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
                     text = errReason,
@@ -207,7 +256,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
     fun retryMessage(failedText: String) {
         _messages.value = _messages.value.filterNot { it.isError && it.failedText == failedText }
-        sendMessage(failedText)
+        sendMessage(failedText, isRetry = true)
     }
 
     fun editMessage(messageId: String, onTextLoaded: (String) -> Unit) {

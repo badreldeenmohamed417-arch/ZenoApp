@@ -76,7 +76,6 @@ fun StudySessionScreen(
                 TextButton(onClick = {
                     showExitDialog = false
                     context.startService(Intent(context, StudySessionService::class.java).apply { action = StudySessionService.ACTION_STOP })
-                    onBack()
                 }) {
                     Text(stringResource(R.string.exitSession), color = AppColors.Danger, fontWeight = FontWeight.Bold)
                 }
