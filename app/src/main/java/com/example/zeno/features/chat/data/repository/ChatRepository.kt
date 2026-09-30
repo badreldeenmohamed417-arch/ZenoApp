@@ -3,16 +3,26 @@ package com.example.zeno.features.chat.data.repository
 import com.example.zeno.data.local.db.ChatDao
 import com.example.zeno.data.local.db.ConversationEntity
 import com.example.zeno.data.local.db.MessageEntity
+import com.example.zeno.core.data.AuthStorage
 import com.example.zeno.features.chat.data.ChatApi
 import com.example.zeno.features.chat.data.dto.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import com.google.gson.JsonParser
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class ChatRepository(
     private val chatApi: ChatApi,
-    private val chatDao: ChatDao
+    private val chatDao: ChatDao,
+    private val authStorage: AuthStorage
 ) {
     fun observeLocalConversations(): Flow<List<ConversationEntity>> = chatDao.getConversations()
 
@@ -81,16 +91,92 @@ class ChatRepository(
         } catch (e: Exception) { Result.failure(e) }
     }
 
-    suspend fun sendConversationMessage(id: String, content: String): Result<MessageResponse> = withContext(Dispatchers.IO) {
+    suspend fun sendConversationMessage(
+        id: String,
+        content: String,
+        onProgress: ((String) -> Unit)? = null
+    ): Result<MessageResponse> = withContext(Dispatchers.IO) {
         try {
-            val response = chatApi.sendConversationMessage(id, SendMessageRequest(content = content))
-            chatDao.insertMessage(MessageEntity(response.id, id, response.role, response.content, response.createdAt ?: ""))
-            return@withContext Result.success(response)
+            val response = sendConversationMessageOverWebSocket(id, content, onProgress)
+            chatDao.insertMessage(MessageEntity(
+                response.id, id, response.role, response.content, response.createdAt
+            ))
+            Result.success(response)
         } catch (e: Exception) {
-            // The server removes failed user messages and running AI requests transactionally.
             chatDao.deleteMessageByConversationAndContent(id, content)
             Result.failure(e)
         }
+    }
+
+    private suspend fun sendConversationMessageOverWebSocket(
+        conversationId: String,
+        content: String,
+        onProgress: ((String) -> Unit)?
+    ): MessageResponse = suspendCancellableCoroutine { continuation ->
+        val token = authStorage.getToken()
+        if (token.isNullOrBlank()) {
+            continuation.resumeWith(Result.failure(IllegalStateException("Authentication required")))
+            return@suspendCancellableCoroutine
+        }
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("wss://zenohostingserver.fastapicloud.dev/main/chat/ws")
+            .header("Authorization", "Bearer $token")
+            .build()
+
+        lateinit var socket: WebSocket
+        socket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                try {
+                    val json = JsonParser.parseString(text).asJsonObject
+                    when (json.get("type")?.asString) {
+                        "progress" -> onProgress?.invoke(json.get("stage")?.asString ?: "thinking")
+                        "completed" -> {
+                            val message = json.getAsJsonObject("message")
+                            val result = MessageResponse(
+                                id = message.get("id").asString,
+                                conversationId = json.get("conversation_id").asString,
+                                role = message.get("role").asString,
+                                content = message.get("content").asString,
+                                createdAt = message.get("created_at").asString
+                            )
+                            if (continuation.isActive) continuation.resume(result)
+                            webSocket.close(1000, "completed")
+                            client.dispatcher.executorService.shutdown()
+                        }
+                        "error" -> {
+                            val reason = json.get("message")?.asString ?: "request_failed"
+                            if (continuation.isActive) {
+                                continuation.resumeWith(Result.failure(IllegalStateException(reason)))
+                            }
+                            webSocket.close(1011, reason.take(120))
+                            client.dispatcher.executorService.shutdown()
+                        }
+                    }
+                } catch (e: Exception) {
+                    if (continuation.isActive) continuation.resumeWith(Result.failure(e))
+                    webSocket.close(1011, "invalid_response")
+                    client.dispatcher.executorService.shutdown()
+                }
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                if (continuation.isActive) continuation.resumeWith(Result.failure(t))
+                client.dispatcher.executorService.shutdown()
+            }
+        })
+
+        continuation.invokeOnCancellation {
+            socket.close(1000, "cancelled")
+            client.dispatcher.executorService.shutdown()
+        }
+
+        socket.send(
+            com.google.gson.Gson().toJson(
+                mapOf("conversation_id" to conversationId, "message" to content)
+            )
+        )
     }
 
     suspend fun deleteLocalMessage(messageId: String) = withContext(Dispatchers.IO) { chatDao.deleteMessage(messageId) }
