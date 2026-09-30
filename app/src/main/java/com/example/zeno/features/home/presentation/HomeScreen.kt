@@ -76,13 +76,16 @@ private fun getWeeklyMinutesForDay(dayIndex: Int, weeklyData: Map<String, Int>?)
     return 0
 }
 
+@Composable
 private fun formatMinutesDisplay(minutes: Int): String {
+    val minuteUnit = stringResource(R.string.home_minute_short)
+    val hourUnit = stringResource(R.string.home_hour_short)
     return if (minutes >= 60) {
         val hrs = minutes / 60
         val mins = minutes % 60
-        if (mins > 0) "${hrs}س ${mins}د" else "${hrs}س"
+        if (mins > 0) "${hrs}${hourUnit} ${mins}${minuteUnit}" else "${hrs}${hourUnit}"
     } else {
-        "$minutes د"
+        "$minutes${minuteUnit}"
     }
 }
 
@@ -335,7 +338,7 @@ fun HomeScreen(
                     color = TextWhite
                 )
                 Text(
-                    text = "إجمالي: ${formatMinutesDisplay(totalWeeklyMins)}",
+                    text = stringResource(R.string.home_weekly_total, formatMinutesDisplay(totalWeeklyMins)),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = LimeAccent
@@ -352,7 +355,15 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
-                val daysLabels = listOf("س", "ح", "ن", "ث", "ر", "خ", "ج")
+                val daysLabels = listOf(
+                    stringResource(R.string.auto_str_س),
+                    stringResource(R.string.auto_str_ح),
+                    stringResource(R.string.auto_str_ن),
+                    stringResource(R.string.auto_str_ث),
+                    stringResource(R.string.auto_str_ر),
+                    stringResource(R.string.auto_str_خ),
+                    stringResource(R.string.auto_str_ج)
+                )
                 val dayValues = (0..6).map { getWeeklyMinutesForDay(it, weeklyData) }
                 val maxVal = dayValues.maxOrNull()?.coerceAtLeast(30) ?: 60
 
@@ -379,7 +390,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxHeight()
                     ) {
                         Text(
-                            text = if (value > 0) "${value}د" else "-",
+                            text = if (value > 0) formatMinutesDisplay(value) else "-",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (value > 0) TextWhite else TextMuted.copy(alpha = 0.5f)
