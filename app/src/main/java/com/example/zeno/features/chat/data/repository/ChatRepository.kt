@@ -129,7 +129,7 @@ class ChatRepository(
         socket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
-                    val json = JsonParser.parseString(text).asJsonObject
+                    val json = JsonParser().parse(text).asJsonObject
                     when (json.get("type")?.asString) {
                         "progress" -> onProgress?.invoke(json.get("stage")?.asString ?: "thinking")
                         "completed" -> {
