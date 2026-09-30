@@ -471,4 +471,5 @@
  <string name="chat_error_save_feedback">Could not save feedback.</string>
  <string name="chat_error_report_message">Could not report the message.</string>
 
+ <string name="chat_status_searching_public_database">Searching the public knowledge database...</string>
 </resources>
