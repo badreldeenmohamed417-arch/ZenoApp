@@ -14,7 +14,7 @@ class BillingManager(
     private val context: Context,
     private val userManager: UserManager
 ) {
-    private val _isPro = MutableStateFlow(userManager.isPro())
+    private val _isPro = MutableStateFlow(false)
     val isPro: StateFlow<Boolean> = _isPro.asStateFlow()
 
     companion object {
@@ -23,6 +23,13 @@ class BillingManager(
     }
 
     fun initialize() {
+        _isPro.value = try {
+            userManager.isPro()
+        } catch (e: Exception) {
+            Log.w("BillingManager", "Could not restore local subscription state", e)
+            false
+        }
+
         Purchases.debugLogsEnabled = true
         Purchases.configure(PurchasesConfiguration.Builder(context, API_KEY).build())
         
