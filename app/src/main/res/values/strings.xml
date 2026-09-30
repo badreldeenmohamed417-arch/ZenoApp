@@ -473,4 +473,5 @@
 
  <string name="chat_status_searching_public_database">Searching the public knowledge database...</string>
  <string name="chat_status_analyzing_request">Analyzing your request...</string>
+ <string name="chat_status_generating_answer">Preparing your answer...</string>
 </resources>
