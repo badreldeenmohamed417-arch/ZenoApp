@@ -1,5 +1,8 @@
 package com.example.zeno.features.premium
 
+import com.example.zeno.core.billing.BillingManager
+import org.koin.compose.koinInject
+import androidx.compose.runtime.LaunchedEffect
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -60,6 +63,11 @@ fun PremiumScreen(
     viewModel: PremiumViewModel = koinViewModel(),
     onBack: () -> Unit = {}
 ) {
+    // RevenueCat is initialized only when the premium UI is actually opened.
+    val billingManager: BillingManager = koinInject()
+    LaunchedEffect(Unit) {
+        runCatching { billingManager.initialize() }
+    }
     val scrollState = rememberScrollState()
     var couponCode by remember { mutableStateOf("") }
     val context = LocalContext.current
