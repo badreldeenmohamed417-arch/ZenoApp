@@ -62,7 +62,7 @@ val appModule = module {
     single { AuthRepository(get(), get(), get(), get()) }
     single { StudentRepository(get(), get()) }
     single { ProgressRepository(get()) }
-    single { ChatRepository(get(), get()) }
+    single { ChatRepository(get(), get(), get()) }
     single { SessionRepository(get(), get()) }
     single { StudyPlanRepository(get()) }
     single { SubscriptionRepository(get()) }
