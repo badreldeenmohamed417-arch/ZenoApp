@@ -28,6 +28,9 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     private val _isTyping = MutableStateFlow(false)
     val isTyping: StateFlow<Boolean> = _isTyping.asStateFlow()
 
+    private val _progressStage = MutableStateFlow("thinking")
+    val progressStage: StateFlow<String> = _progressStage.asStateFlow()
+
     private val _isLoadingChat = MutableStateFlow(false)
     val isLoadingChat: StateFlow<Boolean> = _isLoadingChat.asStateFlow()
 
@@ -138,6 +141,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         }
 
         _isTyping.value = true
+        _progressStage.value = "thinking"
         _errorMessage.value = null
 
         sendJob?.cancel()
@@ -172,7 +176,9 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
             pendingMessageId = userMessage.id
             repository.cacheUserMessage(activeId, userMessage.id, text)
-            var result = repository.sendConversationMessage(activeId, text)
+            var result = repository.sendConversationMessage(activeId, text) { stage ->
+                _progressStage.value = stage
+            }
 
             if (result.isFailure) {
                 val errMsg = result.exceptionOrNull()?.message.orEmpty()
@@ -186,7 +192,9 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                             userManager.saveCurrentChatId(newActiveId)
                             _activeTitle.value = title
                             activeId = newActiveId
-                            result = repository.sendConversationMessage(activeId, text)
+                            result = repository.sendConversationMessage(activeId, text) { stage ->
+                                _progressStage.value = stage
+                            }
                         }
                     }
                 }
@@ -247,6 +255,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         sendJob?.cancel()
         sendJob = null
         _isTyping.value = false
+        _progressStage.value = "thinking"
         if (pendingId != null) {
             _messages.value = _messages.value.filterNot { it.id == pendingId }
             viewModelScope.launch { repository.deleteLocalMessage(pendingId) }
