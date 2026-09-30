@@ -296,7 +296,12 @@ class UserManager(context: Context) {
     }
 
     fun getSubscriptionPlanId(): String {
-        return preferences.getString("subscription_plan_id", "free") ?: "free"
+        return try {
+            preferences.getString("subscription_plan_id", "free") ?: "free"
+        } catch (e: ClassCastException) {
+            preferences.edit().remove("subscription_plan_id").apply()
+            "free"
+        }
     }
 
     fun getSubscriptionPlanTitle(isArabic: Boolean = true): String {
