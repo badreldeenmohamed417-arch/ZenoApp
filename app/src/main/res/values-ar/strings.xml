@@ -471,4 +471,5 @@
  <string name="chat_error_save_feedback">تعذر حفظ التقييم.</string>
  <string name="chat_error_report_message">تعذر الإبلاغ عن الرسالة.</string>
 
+ <string name="chat_status_searching_public_database">جاري البحث في قاعدة البيانات العامة...</string>
 </resources>
