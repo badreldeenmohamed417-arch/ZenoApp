@@ -30,13 +30,21 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Quiz
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -84,6 +92,7 @@ fun ChatScreen(
 
     val messages by viewModel.messages.collectAsState()
     val isTyping by viewModel.isTyping.collectAsState()
+    val progressStage by viewModel.progressStage.collectAsState()
     val isLoadingChat by viewModel.isLoadingChat.collectAsState()
     val conversations by viewModel.conversations.collectAsState()
     val activeTitle by viewModel.activeTitle.collectAsState()
@@ -505,7 +514,7 @@ fun ChatScreen(
                         }
                         if (isTyping) {
                             item {
-                                TypingIndicator()
+                                TypingIndicator(stage = progressStage)
                             }
                         }
                     }
@@ -651,23 +660,27 @@ fun ChatScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (hasInput) LimeAccent else Color(0xFF333333))
-                                .bounceClickable(enabled = hasInput) {
-                                    val fullMessage = listOfNotNull(selectedActionChip?.prompt, inputText.trim().ifBlank { null }).joinToString(" ")
-                                    if (fullMessage.isNotBlank() && !isTyping) {
-                                        keyboardController?.hide()
-                                        focusManager.clearFocus()
-                                        selectedActionChip = null
-                                        viewModel.sendMessage(fullMessage)
-                                        inputText = ""
+                                .background(if (isTyping) Color(0xFF333333) else if (hasInput) LimeAccent else Color(0xFF333333))
+                                .bounceClickable(enabled = isTyping || hasInput) {
+                                    if (isTyping) {
+                                        viewModel.stopGeneration()
+                                    } else {
+                                        val fullMessage = listOfNotNull(selectedActionChip?.prompt, inputText.trim().ifBlank { null }).joinToString(" ")
+                                        if (fullMessage.isNotBlank()) {
+                                            keyboardController?.hide()
+                                            focusManager.clearFocus()
+                                            selectedActionChip = null
+                                            viewModel.sendMessage(fullMessage)
+                                            inputText = ""
+                                        }
                                     }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                imageVector = if (isTyping) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send,
                                 contentDescription = null,
-                                tint = Color.Black,
+                                tint = if (isTyping) TextWhite else Color.Black,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -903,23 +916,47 @@ fun StyledChatBubble(
 }
 
 @Composable
-fun TypingIndicator() {
+fun TypingIndicator(stage: String) {
+    val labelRes = when (stage) {
+        "searching_books" -> R.string.chat_status_searching_books
+        "searching_public_database" -> R.string.chat_status_searching_public_database
+        "analyzing_request" -> R.string.chat_status_analyzing_request
+        "generating_answer" -> R.string.chat_status_generating_answer
+        else -> R.string.chat_status_thinking
+    }
+
+    val transition = rememberInfiniteTransition(label = "zeno_status_shimmer")
+    val offset by transition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1300, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "zeno_status_shimmer_offset"
+    )
+
+    val shimmerBrush = Brush.linearGradient(
+        colors = listOf(
+            TextMuted.copy(alpha = 0.45f),
+            TextWhite.copy(alpha = 0.95f),
+            Color.Black.copy(alpha = 0.75f),
+            TextMuted.copy(alpha = 0.45f)
+        ),
+        start = androidx.compose.ui.geometry.Offset(offset * 260f, 0f),
+        end = androidx.compose.ui.geometry.Offset((offset + 1f) * 260f, 0f)
+    )
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterEnd
     ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.Transparent)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.zeno_typing_indicator),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextMuted
-            )
-        }
+        Text(
+            text = stringResource(labelRes),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            style = TextStyle(brush = shimmerBrush),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+        )
     }
 }
