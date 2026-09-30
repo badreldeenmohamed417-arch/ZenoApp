@@ -63,7 +63,7 @@ fun SessionsScreen(viewModel: SessionsViewModel) {
 
     val minutes = (timeLeft / 1000) / 60
     val seconds = (timeLeft / 1000) % 60
-    val timeString = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    val timeString = String.format(java.util.Locale.US, "%02d:%02d", minutes, seconds)
 
     Column(
         modifier = Modifier

@@ -1,5 +1,7 @@
 package com.example.zeno.features.main.presentation
 
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.ime
@@ -53,6 +55,8 @@ import com.example.zeno.features.session.data.repository.StudyPlanRepository
 import com.example.zeno.features.session.presentation.SessionsScreen
 import com.example.zeno.features.session.presentation.SessionsViewModel
 import com.example.zeno.features.student.data.repository.StudentRepository
+import com.example.zeno.features.studio.presentation.StudioScreen
+import com.example.zeno.features.studio.presentation.StudioViewModel
 
 sealed class BottomNavItem(val route: String, val titleResId: Int, val icon: ImageVector) {
     object Home : BottomNavItem("home", R.string.nav_home, Icons.Default.Home)
@@ -81,11 +85,9 @@ fun MainAppScreen(
 
     val userManager = remember { UserManager(context) }
     val chatViewModel: ChatViewModel = koinViewModel()
-
     val sessionsViewModel: SessionsViewModel = koinViewModel()
-
-    
     val premiumViewModel: PremiumViewModel = koinViewModel()
+    val studioViewModel: StudioViewModel = koinViewModel()
 
     val items = listOf(
         BottomNavItem.Home,
@@ -104,7 +106,7 @@ fun MainAppScreen(
     val currentRoute = currentDestination?.route
 
     val isImeVisible = WindowInsets.ime.asPaddingValues().calculateBottomPadding() > 0.dp
-    val showBottomBar = !isImeVisible && !isSessionActive && (currentRoute != BottomNavItem.Profile.route || !isSettingsSubRouteActive)
+    val showBottomBar = !isImeVisible && !isSessionActive && currentRoute != "studio" && (currentRoute != BottomNavItem.Profile.route || !isSettingsSubRouteActive)
 
     Scaffold(
         bottomBar = {
@@ -160,13 +162,15 @@ fun MainAppScreen(
                 HomeScreen(
                     viewModel = homeViewModel,
                     onStartSession = { navigateToTab(BottomNavItem.Sessions.route) },
-                    onUpgrade = { navigateToTab(BottomNavItem.Upgrade.route) }
+                    onUpgrade = { navigateToTab(BottomNavItem.Upgrade.route) },
+                    onNavigateToStudio = { navController.navigate("studio") }
                 )
             }
             composable(BottomNavItem.Chat.route) {
                 ChatScreen(
                     viewModel = chatViewModel,
-                    onNavigateToUpgrade = { navigateToTab(BottomNavItem.Upgrade.route) }
+                    onNavigateToUpgrade = { navigateToTab(BottomNavItem.Upgrade.route) },
+                    onNavigateToStudio = { navController.navigate("studio") }
                 )
             }
             composable(BottomNavItem.Sessions.route) {
@@ -186,6 +190,18 @@ fun MainAppScreen(
                     onSubRouteChanged = { isSubRoute ->
                         isSettingsSubRouteActive = isSubRoute
                     }
+                )
+            }
+            composable(
+                route = "studio",
+                enterTransition = { slideInVertically(initialOffsetY = { it }) },
+                exitTransition = { slideOutVertically(targetOffsetY = { it }) },
+                popEnterTransition = { slideInVertically(initialOffsetY = { it }) },
+                popExitTransition = { slideOutVertically(targetOffsetY = { it }) }
+            ) {
+                StudioScreen(
+                    viewModel = studioViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

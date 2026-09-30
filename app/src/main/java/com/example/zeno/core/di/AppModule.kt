@@ -24,10 +24,14 @@ import com.example.zeno.features.session.data.repository.SessionRepository
 import com.example.zeno.features.session.data.repository.StudyPlanRepository
 import com.example.zeno.features.student.data.StudentApi
 import com.example.zeno.features.student.data.repository.StudentRepository
+import com.example.zeno.features.studio.data.StudioApi
+import com.example.zeno.features.studio.data.repository.StudioRepository
+import com.example.zeno.features.studio.presentation.StudioViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.koin.android.ext.koin.androidContext
+import retrofit2.Retrofit
 
 val appModule = module {
     // Core & Storage
@@ -57,6 +61,7 @@ val appModule = module {
     single<StudyPlanApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(StudyPlanApi::class.java) }
     single<SubscriptionApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(SubscriptionApi::class.java) }
     single<ConfigApi> { get<retrofit2.Retrofit>(named("MainRetrofit")).create(ConfigApi::class.java) }
+    single<StudioApi> { get<Retrofit>(named("MainRetrofit")).create(StudioApi::class.java) }
 
     // Repositories
     single { AuthRepository(get(), get(), get(), get()) }
@@ -67,6 +72,7 @@ val appModule = module {
     single { StudyPlanRepository(get()) }
     single { SubscriptionRepository(get()) }
     single { ConfigRepository(get()) }
+    single { StudioRepository(get(), get()) }
     
     // Legacy Repositories
     single(named("legacyChat")) { 
@@ -83,4 +89,5 @@ val appModule = module {
     viewModel { com.example.zeno.features.session.presentation.SessionsViewModel(get(), get(), get()) }
     viewModel { com.example.zeno.features.chat.presentation.ChatViewModel(get(), get()) }
     viewModel { com.example.zeno.features.home.presentation.HomeViewModel(get(), get()) }
+    viewModel { StudioViewModel(get()) }
 }

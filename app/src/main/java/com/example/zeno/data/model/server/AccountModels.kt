@@ -3,12 +3,13 @@ package com.example.zeno.data.model.server
 import com.google.gson.annotations.SerializedName
 
 data class SubscriptionResponse(
+    val tier: String? = null,
     @SerializedName("current_plan") val currentPlan: String?,
     val status: String?,
     @SerializedName("started_at") val startedAt: String?,
     @SerializedName("expires_at") val expiresAt: String?,
-    @SerializedName("available_token_balance") val availableTokenBalance: Int,
-    val entitlements: Map<String, Any>
+    @SerializedName("available_token_balance") val availableTokenBalance: Int = 0,
+    val entitlements: Map<String, Any> = emptyMap()
 )
 
 data class TokenBalanceResponse(

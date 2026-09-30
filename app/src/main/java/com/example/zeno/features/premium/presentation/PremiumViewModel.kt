@@ -2,6 +2,7 @@ package com.example.zeno.features.premium.presentation
 
 import android.app.Activity
 import android.app.Application
+import android.util.Log
 import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.zeno.features.premium.data.dto.PlanDto
@@ -49,22 +50,29 @@ class PremiumViewModel(application: Application, private val repository: Subscri
             val result = repository.getPlans()
             if (result.isSuccess) {
                 _plans.value = result.getOrNull() ?: emptyList()
+                Log.d("PremiumVM", "Plans loaded: ${_plans.value.map { it.id }}")
             } else {
                 _errorMessage.value = result.exceptionOrNull().getUserFriendlyMessage()
+                Log.e("PremiumVM", "Failed to load plans: ${result.exceptionOrNull()}")
             }
 
             try {
                 val sub = repository.getMySubscription()
-                val planName = sub.currentPlan?.lowercase() ?: "free"
+                Log.d("PremiumVM", "Subscription response: tier=${sub.tier}, currentPlan=${sub.currentPlan}, status=${sub.status}")
+                // Use tier (which is the plan ID like "free", "monthly", etc.) first
+                val planId = sub.tier?.lowercase() ?: sub.currentPlan?.lowercase() ?: "free"
                 val matchedPlan = _plans.value.find {
-                    it.id.equals(planName, ignoreCase = true) ||
-                    it.name.en.equals(planName, ignoreCase = true) ||
-                    it.name.ar.equals(planName, ignoreCase = true) ||
-                    planName.contains(it.id, ignoreCase = true)
+                    it.id.equals(planId, ignoreCase = true) ||
+                    it.name.en.equals(planId, ignoreCase = true) ||
+                    it.name.ar.equals(planId, ignoreCase = true) ||
+                    planId.contains(it.id, ignoreCase = true)
                 }
-                _currentPlanId.value = matchedPlan?.id ?: (if (sub.status == "active" && planName != "free") planName else "free")
+                val resolvedId = matchedPlan?.id ?: (if (sub.status == "active" && planId != "free") planId else "free")
+                _currentPlanId.value = resolvedId
                 _currentPlanName.value = matchedPlan?.tierTitle?.ar ?: matchedPlan?.name?.ar ?: sub.currentPlan ?: "طالب مجتهد"
+                Log.d("PremiumVM", "Resolved plan: id=$resolvedId, matched=${matchedPlan?.id}")
             } catch (e: Exception) {
+                Log.e("PremiumVM", "Failed to get subscription, defaulting to free", e)
                 _currentPlanId.value = "free"
                 _currentPlanName.value = "طالب مجتهد"
             }
@@ -98,61 +106,68 @@ class PremiumViewModel(application: Application, private val repository: Subscri
         _isLoading.value = true
         _errorMessage.value = null
 
-        Purchases.sharedInstance.getOfferings(object : ReceiveOfferingsCallback {
-            override fun onReceived(offerings: Offerings) {
-                val allPackages = offerings.all.values.flatMap { it.availablePackages }
-                val currentPackages = offerings.current?.availablePackages ?: emptyList()
+        try {
+            Purchases.sharedInstance.getOfferings(object : ReceiveOfferingsCallback {
+                override fun onReceived(offerings: Offerings) {
+                    val allPackages = offerings.all.values.flatMap { it.availablePackages }
+                    val currentPackages = offerings.current?.availablePackages ?: emptyList()
 
-                // Smart package lookup: by identifier, product id, offering, or package type
-                val packageToBuy = 
-                    currentPackages.find { it.identifier.equals(planId, ignoreCase = true) }
-                    ?: currentPackages.find { it.product.id.equals(planId, ignoreCase = true) }
-                    ?: allPackages.find { it.identifier.equals(planId, ignoreCase = true) }
-                    ?: allPackages.find { it.product.id.equals(planId, ignoreCase = true) }
-                    ?: offerings[planId]?.availablePackages?.firstOrNull()
-                    ?: allPackages.find { it.packageType.name.equals(planId, ignoreCase = true) }
-                    ?: currentPackages.find { 
-                        it.identifier.contains(planId, ignoreCase = true) || 
-                        it.product.id.contains(planId, ignoreCase = true) ||
-                        planId.contains(it.identifier, ignoreCase = true)
-                    }
-                    ?: currentPackages.firstOrNull()
-                    ?: allPackages.firstOrNull()
+                    val packageToBuy =
+                        currentPackages.find { it.identifier.equals(planId, ignoreCase = true) }
+                        ?: currentPackages.find { it.product.id.equals(planId, ignoreCase = true) }
+                        ?: allPackages.find { it.identifier.equals(planId, ignoreCase = true) }
+                        ?: allPackages.find { it.product.id.equals(planId, ignoreCase = true) }
+                        ?: offerings[planId]?.availablePackages?.firstOrNull()
+                        ?: allPackages.find { it.packageType.name.equals(planId, ignoreCase = true) }
+                        ?: currentPackages.find {
+                            it.identifier.contains(planId, ignoreCase = true) ||
+                            it.product.id.contains(planId, ignoreCase = true) ||
+                            planId.contains(it.identifier, ignoreCase = true)
+                        }
+                        ?: currentPackages.firstOrNull()
+                        ?: allPackages.firstOrNull()
 
-                if (packageToBuy != null) {
-                    Purchases.sharedInstance.purchase(
-                        PurchaseParams.Builder(activity, packageToBuy).build(),
-                        object : PurchaseCallback {
-                            override fun onCompleted(
-                                storeTransaction: StoreTransaction,
-                                customerInfo: CustomerInfo
-                            ) {
-                                _isLoading.value = false
-                                _redeemMessage.value = "تم تفعيل الاشتراك بنجاح!"
-                                fetchPlans()
-                            }
+                    if (packageToBuy != null) {
+                        Purchases.sharedInstance.purchase(
+                            PurchaseParams.Builder(activity, packageToBuy).build(),
+                            object : PurchaseCallback {
+                                override fun onCompleted(
+                                    storeTransaction: StoreTransaction,
+                                    customerInfo: CustomerInfo
+                                ) {
+                                    _isLoading.value = false
+                                    _redeemMessage.value = "تم تفعيل الاشتراك بنجاح!"
+                                    fetchPlans()
+                                }
 
-                            override fun onError(
-                                error: PurchasesError,
-                                userCancelled: Boolean
-                            ) {
-                                _isLoading.value = false
-                                if (!userCancelled) {
-                                    _errorMessage.value = "خطأ أثناء الشراء: ${error.message}"
+                                override fun onError(
+                                    error: PurchasesError,
+                                    userCancelled: Boolean
+                                ) {
+                                    _isLoading.value = false
+                                    if (!userCancelled) {
+                                        _errorMessage.value = "خطأ أثناء الشراء: ${error.message}"
+                                    }
                                 }
                             }
-                        }
-                    )
-                } else {
-                    _isLoading.value = false
-                    _errorMessage.value = "الباقة غير متاحة حالياً للشراء عبر متجر التطبيقات"
+                        )
+                    } else {
+                        _isLoading.value = false
+                        _errorMessage.value = "الباقة غير متاحة حالياً للشراء عبر متجر التطبيقات.\nيمكنك الشراء عبر بوت تيليجرام أسفل الشاشة."
+                    }
                 }
-            }
 
-            override fun onError(error: PurchasesError) {
-                _isLoading.value = false
-                _errorMessage.value = "تعذر الاتصال بمتجر التطبيقات: ${error.message}"
-            }
-        })
+                override fun onError(error: PurchasesError) {
+                    _isLoading.value = false
+                    _errorMessage.value = "متجر التطبيقات غير متاح حالياً.\nيمكنك الشراء عبر بوت تيليجرام أو كود الخصم أسفل الشاشة."
+                    Log.w("PremiumVM", "RevenueCat error: ${error.message}")
+                }
+            })
+        } catch (e: Exception) {
+            _isLoading.value = false
+            _errorMessage.value = "متجر التطبيقات غير متاح حالياً.\nيمكنك الشراء عبر بوت تيليجرام أو كود الخصم أسفل الشاشة."
+            Log.w("PremiumVM", "RevenueCat not configured", e)
+        }
     }
 }
+

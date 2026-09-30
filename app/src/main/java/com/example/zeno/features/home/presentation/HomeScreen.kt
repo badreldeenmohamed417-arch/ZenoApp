@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.Circle
@@ -90,7 +91,8 @@ private fun formatMinutesDisplay(minutes: Int): String {
 fun HomeScreen(
     viewModel: HomeViewModel,
     onStartSession: () -> Unit = {},
-    onUpgrade: () -> Unit = {}
+    onUpgrade: () -> Unit = {},
+    onNavigateToStudio: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -307,6 +309,74 @@ fun HomeScreen(
                             modifier = Modifier.size(18.dp)
                         )
                     }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        // Studio Learning Card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            CardBG,
+                            LimeAccent.copy(alpha = 0.15f)
+                        )
+                    )
+                )
+                .border(1.dp, LimeAccent.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                .bounceClickable { onNavigateToStudio() }
+                .padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.studio_title),
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextWhite
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = LimeAccent,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.studio_home_subtitle),
+                        fontSize = 12.5.sp,
+                        color = TextMuted
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(LimeAccent)
+                        .padding(horizontal = 14.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.studio_home_btn),
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.5.sp
+                    )
                 }
             }
         }

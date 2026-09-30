@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
  <string name="app_name" translatable="false">Zeno</string>
  <string name="ok_button">OK</string>
  <string name="close_button">Close</string>
@@ -146,7 +146,7 @@
  <string name="premium_buy_telegram">Buy coupon via Telegram</string>
  <string name="premium_select_plan">Select Plan</string>
  <string name="premium_plan_active">Active</string>
- <string name="premium_equal_features_note">All plans include 100% full unlimited features. The only difference is duration, savings, and your profile title.</string>
+ <string name="premium_equal_features_note">All plans include 100%% full unlimited features. The only difference is duration, savings, and your profile title.</string>
  <string name="premium_profile_title_label">Profile Title: %1$s</string>
  <string name="profile_username_label">Username</string>
  <string name="profile_username_taken">Username already taken</string>
@@ -471,4 +471,39 @@
  <string name="chat_error_save_feedback">Could not save feedback.</string>
  <string name="chat_error_report_message">Could not report the message.</string>
 
+ <!-- Studio Strings -->
+ <string name="studio_title">استوديو التعلم</string>
+ <string name="studio_home_subtitle">أنشئ ملازم واختبارات مخصصة لدروسك بذكاء</string>
+ <string name="studio_home_btn">افتح الاستوديو</string>
+ <string name="studio_create_material">إنشاء ملزمة</string>
+ <string name="studio_create_quiz">إنشاء اختبار</string>
+ <string name="studio_select_subject">اختر المادة الدراسية</string>
+ <string name="studio_select_subject_hint">اختر المادة...</string>
+ <string name="studio_select_lessons">حدد الدروس أو المواضيع</string>
+ <string name="studio_lessons_hint">أضف أسمات الدروس المطلوبة بالضغط على (+)</string>
+ <string name="studio_lesson_example">مثال: الدرس الأول / قانون نيوتن</string>
+ <string name="studio_add_lesson">إضافة درس</string>
+ <string name="studio_delete">حذف</string>
+ <string name="studio_pages_count">عدد الصفحات المطلوب</string>
+ <string name="studio_pages_format">%1$s صفحات</string>
+ <string name="studio_btn_create_material">إنشاء الملزمة</string>
+ <string name="studio_btn_create_quiz">إنشاء الاختبار</string>
+ <string name="studio_generating">جاري الإنشاء...</string>
+ <string name="studio_result_material">الملزمة المُنشأة</string>
+ <string name="studio_result_quiz">الاختبار المُنشأ</string>
+ <string name="studio_copy">نسخ</string>
+ <string name="studio_copied">تم نسخ النص إلى الحافظة</string>
+ <string name="studio_create_new">إنشاء طلب جديد</string>
+ <string name="studio_deducted_tokens">خصم %1$s توكنز</string>
+ <string name="studio_back">رجوع</string>
+ <string name="studio_err_no_subject">يرجى اختيار المادة الدراسية</string>
+ <string name="studio_err_no_lesson">يرجى تحديد درس واحد على الأقل</string>
+ <string name="studio_success">تم إنشاء المحتوى بنجاح.</string>
+ <string name="studio_err_general">حدث خطأ أثناء الإنشاء.</string>
+ <string name="studio_subj_math">الرياضيات</string>
+ <string name="studio_subj_physics">الفيزياء</string>
+ <string name="studio_subj_chem">الكيمياء</string>
+ <string name="studio_subj_bio">الأحياء</string>
+ <string name="studio_subj_arabic">اللغة العربية</string>
+ <string name="studio_subj_english">اللغة الإنجليزية</string>
 </resources>

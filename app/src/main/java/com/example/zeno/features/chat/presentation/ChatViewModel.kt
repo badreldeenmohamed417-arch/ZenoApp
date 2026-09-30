@@ -9,9 +9,7 @@ import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.data.dto.ConversationResponse
 import com.example.zeno.features.chat.data.repository.ChatRepository
 import com.example.zeno.features.chat.domain.ChatMessage
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -24,6 +22,9 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     private var pendingMessageId: String? = null
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
+
+    private val _navigateToStudioEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val navigateToStudioEvent: SharedFlow<Unit> = _navigateToStudioEvent.asSharedFlow()
 
     private val _isTyping = MutableStateFlow(false)
     val isTyping: StateFlow<Boolean> = _isTyping.asStateFlow()
@@ -197,14 +198,29 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                 if (fallbackResult.isSuccess) {
                     val replyText = fallbackResult.getOrNull()?.reply ?: ""
                     if (replyText.isNotBlank()) {
-                        _isTyping.value = false
+                        if (replyText.contains("NAVIGATE_TO_STUDIO")) {
+                            _navigateToStudioEvent.tryEmit(Unit)
+                        }
+                        
+                        val botMessageId = UUID.randomUUID().toString()
                         val botMessage = ChatMessage(
-                            id = UUID.randomUUID().toString(),
-                            text = replyText,
+                            id = botMessageId,
+                            text = "",
                             isUser = false,
                             timestamp = System.currentTimeMillis()
                         )
                         _messages.value = _messages.value + botMessage
+                        
+                        val words = replyText.split(" ")
+                        var currentText = ""
+                        for (i in words.indices) {
+                            currentText += words[i] + if (i < words.size - 1) " " else ""
+                            _messages.value = _messages.value.map { 
+                                if (it.id == botMessageId) it.copy(text = currentText) else it 
+                            }
+                            kotlinx.coroutines.delay(40)
+                        }
+                        _isTyping.value = false
                         return@launch
                     }
                 }
@@ -215,13 +231,28 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
             if (result.isSuccess) {
                 val replyDto = result.getOrNull()
                 val replyText = replyDto?.content ?: ""
+                if (replyText.contains("NAVIGATE_TO_STUDIO")) {
+                    _navigateToStudioEvent.tryEmit(Unit)
+                }
+                
+                val botMessageId = replyDto?.id ?: UUID.randomUUID().toString()
                 val botMessage = ChatMessage(
-                    id = replyDto?.id ?: UUID.randomUUID().toString(),
-                    text = replyText,
+                    id = botMessageId,
+                    text = "",
                     isUser = false,
                     timestamp = System.currentTimeMillis()
                 )
                 _messages.value = _messages.value + botMessage
+                
+                val words = replyText.split(" ")
+                var currentText = ""
+                for (i in words.indices) {
+                    currentText += words[i] + if (i < words.size - 1) " " else ""
+                    _messages.value = _messages.value.map { 
+                        if (it.id == botMessageId) it.copy(text = currentText) else it 
+                    }
+                    kotlinx.coroutines.delay(40)
+                }
             } else {
                 val exception = result.exceptionOrNull()
                 val rawReason = exception?.message ?: "فشل في إرسال الرسالة"
