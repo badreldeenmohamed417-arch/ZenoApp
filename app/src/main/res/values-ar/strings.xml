@@ -473,4 +473,5 @@
 
  <string name="chat_status_searching_public_database">جاري البحث في قاعدة البيانات العامة...</string>
  <string name="chat_status_analyzing_request">جاري تحليل المطلوب...</string>
+ <string name="chat_status_generating_answer">جاري تجهيز الإجابة...</string>
 </resources>
