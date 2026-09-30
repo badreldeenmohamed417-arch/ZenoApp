@@ -160,6 +160,9 @@
  <string name="home_streak">يوم متتالي</string>
  <string name="focusMinutes">دقيقة النهاردة</string>
  <string name="questionsToZeno">سؤال اتسأل</string>
+ <string name="home_weekly_total">إجمالي: %1$s</string>
+ <string name="home_minute_short">د</string>
+ <string name="home_hour_short">س</string>
  <string name="home_weekly_activity">النشاط الأسبوعي</string>
  <string name="home_subject_mastery">إتقان المواد</string>
  <string name="home_daily_checklist">قائمة المهام اليومية</string>
