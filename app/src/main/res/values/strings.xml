@@ -160,6 +160,9 @@
  <string name="home_streak">Day streak</string>
  <string name="focusMinutes">minutes today</string>
  <string name="questionsToZeno">questions asked</string>
+ <string name="home_weekly_total">Total: %1$s</string>
+ <string name="home_minute_short">m</string>
+ <string name="home_hour_short">h</string>
  <string name="home_weekly_activity">Weekly Activity</string>
  <string name="home_subject_mastery">Subject Mastery</string>
  <string name="home_daily_checklist">Daily Checklist</string>
