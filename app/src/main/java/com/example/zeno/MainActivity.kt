@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import org.koin.android.ext.android.inject
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,7 +21,6 @@ import com.example.zeno.core.network.TokenAuthenticator
 import com.example.zeno.features.auth.data.AuthApi
 import com.example.zeno.features.auth.data.AuthRepository
 
-import com.example.zeno.core.billing.BillingManager
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.data.server.ApiClient
 import com.example.zeno.features.chat.data.ChatApi
@@ -38,7 +36,6 @@ import com.example.zeno.features.session.data.repository.SessionRepository
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
-    private val billingManager: BillingManager by inject()
     override fun attachBaseContext(newBase: Context) {
         val userManager = UserManager(newBase)
         val lang = userManager.getLanguage()
