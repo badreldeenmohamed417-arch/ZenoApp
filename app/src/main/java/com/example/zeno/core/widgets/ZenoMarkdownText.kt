@@ -11,6 +11,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 
 @Composable
 fun ZenoMarkdownText(
@@ -18,45 +21,59 @@ fun ZenoMarkdownText(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified
 ) {
-    val annotatedString = buildAnnotatedString {
-        val lines = text.split("\n")
-        lines.forEachIndexed { index, line ->
-            var currentLine = line
-            
-            if (currentLine.startsWith("## ")) {
-                withStyle(
-                    style = SpanStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                ) {
-                    parseInlineMarkdown(this, currentLine.removePrefix("## "))
+    androidx.compose.foundation.layout.Column(modifier = modifier) {
+        val blocks = text.split(Regex("(?m)^---$|^\\*\\*\\*$"))
+        blocks.forEachIndexed { index, block ->
+            val annotatedString = buildAnnotatedString {
+                val lines = block.trim('\n').split("\n")
+                lines.forEachIndexed { lineIdx, line ->
+                    if (line.startsWith("## ")) {
+                        withStyle(
+                            style = SpanStyle(
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            parseInlineMarkdown(this, line.removePrefix("## "))
+                        }
+                    } else if (line.startsWith("### ")) {
+                        withStyle(
+                            style = SpanStyle(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            parseInlineMarkdown(this, line.removePrefix("### "))
+                        }
+                    } else {
+                        parseInlineMarkdown(this, line)
+                    }
+                    
+                    if (lineIdx < lines.size - 1) {
+                        append("\n")
+                    }
                 }
-            } else if (currentLine.startsWith("### ")) {
-                withStyle(
-                    style = SpanStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                ) {
-                    parseInlineMarkdown(this, currentLine.removePrefix("### "))
-                }
-            } else {
-                parseInlineMarkdown(this, currentLine)
             }
             
-            if (index < lines.size - 1) {
-                append("\n")
+            if (annotatedString.isNotEmpty()) {
+                Text(
+                    text = annotatedString,
+                    color = color,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            
+            if (index < blocks.size - 1) {
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.HorizontalDivider(
+                    color = color.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
-    
-    Text(
-        text = annotatedString,
-        modifier = modifier,
-        color = color,
-        style = MaterialTheme.typography.bodyLarge
-    )
 }
 
 private fun parseInlineMarkdown(builder: androidx.compose.ui.text.AnnotatedString.Builder, text: String) {

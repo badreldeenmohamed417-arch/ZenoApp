@@ -1,13 +1,12 @@
 package com.example.zeno.features.auth.data
 
+import android.content.Context
 import com.example.zeno.core.data.AuthStorage
 import com.example.zeno.data.local.UserManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AuthRepository(
     private val authApi: AuthApi,

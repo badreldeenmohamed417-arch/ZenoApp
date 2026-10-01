@@ -2,7 +2,6 @@ package com.example.zeno.features.auth.data
 
 import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.PUT
 
 interface AuthApi {
     @POST("main/auth/login")

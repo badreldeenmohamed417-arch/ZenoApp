@@ -1,8 +1,8 @@
 package com.example.zeno.features.session.presentation
 
 import android.app.Application
-import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.zeno.core.base.BaseViewModel
 import com.example.zeno.features.session.data.dto.StudyPlanSchema
 import com.example.zeno.features.session.data.repository.SessionRepository
 import com.example.zeno.features.session.data.repository.StudyPlanRepository
@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.zeno.core.util.getUserFriendlyMessage
 
 sealed class SessionsUiState {
     object Loading : SessionsUiState()

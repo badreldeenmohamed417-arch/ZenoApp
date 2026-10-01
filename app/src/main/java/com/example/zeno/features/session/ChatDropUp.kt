@@ -9,6 +9,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -76,7 +82,48 @@ fun ChatDropUp(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(messages, key = { it.id }) { msg -> ChatBubble(MessageResponse(id = msg.id, conversationId = currentId ?: "", role = if (msg.isUser) "user" else "assistant", content = msg.text, createdAt = "")) }
-            if (sending) item { Text(stringResource(R.string.chat_status_thinking), color = AppColors.TextMuted) }
+            if (sending) item { 
+                val stages = listOf(
+                    R.string.chat_status_thinking,
+                    R.string.chat_status_understanding,
+                    R.string.chat_status_searching_books,
+                    R.string.chat_status_building_answer
+                )
+                var currentStageIdx by remember { mutableIntStateOf(0) }
+                LaunchedEffect(Unit) {
+                    while(true) {
+                        kotlinx.coroutines.delay(2500)
+                        currentStageIdx = (currentStageIdx + 1) % stages.size
+                    }
+                }
+                
+                val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition()
+                val translateAnim by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1000f,
+                    animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                        animation = androidx.compose.animation.core.tween(durationMillis = 1500, easing = androidx.compose.animation.core.LinearEasing),
+                        repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+                    )
+                )
+
+                val brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                    colors = listOf(
+                        AppColors.TextMuted.copy(alpha = 0.5f),
+                        Color.White,
+                        AppColors.TextMuted.copy(alpha = 0.5f)
+                    ),
+                    start = androidx.compose.ui.geometry.Offset(translateAnim - 300f, 0f),
+                    end = androidx.compose.ui.geometry.Offset(translateAnim, 0f)
+                )
+                
+                Text(
+                    stringResource(stages[currentStageIdx]), 
+                    style = androidx.compose.ui.text.TextStyle(brush = brush),
+                    fontSize = 13.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                ) 
+            }
         }
         Row(
             Modifier.fillMaxWidth().padding(12.dp),

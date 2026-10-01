@@ -1,12 +1,22 @@
 package com.example.zeno.features.home.presentation
 
-import com.example.zeno.core.txt
-
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +28,16 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
 import com.example.zeno.core.ui.modifiers.bounceClickable
-
 import com.example.zeno.data.AppColors
 import java.util.Calendar
 
@@ -77,13 +94,13 @@ private fun getWeeklyMinutesForDay(dayIndex: Int, weeklyData: Map<String, Int>?)
     return 0
 }
 
-private fun formatMinutesDisplay(minutes: Int): String {
+private fun formatMinutesDisplay(context: Context, minutes: Int): String {
     return if (minutes >= 60) {
         val hrs = minutes / 60
         val mins = minutes % 60
-        if (mins > 0) "${hrs}س ${mins}د" else "${hrs}س"
+        if (mins > 0) context.getString(R.string.home_time_hours_minutes, hrs.toString(), mins.toString()) else context.getString(R.string.home_time_hours_only, hrs.toString())
     } else {
-        "$minutes د"
+        context.getString(R.string.home_time_minutes_only, minutes.toString())
     }
 }
 
@@ -96,6 +113,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.loadDashboard()
@@ -238,7 +256,7 @@ fun HomeScreen(
                 ) {
                     Column {
                         Text(
-                            text = formatMinutesDisplay(minutesToday),
+                            text = formatMinutesDisplay(context, minutesToday),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = TextWhite
@@ -405,7 +423,7 @@ fun HomeScreen(
                     color = TextWhite
                 )
                 Text(
-                    text = "إجمالي: ${formatMinutesDisplay(totalWeeklyMins)}",
+                    text = stringResource(R.string.home_weekly_total, formatMinutesDisplay(context, totalWeeklyMins)),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = LimeAccent
@@ -422,7 +440,15 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
-                val daysLabels = listOf("س", "ح", "ن", "ث", "ر", "خ", "ج")
+                val daysLabels = listOf(
+                    stringResource(R.string.home_day_sat),
+                    stringResource(R.string.home_day_sun),
+                    stringResource(R.string.home_day_mon),
+                    stringResource(R.string.home_day_tue),
+                    stringResource(R.string.home_day_wed),
+                    stringResource(R.string.home_day_thu),
+                    stringResource(R.string.home_day_fri)
+                )
                 val dayValues = (0..6).map { getWeeklyMinutesForDay(it, weeklyData) }
                 val maxVal = dayValues.maxOrNull()?.coerceAtLeast(30) ?: 60
 
@@ -449,7 +475,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxHeight()
                     ) {
                         Text(
-                            text = if (value > 0) "${value}د" else "-",
+                            text = if (value > 0) stringResource(R.string.home_chart_minutes, value.toString()) else "-",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (value > 0) TextWhite else TextMuted.copy(alpha = 0.5f)

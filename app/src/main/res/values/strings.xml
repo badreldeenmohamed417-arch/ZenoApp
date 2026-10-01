@@ -506,4 +506,21 @@
  <string name="studio_subj_bio">الأحياء</string>
  <string name="studio_subj_arabic">اللغة العربية</string>
  <string name="studio_subj_english">اللغة الإنجليزية</string>
+
+ <string name="home_weekly_total">إجمالي: %1$s</string>
+ <string name="home_hours_suffix">س</string>
+ <string name="home_minutes_suffix">د</string>
+ <string name="home_time_hours_minutes">%1$sس %2$sد</string>
+ <string name="home_time_hours_only">%1$sس</string>
+ <string name="home_time_minutes_only">%1$s د</string>
+ <string name="home_day_sat">س</string>
+ <string name="home_day_sun">ح</string>
+ <string name="home_day_mon">ن</string>
+ <string name="home_day_tue">ث</string>
+ <string name="home_day_wed">ر</string>
+ <string name="home_day_thu">خ</string>
+ <string name="home_day_fri">ج</string>
+ <string name="home_chart_minutes">%1$sد</string>
+ <string name="chat_studio_redirect">تم توجيه طلبك إلى استوديو التعلم 🚀</string>
+ <string name="chat_studio_go">الذهاب إلى استوديو التعلم</string>
 </resources>

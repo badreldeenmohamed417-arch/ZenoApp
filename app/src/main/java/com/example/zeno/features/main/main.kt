@@ -8,19 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.zeno.core.sections.main.HomeScreenContent
+import androidx.compose.ui.platform.LocalContext
 import com.example.zeno.core.sections.main.TopSectionMainScreen
+import com.example.zeno.core.txt
 import com.example.zeno.core.widgets.BottomNavItem
 import com.example.zeno.core.widgets.ZenoBottomNavigationBar
-
-import com.example.zeno.core.txt
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.zeno.data.local.UserManager
-import com.example.zeno.data.server.ApiClient
-import com.example.zeno.features.home.data.repository.ProgressRepository
-import com.example.zeno.features.home.presentation.HomeViewModel
 
 @Composable
 fun MainScreen(

@@ -3,15 +3,11 @@ package com.example.zeno.features.premium.presentation
 import android.app.Activity
 import android.app.Application
 import android.util.Log
-import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.zeno.core.base.BaseViewModel
+import com.example.zeno.core.util.getUserFriendlyMessage
 import com.example.zeno.features.premium.data.dto.PlanDto
 import com.example.zeno.features.premium.data.repository.SubscriptionRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import com.example.zeno.core.util.getUserFriendlyMessage
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.Offerings
 import com.revenuecat.purchases.PurchaseParams
@@ -20,6 +16,10 @@ import com.revenuecat.purchases.PurchasesError
 import com.revenuecat.purchases.interfaces.PurchaseCallback
 import com.revenuecat.purchases.interfaces.ReceiveOfferingsCallback
 import com.revenuecat.purchases.models.StoreTransaction
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class PremiumViewModel(application: Application, private val repository: SubscriptionRepository) : BaseViewModel(application) {
     private val _plans = MutableStateFlow<List<PlanDto>>(emptyList())

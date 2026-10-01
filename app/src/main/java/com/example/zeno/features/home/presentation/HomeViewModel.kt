@@ -1,17 +1,16 @@
 package com.example.zeno.features.home.presentation
 
 import android.app.Application
-import com.example.zeno.core.base.BaseViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.zeno.core.base.BaseViewModel
+import com.example.zeno.core.util.getUserFriendlyMessage
 import com.example.zeno.features.home.data.dto.ProgressOverviewResponse
 import com.example.zeno.features.home.data.repository.ProgressRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.example.zeno.core.util.getUserFriendlyMessage
-
-import androidx.lifecycle.ViewModel
 
 sealed class HomeUiState {
     object Loading : HomeUiState()

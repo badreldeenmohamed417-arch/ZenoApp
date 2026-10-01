@@ -1,8 +1,8 @@
 package com.example.zeno.features.home.data
 
-import com.example.zeno.features.home.data.dto.*
-import com.example.zeno.features.session.data.dto.StartSessionRequest
+import com.example.zeno.features.home.data.dto.ProgressOverviewResponse
 import com.example.zeno.features.session.data.dto.SessionActionResponse
+import com.example.zeno.features.session.data.dto.StartSessionRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

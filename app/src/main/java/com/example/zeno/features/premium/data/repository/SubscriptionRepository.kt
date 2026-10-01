@@ -1,10 +1,10 @@
 package com.example.zeno.features.premium.data.repository
 
+import com.example.zeno.data.model.server.SubscriptionResponse
 import com.example.zeno.features.premium.data.SubscriptionApi
 import com.example.zeno.features.premium.data.dto.PlanDto
-import com.example.zeno.features.premium.data.dto.RedeemResponse
-import com.example.zeno.data.model.server.SubscriptionResponse
 import com.example.zeno.features.premium.data.dto.RedeemRequest
+import com.example.zeno.features.premium.data.dto.RedeemResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

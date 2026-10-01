@@ -1,14 +1,13 @@
 package com.example.zeno
 
 import android.app.Application
+import com.example.zeno.core.billing.BillingManager
 import com.example.zeno.core.di.appModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
-
+import com.example.zeno.data.server.ApiClient
 import com.google.firebase.FirebaseApp
 import org.koin.android.ext.android.inject
-import com.example.zeno.core.billing.BillingManager
-import com.example.zeno.data.server.ApiClient
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class ZenoApplication : Application() {
     private val billingManager: BillingManager by inject()

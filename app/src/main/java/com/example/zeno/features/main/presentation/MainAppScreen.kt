@@ -14,22 +14,16 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.zeno.features.session.SessionPhase
-import com.example.zeno.features.session.StudySessionService
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -49,14 +43,16 @@ import com.example.zeno.features.premium.PremiumScreen
 import com.example.zeno.features.premium.presentation.PremiumViewModel
 import com.example.zeno.features.profile.presentation.ProfileViewModel
 import com.example.zeno.features.profile.presentation.SettingsMainScreen
+import com.example.zeno.features.session.SessionPhase
 import com.example.zeno.features.session.StudySessionScreen
+import com.example.zeno.features.session.StudySessionService
 import com.example.zeno.features.session.data.repository.SessionRepository
 import com.example.zeno.features.session.data.repository.StudyPlanRepository
-import com.example.zeno.features.session.presentation.SessionsScreen
 import com.example.zeno.features.session.presentation.SessionsViewModel
 import com.example.zeno.features.student.data.repository.StudentRepository
 import com.example.zeno.features.studio.presentation.StudioScreen
 import com.example.zeno.features.studio.presentation.StudioViewModel
+import org.koin.androidx.compose.koinViewModel
 
 sealed class BottomNavItem(val route: String, val titleResId: Int, val icon: ImageVector) {
     object Home : BottomNavItem("home", R.string.nav_home, Icons.Default.Home)

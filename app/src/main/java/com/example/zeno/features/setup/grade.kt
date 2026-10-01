@@ -3,12 +3,8 @@ package com.example.zeno.features.setup
 import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import org.koin.compose.koinInject
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +16,8 @@ import com.example.zeno.core.sections.setup.Grade.GradeMiddleSection
 import com.example.zeno.core.sections.setup.LetUsKnowYou
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.auth.data.AuthRepository
-
 import com.example.zeno.features.completeUserData
+import org.koin.compose.koinInject
 
 @Composable
 fun SetupGrade(

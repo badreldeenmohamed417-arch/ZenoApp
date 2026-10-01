@@ -1,21 +1,20 @@
 package com.example.zeno.core.navigation
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-
-import org.koin.compose.koinInject
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.zeno.core.SplashScreenContent
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.assessment.presentation.AssessmentChatScreen
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.auth.presentation.AuthNavGraph
+import com.example.zeno.features.auth.presentation.EmailVerificationScreen
+import com.example.zeno.features.auth.presentation.EmailVerificationViewModel
 import com.example.zeno.features.auth.presentation.LanguageSelectionScreen
 import com.example.zeno.features.chat.data.repository.ChatRepository
 import com.example.zeno.features.home.data.repository.ProgressRepository
@@ -23,13 +22,9 @@ import com.example.zeno.features.main.presentation.MainAppScreen
 import com.example.zeno.features.session.data.repository.SessionRepository
 import com.example.zeno.features.session.data.repository.StudyPlanRepository
 import com.example.zeno.features.setup.presentation.SetupProfileScreen
-import com.example.zeno.features.auth.presentation.EmailVerificationScreen
-import com.example.zeno.features.auth.presentation.EmailVerificationViewModel
-import org.koin.androidx.compose.koinViewModel
 import com.example.zeno.features.student.data.repository.StudentRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeoutOrNull
-import retrofit2.HttpException
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun RootNavGraph(

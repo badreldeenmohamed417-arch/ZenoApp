@@ -1,16 +1,28 @@
 package com.example.zeno.features.chat.presentation
 
-import com.example.zeno.core.txt
-
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -25,13 +37,37 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Quiz
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,21 +80,20 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zeno.R
+import com.example.zeno.core.txt
 import com.example.zeno.core.ui.modifiers.bounceClickable
 import com.example.zeno.core.widgets.PdfHandoutCard
 import com.example.zeno.core.widgets.ZenoMarkdownText
+import com.example.zeno.data.AppColors
 import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.domain.ChatMessage
 import kotlinx.coroutines.launch
-
-import com.example.zeno.data.AppColors
 
 private val DarkBG: Color @Composable get() = AppColors.BG
 private val CardBG: Color @Composable get() = AppColors.CardBG
@@ -91,6 +126,7 @@ fun ChatScreen(
 
     val messages by viewModel.messages.collectAsState()
     val isTyping by viewModel.isTyping.collectAsState()
+    val thinkingStage by viewModel.thinkingStage.collectAsState()
     val isLoadingChat by viewModel.isLoadingChat.collectAsState()
     val conversations by viewModel.conversations.collectAsState()
     val activeTitle by viewModel.activeTitle.collectAsState()
@@ -101,10 +137,10 @@ fun ChatScreen(
     var selectedReportReason by remember { mutableStateOf("") }
     
     val reportReasons = listOf(
-        "محتوى غير لائق",
-        "معلومات خاطئة",
-        "محتوى مزعج (Spam)",
-        "أخرى"
+        stringResource(R.string.chat_report_reason_inappropriate),
+        stringResource(R.string.chat_report_reason_wrong),
+        stringResource(R.string.chat_report_reason_spam),
+        stringResource(R.string.chat_report_reason_other)
     )
     var showActionMenu by remember { mutableStateOf(false) }
     var selectedActionChip by remember { mutableStateOf<ChatActionChipData?>(null) }
@@ -559,7 +595,7 @@ fun ChatScreen(
                         }
                         if (isTyping) {
                             item {
-                                TypingIndicator()
+                                ThinkingStatusIndicator(stage = thinkingStage)
                             }
                         }
                     }
@@ -844,10 +880,10 @@ fun ChatScreen(
         messageToReport?.let { msg ->
             AlertDialog(
                 onDismissRequest = { messageToReport = null },
-                title = { Text("إبلاغ عن رسالة", color = TextWhite) },
+                title = { Text(stringResource(R.string.chat_report_title), color = TextWhite) },
                 text = {
                     Column {
-                        Text("يرجى اختيار سبب البلاغ:", color = TextMuted)
+                        Text(stringResource(R.string.chat_report_reason_hint), color = TextMuted)
                         Spacer(modifier = Modifier.height(8.dp))
                         reportReasons.forEach { reason ->
                             Row(
@@ -873,21 +909,21 @@ fun ChatScreen(
                         if (selectedReportReason.isNotBlank()) {
                             viewModel.reportMessage(msg.id, selectedReportReason) { success, error ->
                                 if (success) {
-                                    Toast.makeText(context, "تم الإبلاغ بنجاح", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.chat_report_success), Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, error ?: context.getString(R.string.chat_error_fallback), Toast.LENGTH_SHORT).show()
                                 }
                             }
                             messageToReport = null
                             selectedReportReason = ""
                         }
                     }) {
-                        Text("إرسال", color = LimeAccent)
+                        Text(stringResource(R.string.chat_report_send), color = LimeAccent)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { messageToReport = null }) {
-                        Text("إلغاء", color = TextMuted)
+                        Text(stringResource(R.string.chat_report_cancel), color = TextMuted)
                     }
                 },
                 containerColor = CardBG
@@ -1022,7 +1058,7 @@ fun StyledChatBubble(
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(
-                                        text = "تم توجيه طلبك إلى استوديو التعلم 🚀",
+                                        text = stringResource(R.string.chat_studio_redirect),
                                         color = TextWhite,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp
@@ -1034,7 +1070,7 @@ fun StyledChatBubble(
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
                                         Text(
-                                            text = "الذهاب إلى استوديو التعلم",
+                                            text = stringResource(R.string.chat_studio_go),
                                             color = Color.Black,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -1100,7 +1136,16 @@ fun StyledChatBubble(
 }
 
 @Composable
-fun TypingIndicator() {
+fun ThinkingStatusIndicator(stage: String) {
+    val textRes = when (stage) {
+        "thinking" -> R.string.chat_status_thinking
+        "analyzing" -> R.string.chat_status_understanding
+        "searching_books" -> R.string.chat_status_searching_books
+        "searching_database" -> R.string.chat_status_searching_books // mapping to books for now
+        "building_answer" -> R.string.chat_status_building_answer
+        else -> R.string.chat_status_thinking
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterEnd
@@ -1111,11 +1156,31 @@ fun TypingIndicator() {
                 .background(Color.Transparent)
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
+            val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition()
+            val translateAnim by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 1000f,
+                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                    animation = androidx.compose.animation.core.tween(durationMillis = 1500, easing = androidx.compose.animation.core.LinearEasing),
+                    repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+                )
+            )
+
+            val brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                colors = listOf(
+                    TextMuted.copy(alpha = 0.5f),
+                    Color.White,
+                    TextMuted.copy(alpha = 0.5f)
+                ),
+                start = androidx.compose.ui.geometry.Offset(translateAnim - 300f, 0f),
+                end = androidx.compose.ui.geometry.Offset(translateAnim, 0f)
+            )
+
             Text(
-                text = stringResource(id = R.string.zeno_typing_indicator),
-                fontSize = 12.sp,
+                text = stringResource(id = textRes),
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextMuted
+                style = TextStyle(brush = brush)
             )
         }
     }

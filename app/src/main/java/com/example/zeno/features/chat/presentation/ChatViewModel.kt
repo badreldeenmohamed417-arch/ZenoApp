@@ -9,9 +9,15 @@ import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.chat.data.dto.ConversationResponse
 import com.example.zeno.features.chat.data.repository.ChatRepository
 import com.example.zeno.features.chat.domain.ChatMessage
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -29,6 +35,18 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     private val _isTyping = MutableStateFlow(false)
     val isTyping: StateFlow<Boolean> = _isTyping.asStateFlow()
 
+    private val _thinkingStage = MutableStateFlow("")
+    val thinkingStage: StateFlow<String> = _thinkingStage.asStateFlow()
+    private var thinkingJob: Job? = null
+
+    private val thinkingStages = listOf(
+        "thinking",
+        "analyzing",
+        "searching_books",
+        "searching_database",
+        "building_answer"
+    )
+
     private val _isLoadingChat = MutableStateFlow(false)
     val isLoadingChat: StateFlow<Boolean> = _isLoadingChat.asStateFlow()
 
@@ -43,6 +61,27 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
 
     init {
         fetchConversations()
+    }
+
+    private fun startThinking() {
+        _isTyping.value = true
+        _thinkingStage.value = thinkingStages.first()
+        thinkingJob?.cancel()
+        thinkingJob = viewModelScope.launch {
+            var index = 0
+            while (true) {
+                _thinkingStage.value = thinkingStages[index % thinkingStages.size]
+                delay(2500)
+                index++
+            }
+        }
+    }
+
+    private fun stopThinking() {
+        thinkingJob?.cancel()
+        thinkingJob = null
+        _isTyping.value = false
+        _thinkingStage.value = ""
     }
 
     fun fetchConversations() {
@@ -118,7 +157,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun sendMessage(text: String, isRetry: Boolean = false) {
-        if (text.isBlank()) return
+        if (text.isBlank() || _isTyping.value) return
 
         val userMessage = if (!isRetry) {
             val msg = ChatMessage(
@@ -138,7 +177,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
             ).also { _messages.value = _messages.value + it }
         }
 
-        _isTyping.value = true
+        startThinking()
         _errorMessage.value = null
 
         sendJob?.cancel()
@@ -158,7 +197,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
             }
 
             if (activeId == null) {
-                _isTyping.value = false
+                stopThinking()
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
                     text = "حدث خطأ أثناء إنشاء المحادثة.",
@@ -220,13 +259,13 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                             }
                             kotlinx.coroutines.delay(40)
                         }
-                        _isTyping.value = false
+                        stopThinking()
                         return@launch
                     }
                 }
             }
 
-            _isTyping.value = false
+            stopThinking()
 
             if (result.isSuccess) {
                 val replyDto = result.getOrNull()
@@ -277,7 +316,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
         val pendingId = pendingMessageId
         sendJob?.cancel()
         sendJob = null
-        _isTyping.value = false
+        stopThinking()
         if (pendingId != null) {
             _messages.value = _messages.value.filterNot { it.id == pendingId }
             viewModelScope.launch { repository.deleteLocalMessage(pendingId) }
@@ -307,7 +346,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
     }
 
     fun uploadFile(uri: Uri, contentResolver: ContentResolver, onTextExtracted: (String) -> Unit) {
-        _isTyping.value = true
+        startThinking()
         _errorMessage.value = null
 
         viewModelScope.launch {
@@ -320,7 +359,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                     val part = MultipartBody.Part.createFormData("file", "upload.jpg", requestBody)
 
                     val result = repository.uploadFile(part)
-                    _isTyping.value = false
+                    stopThinking()
 
                     if (result.isSuccess) {
                         val text = result.getOrNull()?.text ?: ""
@@ -337,7 +376,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                         _messages.value = _messages.value + errorBotMessage
                     }
                 } else {
-                    _isTyping.value = false
+                    stopThinking()
                     val errorBotMessage = ChatMessage(
                         id = UUID.randomUUID().toString(),
                         text = "auto_str_عذرا_تعذر_قراءة",
@@ -348,7 +387,7 @@ class ChatViewModel(private val repository: ChatRepository, private val userMana
                     _messages.value = _messages.value + errorBotMessage
                 }
             } catch (e: Exception) {
-                _isTyping.value = false
+                stopThinking()
                 val errorBotMessage = ChatMessage(
                     id = UUID.randomUUID().toString(),
                     text = "حدث خطأ أثناء قراءة المستند: ${e.message}",

@@ -30,7 +30,6 @@ import com.example.zeno.features.studio.presentation.StudioViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.koin.android.ext.koin.androidContext
 import retrofit2.Retrofit
 
 val appModule = module {

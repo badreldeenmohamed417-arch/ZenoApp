@@ -1,11 +1,11 @@
 package com.example.zeno.features.studio.data.repository
 
+import com.example.zeno.features.student.data.dto.ProfileResponse
+import com.example.zeno.features.student.data.repository.StudentRepository
 import com.example.zeno.features.studio.data.StudioApi
 import com.example.zeno.features.studio.data.dto.GenerateMaterialRequest
 import com.example.zeno.features.studio.data.dto.GenerateQuizRequest
 import com.example.zeno.features.studio.data.dto.StudioResponse
-import com.example.zeno.features.student.data.repository.StudentRepository
-import com.example.zeno.features.student.data.dto.ProfileResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

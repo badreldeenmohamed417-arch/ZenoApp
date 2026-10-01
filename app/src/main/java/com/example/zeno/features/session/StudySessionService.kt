@@ -3,8 +3,8 @@ package com.example.zeno.features.session
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
@@ -15,13 +15,12 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
-import com.example.zeno.R
 import com.example.zeno.MainActivity
+import com.example.zeno.R
 import com.example.zeno.core.data.EncryptedAuthStorageImpl
 import com.example.zeno.core.network.AuthInterceptor
 import com.example.zeno.core.network.RetrofitClient
 import com.example.zeno.core.network.TokenAuthenticator
-import com.example.zeno.data.local.UserManager
 import com.example.zeno.features.session.data.SessionApi
 import com.example.zeno.features.session.data.repository.SessionRepository
 import kotlinx.coroutines.CoroutineScope

@@ -1,13 +1,24 @@
 package com.example.zeno.features.chat.data
 
-import com.example.zeno.features.chat.data.dto.*
+import com.example.zeno.features.chat.data.dto.ChatHistoryResponse
+import com.example.zeno.features.chat.data.dto.ChatSendRequest
+import com.example.zeno.features.chat.data.dto.ChatSendResponse
+import com.example.zeno.features.chat.data.dto.ConversationDetailResponse
+import com.example.zeno.features.chat.data.dto.ConversationListResponse
+import com.example.zeno.features.chat.data.dto.ConversationResponse
+import com.example.zeno.features.chat.data.dto.CreateConversationRequest
+import com.example.zeno.features.chat.data.dto.MessageResponse
+import com.example.zeno.features.chat.data.dto.OcrResponse
+import com.example.zeno.features.chat.data.dto.ReportRequest
+import com.example.zeno.features.chat.data.dto.SendMessageRequest
+import com.example.zeno.features.chat.data.dto.UpdateConversationRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Multipart
+import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 
 interface ChatApi {
     @GET("main/chat/history")

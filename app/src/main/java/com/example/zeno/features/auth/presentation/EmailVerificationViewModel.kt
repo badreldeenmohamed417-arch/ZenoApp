@@ -1,8 +1,8 @@
 package com.example.zeno.features.auth.presentation
 
 import android.app.Application
-import com.example.zeno.core.base.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.zeno.core.base.BaseViewModel
 import com.example.zeno.features.auth.data.AuthRepository
 import com.example.zeno.features.auth.data.ResendVerificationRequest
 import com.example.zeno.features.student.data.repository.StudentRepository

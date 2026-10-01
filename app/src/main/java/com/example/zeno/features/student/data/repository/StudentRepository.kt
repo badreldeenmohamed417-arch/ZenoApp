@@ -1,12 +1,12 @@
 package com.example.zeno.features.student.data.repository
 
+import com.example.zeno.data.local.db.AppDatabase
 import com.example.zeno.features.student.data.StudentApi
 import com.example.zeno.features.student.data.dto.ProfileResponse
 import com.example.zeno.features.student.data.dto.StudentDashboardResponse
-import com.example.zeno.data.local.db.AppDatabase
-import retrofit2.HttpException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 class StudentRepository(private val api: StudentApi, private val database: AppDatabase) {
     suspend fun getDashboard(): Result<StudentDashboardResponse> = withContext(Dispatchers.IO) {

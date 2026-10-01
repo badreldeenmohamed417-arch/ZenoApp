@@ -1,7 +1,7 @@
 package com.example.zeno.features.student.data.dto
 
-import com.google.gson.annotations.SerializedName
 import com.example.zeno.data.model.server.Subject
+import com.google.gson.annotations.SerializedName
 
 data class StudentDashboardResponse(
     val student: StudentOverviewDTO,
